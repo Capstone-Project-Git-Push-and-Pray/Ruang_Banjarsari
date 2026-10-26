@@ -8,7 +8,7 @@ on:
 
 jobs:
   laravel-tests:
-    name: Build & Tests (PHP 8.2 & Node 20)
+    name: Build & Tests (PHP 8.3 & Node 20)
     runs-on: ubuntu-latest
 
     steps:
