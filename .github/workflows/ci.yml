@@ -8,7 +8,7 @@ on:
 
 jobs:
   laravel-tests:
-    name: Build & Tests (PHP 8.3 & Node 20)
+    name: Build & Tests (PHP 8.3 & Node 22)
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Salin File Konfigurasi Environment Testing
