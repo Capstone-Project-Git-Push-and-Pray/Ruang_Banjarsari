@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\DataKependudukanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DataKependudukan extends Model
 {
@@ -38,5 +39,21 @@ class DataKependudukan extends Model
         return [
             'tanggal_lahir' => 'date',
         ];
+    }
+
+    /**
+     * Relasi ke akun pengguna SILAFA jika warga telah mendaftar di sistem.
+     */
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'nik', 'nik');
+    }
+
+    /**
+     * Hitung usia berdasarkan tanggal lahir.
+     */
+    public function getUsiaAttribute(): ?int
+    {
+        return $this->tanggal_lahir ? $this->tanggal_lahir->age : null;
     }
 }

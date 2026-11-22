@@ -28,6 +28,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user();
+        $intended = $request->session()->get('url.intended');
+
+        // Cegah redirect ke url.intended yang bukan hak akses role pengguna (misal: kades dialihkan ke /admin/*)
+        if ($intended) {
+            if (! $user->isAdminDesa() && str_contains($intended, '/admin')) {
+                $request->session()->forget('url.intended');
+            } elseif (! $user->isKepalaDesa() && str_contains($intended, '/kepala')) {
+                $request->session()->forget('url.intended');
+            } elseif (! $user->isWarga() && str_contains($intended, '/warga')) {
+                $request->session()->forget('url.intended');
+            }
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

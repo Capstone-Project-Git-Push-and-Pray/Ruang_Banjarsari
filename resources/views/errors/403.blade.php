@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>403 - Akses Ditolak | {{ config('app.name', 'Pengaduan Desa Banjarsari') }}</title>
+    <title>403 - Akses Ditolak | {{ config('app.name', 'SILAFA Banjarsari') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased font-sans">
@@ -24,16 +24,20 @@
             </div>
 
             <div class="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
-                <a href="{{ url('/') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                    Kembali ke Beranda
-                </a>
                 @auth
+                    <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        Ke Dashboard Saya
+                    </a>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
                             Keluar Akun
                         </button>
                     </form>
+                @else
+                    <a href="{{ url('/') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        Kembali ke Beranda
+                    </a>
                 @endauth
             </div>
         </div>

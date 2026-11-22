@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
             KategoriSeeder::class,
             DataKependudukanSeeder::class,
             UserSeeder::class,
+            PengaduanSeeder::class,
+            AspirasiSeeder::class,
         ]);
     }
 }

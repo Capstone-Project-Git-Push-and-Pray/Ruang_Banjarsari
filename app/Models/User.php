@@ -6,9 +6,11 @@ use App\Enums\Role;
 use App\Enums\StatusAkun;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -94,6 +96,24 @@ class User extends Authenticatable
         return $this->status_akun === StatusAkun::Aktif;
     }
 
+    public function isMenungguTinjauan(): bool
+    {
+        return $this->status_akun === StatusAkun::MenungguTinjauan;
+    }
+
+    public function isDitolak(): bool
+    {
+        return $this->status_akun === StatusAkun::Ditolak;
+    }
+
+    /**
+     * Mutator agar nama lengkap selalu disimpan dalam huruf kapital (capslock) rapi.
+     */
+    public function setNamaLengkapAttribute(?string $value): void
+    {
+        $this->attributes['nama_lengkap'] = $value !== null ? Str::of($value)->squish()->upper()->toString() : null;
+    }
+
     /**
      * Accessor untuk kompatibilitas nama pengguna.
      */
@@ -107,12 +127,20 @@ class User extends Authenticatable
      */
     public function setNameAttribute(?string $value): void
     {
-        $this->attributes['nama_lengkap'] = $value;
+        $this->setNamaLengkapAttribute($value);
     }
 
     // -------------------------------------------------------
     // Relasi
     // -------------------------------------------------------
+
+    /**
+     * Petugas/Admin desa yang meninjau pendaftaran warga.
+     */
+    public function peninjau(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'ditinjau_oleh');
+    }
 
     /**
      * Pengaduan yang dimiliki user.

@@ -12,7 +12,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Tampilkan formulir pengaturan profil pengguna.
      */
     public function edit(Request $request): View
     {
@@ -22,28 +22,36 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Perbarui data profil dan kontak pengguna (PBI #21).
+     * Kriteria: NIK dan nama tidak dapat diubah sendiri oleh Warga.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        $user = $request->user();
         $validated = $request->validated();
-        if (isset($validated['name']) && ! isset($validated['nama_lengkap'])) {
-            $validated['nama_lengkap'] = $validated['name'];
+
+        // NIK dan Nama Lengkap terkunci dan tidak dapat diubah mandiri oleh Warga
+        if ($user->isWarga()) {
+            unset($validated['nik'], $validated['name'], $validated['nama_lengkap']);
+        } else {
+            if (isset($validated['name']) && ! isset($validated['nama_lengkap'])) {
+                $validated['nama_lengkap'] = $validated['name'];
+            }
         }
 
-        $request->user()->fill($validated);
+        $user->fill($validated);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Hapus akun pengguna.
      */
     public function destroy(Request $request): RedirectResponse
     {

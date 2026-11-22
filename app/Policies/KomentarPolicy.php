@@ -8,37 +8,33 @@ use App\Models\User;
 class KomentarPolicy
 {
     /**
-     * Kebijakan otorisasi untuk model Komentar.
-     *
-     * TODO PBI #16: Implementasikan aturan otorisasi:
-     * - Pengguna hanya dapat mengubah/menghapus komentar miliknya sendiri.
-     * - Admin Desa dapat memoderasi komentar jika diperlukan.
-     */
-
-    /**
      * Tentukan apakah user dapat membuat komentar.
+     * Pengguna terautentikasi (Warga aktif, Admin Desa, Kepala Desa) dapat membuat komentar.
      */
     public function create(User $user): bool
     {
-        // TODO PBI #16: Logika otorisasi create komentar
-        return true;
+        if ($user->isWarga()) {
+            return $user->isAktif();
+        }
+
+        return $user->isAdminDesa() || $user->isKepalaDesa();
     }
 
     /**
      * Tentukan apakah user dapat memperbarui komentar.
+     * Hanya pemilik komentar yang dapat memperbarui komentarnya sendiri.
      */
     public function update(User $user, Komentar $komentar): bool
     {
-        // TODO PBI #16: Logika otorisasi update komentar
-        return true;
+        return (int) $user->id === (int) $komentar->user_id;
     }
 
     /**
      * Tentukan apakah user dapat menghapus komentar.
+     * Pemilik komentar atau Admin Desa (tindakan moderasi).
      */
     public function delete(User $user, Komentar $komentar): bool
     {
-        // TODO PBI #16: Logika otorisasi delete komentar
-        return true;
+        return $user->isAdminDesa() || ((int) $user->id === (int) $komentar->user_id);
     }
 }

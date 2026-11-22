@@ -36,6 +36,10 @@ class UserRoleHelperTest extends TestCase
         $this->assertSame('diproses', StatusLaporan::Diproses->value);
         $this->assertSame('selesai', StatusLaporan::Selesai->value);
         $this->assertSame('ditolak', StatusLaporan::Ditolak->value);
+        $this->assertSame('ditampung', StatusLaporan::Ditampung->value);
+        $this->assertSame('dalam_pembahasan', StatusLaporan::DalamPembahasan->value);
+        $this->assertSame('direalisasikan', StatusLaporan::Direalisasikan->value);
+        $this->assertSame('tidak_dapat_ditindaklanjuti', StatusLaporan::TidakDapatDitindaklanjuti->value);
     }
 
     public function test_enum_jenis_laporan_memiliki_nilai_yang_benar(): void

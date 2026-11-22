@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\StatusAkun;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureAccountActive
 {
     /**
-     * Memastikan akun pengguna berstatus aktif sebelum dapat mengakses fitur tertentu.
+     * Memastikan akun pengguna berstatus aktif sebelum dapat mengakses fitur tertentu (misalnya pengajuan laporan).
      *
      * @param  Closure(Request): (Response)  $next
      */
@@ -19,13 +18,8 @@ class EnsureAccountActive
         $user = $request->user();
 
         if ($user && ! $user->isAktif()) {
-            $pesan = match ($user->status_akun) {
-                StatusAkun::MenungguTinjauan => 'Akun Anda sedang dalam proses peninjauan oleh Admin Desa.',
-                StatusAkun::Ditolak => 'Akun Anda telah ditolak: '.($user->alasan_penolakan ?? 'Silakan hubungi Admin Desa.'),
-                default => 'Akun Anda tidak aktif.',
-            };
-
-            return redirect()->route('landing')->with('error', $pesan);
+            return redirect()->route('pendaftaran.status')
+                ->with('warning', 'Pengajuan laporan terkunci selama akun Anda belum aktif.');
         }
 
         return $next($request);

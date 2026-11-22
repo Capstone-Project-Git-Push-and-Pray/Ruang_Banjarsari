@@ -17,6 +17,7 @@ class PasswordResetTest extends TestCase
         $response = $this->get('/forgot-password');
 
         $response->assertStatus(200);
+        $response->assertSee('Atur Ulang Kata Sandi');
     }
 
     public function test_reset_password_link_can_be_requested(): void
@@ -25,9 +26,29 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->post('/forgot-password', ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
+        $response->assertSessionHas('status');
+    }
+
+    public function test_response_is_identical_whether_email_is_registered_or_not(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create(['email' => 'terdaftar@desa-banjarsari.test']);
+
+        // 1. Email Terdaftar
+        $responseRegistered = $this->post('/forgot-password', ['email' => 'terdaftar@desa-banjarsari.test']);
+        $responseRegistered->assertRedirect();
+        $responseRegistered->assertSessionHasNoErrors();
+        $responseRegistered->assertSessionHas('status', 'Jika alamat email Anda terdaftar, tautan pengaturan ulang kata sandi telah dikirimkan.');
+
+        // 2. Email Tidak Terdaftar (PBI #20: respons seragam mencegah user enumeration)
+        $responseUnregistered = $this->post('/forgot-password', ['email' => 'tidak.ada@desa-banjarsari.test']);
+        $responseUnregistered->assertRedirect();
+        $responseUnregistered->assertSessionHasNoErrors();
+        $responseUnregistered->assertSessionHas('status', 'Jika alamat email Anda terdaftar, tautan pengaturan ulang kata sandi telah dikirimkan.');
     }
 
     public function test_reset_password_screen_can_be_rendered(): void
@@ -66,6 +87,37 @@ class PasswordResetTest extends TestCase
             $response
                 ->assertSessionHasNoErrors()
                 ->assertRedirect(route('login'));
+
+            return true;
+        });
+    }
+
+    public function test_reset_password_token_cannot_be_reused(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            // Pemakaian pertama token -> Berhasil
+            $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'new-password-1',
+                'password_confirmation' => 'new-password-1',
+            ])->assertSessionHasNoErrors();
+
+            // Pemakaian kedua token yang sama -> Gagal (PBI #20: tautan sekali pakai)
+            $responseSecond = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'new-password-2',
+                'password_confirmation' => 'new-password-2',
+            ]);
+
+            $responseSecond->assertSessionHasErrors('email');
 
             return true;
         });

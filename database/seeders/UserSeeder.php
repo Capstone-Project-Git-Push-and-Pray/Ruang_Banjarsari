@@ -48,6 +48,7 @@ class UserSeeder extends Seeder
         // Ambil data kependudukan fiktif untuk warga contoh
         $penduduk1 = DataKependudukan::where('nik', '9999000000000001')->first();
         $penduduk2 = DataKependudukan::where('nik', '9999000000000002')->first();
+        $penduduk3 = DataKependudukan::where('nik', '9999000000000003')->first();
 
         // 3. Warga Contoh 1: Berstatus Aktif
         if ($penduduk1) {
@@ -73,15 +74,15 @@ class UserSeeder extends Seeder
             );
         }
 
-        // 4. Warga Contoh 2: Berstatus Menunggu Tinjauan
+        // 4. Warga Contoh 2: Berstatus Menunggu Tinjauan (karena terdapat perbedaan alamat & RT dengan master data)
         if ($penduduk2) {
             User::firstOrCreate(
                 ['nik' => $penduduk2->nik],
                 [
                     'nama_lengkap' => $penduduk2->nama_lengkap,
                     'tanggal_lahir' => $penduduk2->tanggal_lahir,
-                    'alamat' => $penduduk2->alamat,
-                    'rt' => $penduduk2->rt,
+                    'alamat' => 'Jl. Mawar Indah No. 5B', // Berbeda dengan data kependudukan (Jl. Mawar Indah No. 5)
+                    'rt' => '002', // Berbeda dengan data kependudukan (001)
                     'rw' => $penduduk2->rw,
                     'dusun' => $penduduk2->dusun,
                     'email' => 'warga.pending@desa-banjarsari.test',
@@ -90,6 +91,31 @@ class UserSeeder extends Seeder
                     'password' => $defaultPassword,
                     'role' => Role::Warga,
                     'status_akun' => StatusAkun::MenungguTinjauan,
+                    'email_verified_at' => null,
+                    'wajib_ganti_password' => false,
+                ]
+            );
+        }
+
+        // 5. Warga Contoh 3: Berstatus Ditolak
+        if ($penduduk3) {
+            User::firstOrCreate(
+                ['nik' => $penduduk3->nik],
+                [
+                    'nama_lengkap' => $penduduk3->nama_lengkap,
+                    'tanggal_lahir' => $penduduk3->tanggal_lahir,
+                    'alamat' => $penduduk3->alamat,
+                    'rt' => $penduduk3->rt,
+                    'rw' => $penduduk3->rw,
+                    'dusun' => $penduduk3->dusun,
+                    'email' => 'warga.ditolak@desa-banjarsari.test',
+                    'telepon' => '081234567892',
+                    'whatsapp' => '081234567892',
+                    'password' => $defaultPassword,
+                    'role' => Role::Warga,
+                    'status_akun' => StatusAkun::Ditolak,
+                    'alasan_penolakan' => 'Foto KTP buram dan nama berbeda dengan dokumen kependudukan.',
+                    'ditinjau_pada' => now()->subDay(),
                     'email_verified_at' => null,
                     'wajib_ganti_password' => false,
                 ]

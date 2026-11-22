@@ -21,15 +21,15 @@ class ProfileTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_profile_information_can_be_updated(): void
+    public function test_profile_information_can_be_updated_by_admin(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->adminDesa()->create();
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
+                'name' => 'Admin Baru',
+                'email' => 'admin-baru@example.com',
             ]);
 
         $response
@@ -38,14 +38,72 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('ADMIN BARU', $user->name);
+        $this->assertSame('admin-baru@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_warga_can_update_email_phone_and_whatsapp(): void
+    {
+        $user = User::factory()->warga()->create([
+            'email' => 'warga.lama@example.com',
+            'telepon' => '081111111111',
+            'whatsapp' => '081111111111',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'email' => 'warga.baru@example.com',
+                'telepon' => '082222222222',
+                'whatsapp' => '083333333333',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertSame('warga.baru@example.com', $user->email);
+        $this->assertSame('082222222222', $user->telepon);
+        $this->assertSame('083333333333', $user->whatsapp);
+    }
+
+    public function test_warga_cannot_change_nik_and_nama_lengkap(): void
+    {
+        $originalNik = '3207010101900001';
+        $originalNama = 'BUDI SANTOSO';
+
+        $user = User::factory()->warga()->create([
+            'nik' => $originalNik,
+            'nama_lengkap' => $originalNama,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'nik' => '3207999999999999',
+                'name' => 'NAMA PALSU',
+                'nama_lengkap' => 'NAMA PALSU',
+                'email' => 'budi.baru@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        // NIK dan Nama Lengkap TIDAK boleh berubah
+        $this->assertSame($originalNik, $user->nik);
+        $this->assertSame($originalNama, $user->nama_lengkap);
+        $this->assertSame('budi.baru@example.com', $user->email);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->adminDesa()->create();
 
         $response = $this
             ->actingAs($user)

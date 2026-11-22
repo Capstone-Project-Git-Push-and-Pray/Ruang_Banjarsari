@@ -20,4 +20,15 @@ enum JenisLaporan: string
             self::Aspirasi => 'Aspirasi',
         };
     }
+
+    /**
+     * Kelas gaya warna Tailwind untuk badge jenis laporan.
+     */
+    public function badgeClasses(): string
+    {
+        return match ($this) {
+            self::Pengaduan => 'bg-rose-50 text-rose-700 border-rose-200',
+            self::Aspirasi => 'bg-sky-50 text-sky-700 border-sky-200',
+        };
+    }
 }

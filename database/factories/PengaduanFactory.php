@@ -25,7 +25,7 @@ class PengaduanFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'jenis' => fake()->randomElement(JenisLaporan::cases()),
+            'jenis' => JenisLaporan::Pengaduan,
             'kategori_id' => Kategori::factory(),
             'judul' => fake()->sentence(4),
             'deskripsi' => fake()->paragraph(),
