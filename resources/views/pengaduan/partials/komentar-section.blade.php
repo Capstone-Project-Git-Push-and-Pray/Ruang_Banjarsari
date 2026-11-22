@@ -3,9 +3,9 @@
         <div>
             <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
                 <svg class="w-5 h-5 text-[#1F6B4F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                Diskusi & Tanggapan Laporan
+                {{ $pengaduan->isAspirasi() ? 'Diskusi Publik Aspirasi' : 'Diskusi & Tanggapan Laporan' }}
             </h3>
-            <p class="text-xs text-gray-500 mt-0.5">Komunikasi dua arah antara warga pelapor dan aparatur desa</p>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $pengaduan->isAspirasi() ? 'Komentar dapat dibaca seluruh warga dan aparatur desa' : 'Komunikasi dua arah antara warga pelapor dan aparatur desa' }}</p>
         </div>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
             {{ $pengaduan->komentar->count() }} Komentar
@@ -33,11 +33,11 @@
     <div class="space-y-4">
         @forelse ($pengaduan->komentar as $komentar)
             <div class="p-4 rounded-xl border {{ $komentar->user->isAdminDesa() ? 'bg-emerald-50/40 border-emerald-200/80' : ($komentar->user->isKepalaDesa() ? 'bg-blue-50/40 border-blue-200/80' : 'bg-gray-50 border-gray-200/80') }}"
-                 x-data="{ editing: false, isi: '{{ addslashes($komentar->isi) }}' }">
+                 x-data="{ editing: false, isi: @js($komentar->isi) }">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="font-bold text-xs text-gray-900">
-                            {{ $komentar->user->nama_lengkap ?? $komentar->user->name }}
+                            {{ $komentar->user->namaUntuk(Auth::user()) }}
                         </span>
 
                         {{-- Label Peran (PBI #34: Balasan berlabel Admin Desa) --}}
@@ -51,7 +51,13 @@
                             </span>
                         @else
                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-200 text-gray-700">
-                                Warga Pelapor
+                                {{ (int) $komentar->user_id === (int) $pengaduan->user_id ? ($pengaduan->isAspirasi() ? 'Pengusul' : 'Warga Pelapor') : 'Warga' }}
+                            </span>
+                        @endif
+
+                        @if ($komentar->isDisembunyikan())
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                Disembunyikan dari publik
                             </span>
                         @endif
 
@@ -62,7 +68,7 @@
                     </div>
 
                     {{-- Aksi Edit/Hapus (Kriteria: komentar tidak dapat diubah orang lain) --}}
-                    @if (Auth::id() === $komentar->user_id)
+                    @can('update', $komentar)
                         <div class="flex items-center gap-1">
                             <button type="button" @click="editing = !editing" class="text-[11px] text-gray-500 hover:text-gray-800 font-medium">
                                 Edit
@@ -76,12 +82,12 @@
                                 </button>
                             </form>
                         </div>
-                    @endif
+                    @endcan
                 </div>
 
                 {{-- Tampilan Normal Isi Komentar --}}
                 <div x-show="!editing">
-                    <p class="text-xs text-gray-800 leading-relaxed whitespace-pre-line">{{ $komentar->isi }}</p>
+                    <p class="text-xs text-gray-800 leading-relaxed whitespace-pre-line break-words">{{ $komentar->isi }}</p>
                 </div>
 
                 {{-- Form Edit Komentar (Hanya untuk Penulis Komentar) --}}
@@ -100,6 +106,13 @@
                         </div>
                     </form>
                 </div>
+
+                {{-- Moderasi Admin Desa (PBI #44, PBI #45) --}}
+                @can('moderasi', $komentar)
+                    <div class="mt-3 pt-3 border-t border-gray-200/70">
+                        @include('admin.moderasi.partials.aksi', ['konten' => $komentar, 'jenis' => 'komentar'])
+                    </div>
+                @endcan
             </div>
         @empty
             <div class="p-6 text-center text-xs text-gray-500 bg-gray-50 rounded-xl border border-gray-100">
@@ -110,13 +123,8 @@
 
     {{-- Formulir Tambah Komentar / Balasan --}}
     @php
-        $canComment = false;
         $user = Auth::user();
-        if ($user->isAdminDesa() || $user->isKepalaDesa()) {
-            $canComment = true;
-        } elseif ($user->isWarga() && $user->isAktif() && (int) $pengaduan->user_id === (int) $user->id) {
-            $canComment = true;
-        }
+        $canComment = $user->can('komentari', $pengaduan);
     @endphp
 
     @if ($canComment)
@@ -129,7 +137,7 @@
                     @elseif ($user->isKepalaDesa())
                         Catatan Tanggapan Kepala Desa:
                     @else
-                        Tulis Pertanyaan atau Informasi Tambahan:
+                        {{ $pengaduan->isAspirasi() ? 'Tulis Komentar Publik:' : 'Tulis Pertanyaan atau Informasi Tambahan:' }}
                     @endif
                 </label>
                 <textarea id="isi_komentar" name="isi" rows="3" class="block w-full rounded-xl border-gray-300 text-xs focus:border-[#1F6B4F] focus:ring-[#1F6B4F] shadow-xs" placeholder="Tuliskan pesan atau tanggapan Anda di sini..." required>{{ old('isi') }}</textarea>
@@ -151,7 +159,11 @@
     @else
         <div class="border-t border-gray-100 pt-4 text-center">
             <p class="text-xs text-gray-400">
-                Hanya warga pemilik laporan dan aparatur desa yang berwenang memberikan komentar pada laporan ini.
+                @if ($pengaduan->isDisembunyikan())
+                    Diskusi dikunci selama aspirasi ini disembunyikan oleh Admin Desa.
+                @else
+                    Hanya warga pemilik laporan dan aparatur desa yang berwenang memberikan komentar pada laporan ini.
+                @endif
             </p>
         </div>
     @endif

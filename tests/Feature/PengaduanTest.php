@@ -141,7 +141,7 @@ class PengaduanTest extends TestCase
      */
     public function test_warga_dapat_mengunggah_foto_pendukung_jpg_png(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $warga = User::factory()->warga()->create(['status_akun' => StatusAkun::Aktif]);
         $kategori = Kategori::factory()->create();
@@ -170,8 +170,8 @@ class PengaduanTest extends TestCase
         $lampiranPertama = $pengaduan->lampiran->first();
         $this->assertSame('foto_jalan_1.jpg', $lampiranPertama->nama_asli);
 
-        // Verifikasi fisik file tersimpan di disk public
-        Storage::disk('public')->assertExists($lampiranPertama->path);
+        // Verifikasi fisik file tersimpan di disk privat (PBI #38)
+        Storage::disk('local')->assertExists($lampiranPertama->path);
 
         // Verifikasi tampilan foto di halaman detail
         $showResponse = $this->actingAs($warga)->get("/warga/pengaduan/{$pengaduan->id}");
@@ -185,7 +185,7 @@ class PengaduanTest extends TestCase
      */
     public function test_unggah_foto_menolak_file_bukan_jpg_png(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $warga = User::factory()->warga()->create(['status_akun' => StatusAkun::Aktif]);
         $kategori = Kategori::factory()->create();
@@ -210,7 +210,7 @@ class PengaduanTest extends TestCase
      */
     public function test_unggah_foto_menolak_ukuran_melebihi_2mb(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $warga = User::factory()->warga()->create(['status_akun' => StatusAkun::Aktif]);
         $kategori = Kategori::factory()->create();
@@ -236,7 +236,7 @@ class PengaduanTest extends TestCase
      */
     public function test_unggah_foto_menolak_lebih_dari_3_foto(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $warga = User::factory()->warga()->create(['status_akun' => StatusAkun::Aktif]);
         $kategori = Kategori::factory()->create();

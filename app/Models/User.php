@@ -130,6 +130,32 @@ class User extends Authenticatable
         $this->setNamaLengkapAttribute($value);
     }
 
+    /**
+     * Nama pengguna yang boleh dilihat oleh pengguna lain.
+     *
+     * Nama lengkap sesuai KTP warga adalah data pribadi (PBI #22), sehingga warga lain
+     * hanya melihat nama publiknya.
+     */
+    public function namaUntuk(self $pelihat): string
+    {
+        if (! $this->isWarga() || ! $pelihat->isWarga() || $this->is($pelihat)) {
+            return (string) $this->nama_lengkap;
+        }
+
+        return $this->namaPublik();
+    }
+
+    /**
+     * Nama depan dan inisial, misalnya "Budi S.".
+     */
+    public function namaPublik(): string
+    {
+        $bagianNama = Str::of((string) $this->nama_lengkap)->squish()->lower()->title()->explode(' ');
+        $inisial = $bagianNama->skip(1)->map(fn (string $bagian) => mb_substr($bagian, 0, 1).'.');
+
+        return $inisial->prepend($bagianNama->first())->implode(' ');
+    }
+
     // -------------------------------------------------------
     // Relasi
     // -------------------------------------------------------

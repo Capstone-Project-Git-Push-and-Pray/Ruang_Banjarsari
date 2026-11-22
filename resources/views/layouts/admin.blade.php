@@ -144,6 +144,15 @@
                                 </div>
                             </a>
 
+                            {{-- Riwayat Moderasi Konten (PBI #44, PBI #45) --}}
+                            <a href="{{ route('admin.moderasi.index') }}"
+                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.moderasi.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="shield-alert" class="w-4 h-4 {{ request()->routeIs('admin.moderasi.*') ? 'text-white' : 'text-gray-400' }}"></i>
+                                    <span>Riwayat Moderasi</span>
+                                </div>
+                            </a>
+
                             {{-- 6. Rekapitulasi & Analitik --}}
                             <a href="{{ route('admin.rekapitulasi.index') }}"
                                class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.rekapitulasi.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
@@ -222,6 +231,7 @@
                     request()->routeIs('admin.kependudukan.*') => 'Data Kependudukan',
                     request()->routeIs('admin.pengaduan.*') => 'Kelola Pengaduan',
                     request()->routeIs('admin.aspirasi.*') => 'Kelola Aspirasi',
+                    request()->routeIs('admin.moderasi.*') => 'Riwayat Moderasi',
                     request()->routeIs('admin.rekapitulasi.*') => 'Rekapitulasi & Analitik',
                     request()->routeIs('admin.kategori.*') => 'Pengaturan Kategori',
                     request()->routeIs('profile.*') => 'Bantuan Reset Akun',

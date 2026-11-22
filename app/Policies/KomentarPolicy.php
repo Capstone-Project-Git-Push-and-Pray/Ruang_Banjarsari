@@ -22,19 +22,46 @@ class KomentarPolicy
 
     /**
      * Tentukan apakah user dapat memperbarui komentar.
-     * Hanya pemilik komentar yang dapat memperbarui komentarnya sendiri.
+     * Hanya pemilik komentar, selama komentar dan laporannya tidak sedang disembunyikan.
      */
     public function update(User $user, Komentar $komentar): bool
     {
-        return (int) $user->id === (int) $komentar->user_id;
+        return (int) $user->id === (int) $komentar->user_id
+            && ! $this->terkunciModerasi($komentar);
     }
 
     /**
-     * Tentukan apakah user dapat menghapus komentar.
-     * Pemilik komentar atau Admin Desa (tindakan moderasi).
+     * Tentukan apakah user dapat menghapus komentar tanpa alasan.
+     * Pemilik komentar, atau Admin Desa pada pengaduan privat. Komentar warga pada aspirasi
+     * hanya dapat dihapus Admin Desa lewat moderasi yang mencatat alasan (PBI #45).
      */
     public function delete(User $user, Komentar $komentar): bool
     {
-        return $user->isAdminDesa() || ((int) $user->id === (int) $komentar->user_id);
+        if ((int) $user->id === (int) $komentar->user_id) {
+            return ! $this->terkunciModerasi($komentar);
+        }
+
+        return $user->isAdminDesa() && $komentar->pengaduan?->isPengaduan() === true;
+    }
+
+    /**
+     * Tentukan apakah user dapat memoderasi komentar (PBI #44, #45).
+     * Hanya Admin Desa, pada komentar warga di aspirasi publik.
+     */
+    public function moderasi(User $user, Komentar $komentar): bool
+    {
+        return $user->isAdminDesa()
+            && $komentar->pengaduan?->isAspirasi() === true
+            && $komentar->user->isWarga();
+    }
+
+    /**
+     * Konten yang sedang dimoderasi tidak boleh diubah atau dihilangkan penulisnya.
+     */
+    private function terkunciModerasi(Komentar $komentar): bool
+    {
+        return $komentar->isDisembunyikan()
+            || $komentar->pengaduan === null
+            || $komentar->pengaduan->isDisembunyikan();
     }
 }

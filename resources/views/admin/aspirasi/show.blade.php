@@ -297,6 +297,29 @@
             @endif
         </div>
 
+        {{-- ==================== MODERASI KONTEN (PBI #44, PBI #45) ==================== --}}
+        @can('moderasi', $pengaduan)
+            <div class="bg-white p-6 sm:p-7 rounded-3xl shadow-xs border border-[#E2E8E4] space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-extrabold text-gray-900">Moderasi Aspirasi</h3>
+                        <p class="text-xs text-gray-500">
+                            @if ($pengaduan->isDisembunyikan())
+                                Disembunyikan {{ $pengaduan->disembunyikan_pada->format('d M Y, H:i') }} oleh {{ $pengaduan->disembunyikanOleh->nama_lengkap ?? 'akun terhapus' }}.
+                            @else
+                                Aspirasi ini sedang terlihat oleh seluruh warga.
+                            @endif
+                            {{ $pengaduan->dukungan_count }} warga mendukung.
+                        </p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $pengaduan->isDisembunyikan() ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200' }}">
+                        {{ $pengaduan->isDisembunyikan() ? 'Disembunyikan' : 'Tampil Publik' }}
+                    </span>
+                </div>
+                @include('admin.moderasi.partials.aksi', ['konten' => $pengaduan, 'jenis' => 'aspirasi'])
+            </div>
+        @endcan
+
         {{-- ==================== 4. PEMBARUAN STATUS & TINDAK LANJUT ==================== --}}
         @if ($pengaduan->allowedNextStatuses())
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xs border border-[#E2E8E4] space-y-5">

@@ -12,6 +12,7 @@ use App\Models\Pengaduan;
 use App\Models\RiwayatStatus;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class PengaduanSeeder extends Seeder
 {
@@ -101,7 +102,7 @@ class PengaduanSeeder extends Seeder
             'updated_at' => now()->subDay(),
         ]);
 
-        if (file_exists(storage_path('app/public/lampiran-pengaduan/30FsgWdBCLwbcvYYQT3zlHGEq0QI6PRo3Alua0g4.jpg'))) {
+        if (Storage::disk(Lampiran::DISK)->exists('lampiran-pengaduan/30FsgWdBCLwbcvYYQT3zlHGEq0QI6PRo3Alua0g4.jpg')) {
             Lampiran::create([
                 'pengaduan_id' => $aduanDitinjau->id,
                 'path' => 'lampiran-pengaduan/30FsgWdBCLwbcvYYQT3zlHGEq0QI6PRo3Alua0g4.jpg',
@@ -151,7 +152,7 @@ class PengaduanSeeder extends Seeder
             'updated_at' => now()->subHours(12),
         ]);
 
-        if (file_exists(storage_path('app/public/lampiran-pengaduan/RBbfncgp3ZH5RYe8nIZ6VxlRLTgmtyYEofbkiJFr.jpg'))) {
+        if (Storage::disk(Lampiran::DISK)->exists('lampiran-pengaduan/RBbfncgp3ZH5RYe8nIZ6VxlRLTgmtyYEofbkiJFr.jpg')) {
             Lampiran::create([
                 'pengaduan_id' => $aduanDiproses->id,
                 'path' => 'lampiran-pengaduan/RBbfncgp3ZH5RYe8nIZ6VxlRLTgmtyYEofbkiJFr.jpg',
@@ -210,7 +211,7 @@ class PengaduanSeeder extends Seeder
             'updated_at' => now()->subDays(1),
         ]);
 
-        if (file_exists(storage_path('app/public/lampiran-pengaduan/Y1v1hsi9ebQZrLoTOJsDKlCnCXqBtauRayMtBLuB.jpg'))) {
+        if (Storage::disk(Lampiran::DISK)->exists('lampiran-pengaduan/Y1v1hsi9ebQZrLoTOJsDKlCnCXqBtauRayMtBLuB.jpg')) {
             Lampiran::create([
                 'pengaduan_id' => $aduanSelesai->id,
                 'path' => 'lampiran-pengaduan/Y1v1hsi9ebQZrLoTOJsDKlCnCXqBtauRayMtBLuB.jpg',

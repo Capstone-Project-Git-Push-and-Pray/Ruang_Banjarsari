@@ -5,11 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Lampiran extends Model
 {
     use HasFactory;
+
+    /**
+     * Disk privat; berkas hanya dapat dibuka lewat rute berotorisasi (PBI #38).
+     */
+    public const DISK = 'local';
+
+    public const FOLDER = 'lampiran-pengaduan';
 
     protected $table = 'lampiran';
 
@@ -25,11 +31,11 @@ class Lampiran extends Model
     ];
 
     /**
-     * URL publik untuk berkas lampiran (PBI #25).
+     * URL berkas lampiran yang memeriksa hak akses pembukanya (PBI #25, PBI #38).
      */
     public function getUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->path);
+        return route('lampiran.show', $this);
     }
 
     // -------------------------------------------------------

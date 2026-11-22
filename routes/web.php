@@ -5,14 +5,18 @@ use App\Http\Controllers\Admin\AspirasiController as AdminAspirasiController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataKependudukanController;
 use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
+use App\Http\Controllers\Admin\ModerasiController;
 use App\Http\Controllers\Admin\PengaduanController as AdminPengaduanController;
 use App\Http\Controllers\Admin\PeninjauanPendaftaranController;
 use App\Http\Controllers\Admin\RekapitulasiController as AdminRekapitulasiController;
 use App\Http\Controllers\Kepala\DashboardController as KepalaDashboardController;
 use App\Http\Controllers\Kepala\PengaduanController as KepalaPengaduanController;
 use App\Http\Controllers\KomentarController;
+use App\Http\Controllers\LampiranController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Warga\AspirasiController as WargaAspirasiController;
 use App\Http\Controllers\Warga\DashboardController as WargaDashboardController;
+use App\Http\Controllers\Warga\DukunganController;
 use App\Http\Controllers\Warga\PengaduanController as WargaPengaduanController;
 use App\Http\Controllers\Warga\StatusPendaftaranController;
 use App\Models\Pengaduan;
@@ -41,6 +45,11 @@ Route::get('/dashboard', function () {
 
 // Akses Langsung Laporan Lewat URL dengan Otorisasi Policy (PBI #22)
 Route::get('/pengaduan/{pengaduan}', function (Pengaduan $pengaduan) {
+    // Aspirasi warga lain dibuka lewat halaman publik; pengaduan tetap privat (PBI #38)
+    if (Gate::denies('view', $pengaduan) && Gate::allows('lihatPublik', $pengaduan)) {
+        return redirect()->route('warga.aspirasi.show', $pengaduan);
+    }
+
     Gate::authorize('view', $pengaduan);
 
     $user = request()->user();
@@ -53,6 +62,9 @@ Route::get('/pengaduan/{pengaduan}', function (Pengaduan $pengaduan) {
 
     return redirect()->route('warga.pengaduan.show', $pengaduan);
 })->middleware('auth')->name('pengaduan.show');
+
+// Foto Lampiran dengan Otorisasi Policy (PBI #25, #38)
+Route::get('/lampiran/{lampiran}', [LampiranController::class, 'show'])->middleware('auth')->name('lampiran.show');
 
 // Komentar pada Laporan (PBI #33, #34)
 Route::middleware('auth')->group(function () {
@@ -71,6 +83,12 @@ Route::middleware(['auth', 'role:warga'])->prefix('warga')->name('warga.')->grou
         Route::get('/pengaduan/buat', [WargaPengaduanController::class, 'create'])->name('pengaduan.create');
         Route::post('/pengaduan', [WargaPengaduanController::class, 'store'])->name('pengaduan.store');
         Route::get('/pengaduan/{pengaduan}', [WargaPengaduanController::class, 'show'])->name('pengaduan.show');
+
+        // Ruang Aspirasi Publik (PBI #39, #40, #41)
+        Route::get('/aspirasi', [WargaAspirasiController::class, 'index'])->name('aspirasi.index');
+        Route::get('/aspirasi/{pengaduan}', [WargaAspirasiController::class, 'show'])->name('aspirasi.show');
+        Route::post('/aspirasi/{pengaduan}/dukungan', [DukunganController::class, 'store'])->name('aspirasi.dukungan.store');
+        Route::delete('/aspirasi/{pengaduan}/dukungan', [DukunganController::class, 'destroy'])->name('aspirasi.dukungan.destroy');
     });
 });
 
@@ -113,6 +131,17 @@ Route::middleware(['auth', 'role:admin_desa'])->prefix('admin')->name('admin.')-
     Route::prefix('aspirasi')->name('aspirasi.')->group(function () {
         Route::get('/', [AdminAspirasiController::class, 'index'])->name('index');
         Route::get('/{pengaduan}', [AdminAspirasiController::class, 'show'])->name('show');
+    });
+
+    // Moderasi Konten Publik (PBI #44, #45)
+    Route::prefix('moderasi')->name('moderasi.')->group(function () {
+        Route::get('/', [ModerasiController::class, 'index'])->name('index');
+        Route::patch('/aspirasi/{pengaduan}/sembunyikan', [ModerasiController::class, 'sembunyikanAspirasi'])->name('aspirasi.sembunyikan');
+        Route::patch('/aspirasi/{pengaduan}/tampilkan', [ModerasiController::class, 'tampilkanAspirasi'])->name('aspirasi.tampilkan');
+        Route::delete('/aspirasi/{pengaduan}', [ModerasiController::class, 'hapusAspirasi'])->name('aspirasi.hapus');
+        Route::patch('/komentar/{komentar}/sembunyikan', [ModerasiController::class, 'sembunyikanKomentar'])->name('komentar.sembunyikan');
+        Route::patch('/komentar/{komentar}/tampilkan', [ModerasiController::class, 'tampilkanKomentar'])->name('komentar.tampilkan');
+        Route::delete('/komentar/{komentar}', [ModerasiController::class, 'hapusKomentar'])->name('komentar.hapus');
     });
 
     // Manajemen Kategori (PBI #30)

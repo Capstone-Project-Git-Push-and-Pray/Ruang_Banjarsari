@@ -45,6 +45,58 @@ class PengaduanPolicy
     }
 
     /**
+     * Tentukan apakah warga dapat membaca laporan sebagai konten publik (PBI #38).
+     * Hanya aspirasi yang tidak disembunyikan; pengaduan selalu privat.
+     */
+    public function lihatPublik(User $user, Pengaduan $pengaduan): bool
+    {
+        return $user->isWarga()
+            && $user->isAktif()
+            && $pengaduan->isAspirasi()
+            && ! $pengaduan->isDisembunyikan();
+    }
+
+    /**
+     * Tentukan apakah warga dapat mendukung aspirasi (PBI #41).
+     * Pengusul tidak dapat mendukung aspirasinya sendiri.
+     */
+    public function dukung(User $user, Pengaduan $pengaduan): bool
+    {
+        return $this->lihatPublik($user, $pengaduan)
+            && (int) $user->id !== (int) $pengaduan->user_id;
+    }
+
+    /**
+     * Tentukan apakah user dapat menulis komentar pada laporan (PBI #33, #34, #42).
+     * Kriteria:
+     * - Perangkat desa dapat berkomentar pada seluruh laporan.
+     * - Warga aktif dapat berkomentar pada laporannya sendiri dan pada aspirasi publik.
+     * - Diskusi warga terkunci selama aspirasi disembunyikan.
+     */
+    public function komentari(User $user, Pengaduan $pengaduan): bool
+    {
+        if ($user->isAdminDesa() || $user->isKepalaDesa()) {
+            return true;
+        }
+
+        if (! $user->isAktif() || $pengaduan->isDisembunyikan()) {
+            return false;
+        }
+
+        return (int) $user->id === (int) $pengaduan->user_id
+            || $this->lihatPublik($user, $pengaduan);
+    }
+
+    /**
+     * Tentukan apakah user dapat memoderasi laporan (PBI #44, #45).
+     * Hanya Admin Desa, dan hanya aspirasi karena pengaduan tidak bersifat publik.
+     */
+    public function moderasi(User $user, Pengaduan $pengaduan): bool
+    {
+        return $user->isAdminDesa() && $pengaduan->isAspirasi();
+    }
+
+    /**
      * Tentukan apakah user dapat membuat pengaduan baru.
      * Hanya warga dengan akun berstatus Aktif yang diizinkan melapor.
      */

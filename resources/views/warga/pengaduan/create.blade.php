@@ -167,6 +167,12 @@
 
                         {{-- Hidden Input untuk Form Submission --}}
                         <input type="hidden" name="jenis" :value="jenis">
+
+                        {{-- Informasi Visibilitas (PBI #38) --}}
+                        <p class="mt-3 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5">
+                            <span x-show="jenis === 'pengaduan'"><strong>Privat.</strong> Pengaduan hanya dapat dilihat oleh Anda dan pihak desa.</span>
+                            <span x-show="jenis === 'aspirasi'" x-cloak><strong>Publik.</strong> Aspirasi dapat dibaca, didukung, dan dikomentari warga lain. Nama Anda ditampilkan sebagai &ldquo;{{ $user->namaPublik() }}&rdquo;; NIK, kontak, dan alamat tidak ditampilkan. Jangan menulis data pribadi di dalam isi aspirasi.</span>
+                        </p>
                         <x-input-error class="mt-2" :messages="$errors->get('jenis')" />
                     </div>
 

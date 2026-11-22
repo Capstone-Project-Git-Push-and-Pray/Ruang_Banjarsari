@@ -228,12 +228,31 @@
                     </div>
                 </div>
 
+                {{-- Filter Visibilitas & Urutan (PBI #41, PBI #44) --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label for="visibilitas" class="block text-xs font-bold text-gray-700 mb-1.5">Visibilitas</label>
+                        <select id="visibilitas" name="visibilitas" onchange="this.form.submit()" class="block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]">
+                            <option value="">Semua</option>
+                            <option value="tampil" @selected(request('visibilitas') === 'tampil')>Tampil publik</option>
+                            <option value="disembunyikan" @selected(request('visibilitas') === 'disembunyikan')>Disembunyikan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="urut" class="block text-xs font-bold text-gray-700 mb-1.5">Urutkan</label>
+                        <select id="urut" name="urut" onchange="this.form.submit()" class="block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]">
+                            <option value="">Terbaru</option>
+                            <option value="dukungan" @selected(request('urut') === 'dukungan')>Dukungan terbanyak</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
                     <span class="text-gray-500">
                         Menampilkan halaman <strong>{{ $aspirasis->currentPage() }}</strong> dari <strong>{{ $aspirasis->lastPage() }}</strong>
                     </span>
                     <div class="flex items-center gap-2">
-                        @if (request()->hasAny(['q', 'status', 'kategori_id']))
+                        @if (request()->anyFilled(['q', 'status', 'kategori_id', 'visibilitas', 'urut']))
                             <a href="{{ route('admin.aspirasi.index') }}" class="px-3.5 py-2 rounded-xl border border-[#E2E8E4] text-gray-600 hover:bg-gray-50 font-semibold transition">
                                 Reset Filter
                             </a>
@@ -261,7 +280,7 @@
                         Data Tidak Ditemukan
                     </h3>
                     <p class="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                        @if (request()->hasAny(['q', 'status', 'kategori_id']))
+                        @if (request()->anyFilled(['q', 'status', 'kategori_id', 'visibilitas', 'urut']))
                             Tidak ada data aspirasi yang sesuai dengan kriteria filter atau kata kunci pencarian yang Anda pilih.
                         @else
                             Belum ada data aspirasi warga yang tercatat dalam sistem.
@@ -269,7 +288,7 @@
                     </p>
                 </div>
 
-                @if (request()->hasAny(['q', 'status', 'kategori_id']))
+                @if (request()->anyFilled(['q', 'status', 'kategori_id', 'visibilitas', 'urut']))
                     <div class="pt-2 flex flex-wrap items-center justify-center gap-2.5">
                         <a href="{{ route('admin.aspirasi.index') }}"
                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#185840] hover:bg-[#124230] shadow-xs transition-colors">
@@ -346,6 +365,20 @@
                                     <i data-lucide="tag" class="w-3 h-3 text-[#1F6B4F]"></i>
                                     <span>{{ $aspirasi->kategori->nama ?? 'Umum' }}</span>
                                 </span>
+
+                                {{-- Dukungan & komentar warga (PBI #41, PBI #42) --}}
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-gray-600 bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-200">
+                                    <i data-lucide="thumbs-up" class="w-3 h-3 text-gray-400"></i>
+                                    <span>{{ $aspirasi->dukungan_count }} dukungan</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-gray-600 bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-200">
+                                    <i data-lucide="message-circle" class="w-3 h-3 text-gray-400"></i>
+                                    <span>{{ $aspirasi->komentar_count }} komentar</span>
+                                </span>
+
+                                @if ($aspirasi->isDisembunyikan())
+                                    <span class="inline-flex items-center text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200">Disembunyikan</span>
+                                @endif
 
                                 {{-- Lampiran foto jika ada --}}
                                 @if ($aspirasi->lampiran->isNotEmpty())

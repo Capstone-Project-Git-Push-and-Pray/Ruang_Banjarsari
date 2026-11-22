@@ -33,4 +33,25 @@ class PengaduanFactory extends Factory
             'status' => StatusLaporan::Diajukan,
         ];
     }
+
+    /**
+     * State untuk laporan berjenis aspirasi.
+     */
+    public function aspirasi(): static
+    {
+        return $this->state(fn () => [
+            'jenis' => JenisLaporan::Aspirasi,
+        ]);
+    }
+
+    /**
+     * State untuk konten yang disembunyikan Admin Desa.
+     */
+    public function disembunyikan(): static
+    {
+        return $this->state(fn () => [
+            'disembunyikan_pada' => now(),
+            'disembunyikan_oleh' => User::factory()->adminDesa(),
+        ]);
+    }
 }

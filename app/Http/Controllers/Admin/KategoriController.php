@@ -89,7 +89,7 @@ class KategoriController extends Controller
      */
     public function destroy(Kategori $kategori): RedirectResponse
     {
-        if ($kategori->pengaduan()->exists()) {
+        if ($kategori->pengaduan()->withTrashed()->exists()) {
             return back()->with('error', 'Kategori ini telah digunakan dalam laporan warga dan tidak dapat dihapus. Anda hanya dapat menonaktifkannya agar tidak muncul di form baru.');
         }
 

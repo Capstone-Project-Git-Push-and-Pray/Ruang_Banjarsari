@@ -26,14 +26,23 @@ class AspirasiController extends Controller
     {
         // Berikan contoh aspirasi otomatis pada mode development jika belum ada data aspirasi
         if (app()->environment('local') && ! app()->runningUnitTests()) {
-            if (Pengaduan::where('jenis', JenisLaporan::Aspirasi)->count() === 0) {
+            if (Pengaduan::withTrashed()->where('jenis', JenisLaporan::Aspirasi)->count() === 0) {
                 (new AspirasiSeeder)->run();
             }
         }
 
         $query = Pengaduan::with(['user', 'kategori', 'lampiran'])
+            ->withCount(['dukungan', 'komentar'])
             ->where('jenis', JenisLaporan::Aspirasi)
+            ->when($request->query('urut') === 'dukungan', fn ($q) => $q->orderByDesc('dukungan_count'))
             ->latest();
+
+        // Filter berdasarkan visibilitas publik (PBI #44)
+        if ($request->query('visibilitas') === 'tampil') {
+            $query->tampil();
+        } elseif ($request->query('visibilitas') === 'disembunyikan') {
+            $query->whereNotNull('disembunyikan_pada');
+        }
 
         // Filter berdasarkan Status Aspirasi
         if ($request->filled('status')) {
@@ -117,7 +126,9 @@ class AspirasiController extends Controller
                 'kategori',
                 'lampiran',
                 'riwayatStatus.diubahOleh',
-            ]),
+                'komentar.user',
+                'disembunyikanOleh',
+            ])->loadCount('dukungan'),
         ]);
     }
 }

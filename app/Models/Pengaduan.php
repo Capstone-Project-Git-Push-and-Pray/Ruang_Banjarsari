@@ -4,16 +4,19 @@ namespace App\Models;
 
 use App\Enums\JenisLaporan;
 use App\Enums\StatusLaporan;
+use App\Models\Concerns\DapatDimoderasi;
 use Database\Factories\PengaduanFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pengaduan extends Model
 {
     /** @use HasFactory<PengaduanFactory> */
-    use HasFactory;
+    use DapatDimoderasi, HasFactory, SoftDeletes;
 
     protected $table = 'pengaduan';
 
@@ -42,6 +45,7 @@ class Pengaduan extends Model
         return [
             'jenis' => JenisLaporan::class,
             'status' => StatusLaporan::class,
+            'disembunyikan_pada' => 'datetime',
         ];
     }
 
@@ -78,7 +82,15 @@ class Pengaduan extends Model
      */
     public function komentar(): HasMany
     {
-        return $this->hasMany(Komentar::class)->oldest();
+        return $this->hasMany(Komentar::class)->chaperone()->oldest();
+    }
+
+    /**
+     * Dukungan warga pada aspirasi (PBI #41).
+     */
+    public function dukungan(): HasMany
+    {
+        return $this->hasMany(Dukungan::class);
     }
 
     /**
@@ -87,6 +99,20 @@ class Pengaduan extends Model
     public function riwayatStatus(): HasMany
     {
         return $this->hasMany(RiwayatStatus::class)->oldest();
+    }
+
+    // -------------------------------------------------------
+    // Visibilitas (PBI #38)
+    // -------------------------------------------------------
+
+    /**
+     * Batasi ke aspirasi yang boleh dibaca seluruh warga. Pengaduan selalu privat.
+     *
+     * @param  Builder<Pengaduan>  $query
+     */
+    public function scopeAspirasiPublik(Builder $query): void
+    {
+        $query->where('jenis', JenisLaporan::Aspirasi)->tampil();
     }
 
     // -------------------------------------------------------

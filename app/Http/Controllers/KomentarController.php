@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Gate;
 class KomentarController extends Controller
 {
     /**
-     * Tambahkan komentar pada laporan (PBI #33 & PBI #34).
+     * Tambahkan komentar pada laporan (PBI #33, PBI #34 & PBI #42).
      * Kriteria:
-     * - Warga: hanya pemilik laporan yang bisa berkomentar dan harus berstatus aktif.
+     * - Pengaduan: hanya warga aktif pemilik laporan yang bisa berkomentar.
+     * - Aspirasi: seluruh warga aktif bisa berkomentar selama tidak disembunyikan.
      * - Admin Desa: dapat membalas komentar warga (balasan berlabel Admin Desa).
      * - Kepala Desa: dapat memberikan catatan supervisi.
      */
@@ -21,14 +22,12 @@ class KomentarController extends Controller
     {
         $user = $request->user();
 
-        // Validasi hak akses komentar berdasarkan kepemilikan dan peran (PBI #33)
-        if ($user->isWarga()) {
-            if (! $user->isAktif() || (int) $pengaduan->user_id !== (int) $user->id) {
-                abort(403, 'Hanya warga pemilik laporan yang dapat menambahkan komentar pada laporan ini.');
-            }
-        } elseif (! $user->isAdminDesa() && ! $user->isKepalaDesa()) {
-            abort(403, 'Anda tidak memiliki hak akses untuk memberikan komentar.');
-        }
+        // Validasi hak akses komentar berdasarkan kepemilikan, peran, dan visibilitas (PBI #33, PBI #42)
+        abort_unless(
+            Gate::allows('komentari', $pengaduan),
+            403,
+            'Anda tidak memiliki hak akses untuk menambahkan komentar pada laporan ini.'
+        );
 
         $validated = $request->validate([
             'isi' => ['required', 'string', 'min:2', 'max:2000'],
@@ -77,7 +76,8 @@ class KomentarController extends Controller
     {
         Gate::authorize('delete', $komentar);
 
-        $komentar->delete();
+        // Penghapusan oleh penulis bersifat permanen; soft delete khusus keputusan moderasi
+        $komentar->forceDelete();
 
         return back()->with('status', 'komentar-berhasil-dihapus');
     }

@@ -51,7 +51,7 @@ class DashboardController extends Controller
 
         $laporanTerbaru = Pengaduan::where('user_id', $userId)
             ->with(['kategori'])
-            ->withCount('komentar')
+            ->withCount(['komentar' => fn ($query) => $query->tampil()])
             ->latest()
             ->take(5)
             ->get();

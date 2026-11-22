@@ -27,4 +27,15 @@ class KomentarFactory extends Factory
             'isi' => fake()->paragraph(),
         ];
     }
+
+    /**
+     * State untuk komentar yang disembunyikan Admin Desa.
+     */
+    public function disembunyikan(): static
+    {
+        return $this->state(fn () => [
+            'disembunyikan_pada' => now(),
+            'disembunyikan_oleh' => User::factory()->adminDesa(),
+        ]);
+    }
 }

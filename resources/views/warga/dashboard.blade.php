@@ -62,6 +62,10 @@
                     <a href="{{ route('warga.pengaduan.index') }}" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold rounded-full border border-white/20 backdrop-blur-xs transition-all duration-200">
                         <span>Laporan Saya</span>
                     </a>
+
+                    <a href="{{ route('warga.aspirasi.index') }}" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold rounded-full border border-white/20 transition-all">
+                        <span>Aspirasi Warga</span>
+                    </a>
                 </div>
 
                 {{-- Baris Rekapitulasi Statistik Status --}}
@@ -106,7 +110,7 @@
                 <p class="text-xs text-gray-500 mt-0.5">Semua yang Anda butuhkan ada di sini</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mt-4">
                 {{-- Kartu: Buat Laporan Baru --}}
                 <a href="{{ route('warga.pengaduan.create') }}" class="group bg-white rounded-2xl p-5 border border-gray-100 shadow-xs hover:shadow-md hover:border-emerald-200 transition-all duration-200 flex flex-col justify-between">
                     <div>
@@ -147,6 +151,27 @@
                     <div class="mt-4 pt-2">
                         <span class="text-xs font-semibold text-[#1F6B4F] inline-flex items-center gap-1 group-hover:gap-1.5 transition-all">
                             <span>Lihat semua riwayat</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                {{-- Kartu: Aspirasi Warga (PBI #39) --}}
+                <a href="{{ route('warga.aspirasi.index') }}" class="group bg-white rounded-2xl p-5 border border-gray-100 shadow-xs hover:shadow-md hover:border-emerald-200 transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-[#EAF5EE] text-[#1F6B4F] flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-1.414-.586M15 4H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l4-4h4a2 2 0 002-2V6a2 2 0 00-2-2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-sm sm:text-base text-gray-900 mt-4 group-hover:text-[#1F6B4F] transition-colors">Aspirasi Warga</h3>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">Baca, dukung, dan diskusikan usulan warga lain</p>
+                    </div>
+                    <div class="mt-4 pt-2">
+                        <span class="text-xs font-semibold text-[#1F6B4F] inline-flex items-center gap-1 group-hover:gap-1.5 transition-all">
+                            <span>Lihat aspirasi</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                             </svg>

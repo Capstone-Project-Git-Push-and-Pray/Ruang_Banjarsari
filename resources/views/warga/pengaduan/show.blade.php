@@ -49,6 +49,23 @@
                 </div>
             @endif
 
+            {{-- Informasi Visibilitas Laporan (PBI #38, PBI #44) --}}
+            @if ($pengaduan->isDisembunyikan())
+                <div class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-2xl text-xs shadow-xs">
+                    <strong class="font-bold block text-sm">Aspirasi Sedang Disembunyikan</strong>
+                    <span>Admin Desa menyembunyikan aspirasi ini dari publik selama proses peninjauan. Saat ini hanya Anda dan pihak desa yang dapat melihatnya.</span>
+                </div>
+            @elseif ($pengaduan->isAspirasi())
+                <div class="bg-sky-50 border border-sky-200 text-sky-900 p-4 rounded-2xl text-xs shadow-xs flex flex-wrap items-center justify-between gap-2">
+                    <span><strong class="font-bold">Publik.</strong> Aspirasi ini dapat dibaca, didukung, dan dikomentari warga lain.</span>
+                    <a href="{{ route('warga.aspirasi.show', $pengaduan) }}" class="font-semibold text-sky-800 hover:underline">Lihat halaman publik &rarr;</a>
+                </div>
+            @else
+                <div class="bg-gray-50 border border-gray-200 text-gray-700 p-4 rounded-2xl text-xs shadow-xs">
+                    <span><strong class="font-bold">Privat.</strong> Pengaduan ini hanya dapat dilihat oleh Anda dan pihak desa.</span>
+                </div>
+            @endif
+
             {{-- Kartu Detail Laporan --}}
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-[#E2E8E4] space-y-6">
                 <div>

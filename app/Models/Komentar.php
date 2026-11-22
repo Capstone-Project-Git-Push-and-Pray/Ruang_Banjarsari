@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DapatDimoderasi;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Komentar extends Model
 {
-    use HasFactory;
+    use DapatDimoderasi, HasFactory, SoftDeletes;
 
     protected $table = 'komentar';
 
@@ -22,6 +25,33 @@ class Komentar extends Model
         'user_id',
         'isi',
     ];
+
+    /**
+     * Casting atribut.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'disembunyikan_pada' => 'datetime',
+        ];
+    }
+
+    /**
+     * Batasi ke komentar yang boleh dilihat pengguna (PBI #44).
+     * Perangkat desa melihat semua; warga tidak melihat komentar tersembunyi kecuali tulisannya sendiri.
+     *
+     * @param  Builder<Komentar>  $query
+     */
+    public function scopeTampilUntuk(Builder $query, User $user): void
+    {
+        if ($user->isAdminDesa() || $user->isKepalaDesa()) {
+            return;
+        }
+
+        $query->where(fn (Builder $sub) => $sub->tampil()->orWhere('user_id', $user->id));
+    }
 
     // -------------------------------------------------------
     // Relasi

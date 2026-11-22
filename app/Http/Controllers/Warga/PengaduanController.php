@@ -47,7 +47,7 @@ class PengaduanController extends Controller
         ])->count();
 
         $pengaduans = (clone $baseQuery)
-            ->with(['kategori', 'lampiran', 'komentar'])
+            ->with(['kategori', 'lampiran', 'komentar' => fn ($query) => $query->tampil()])
             ->latest()
             ->paginate(50);
 
@@ -97,7 +97,7 @@ class PengaduanController extends Controller
             // PBI #25: Simpan foto lampiran jika ada
             if ($request->hasFile('foto')) {
                 foreach ($request->file('foto') as $file) {
-                    $path = $file->store('lampiran-pengaduan', 'public');
+                    $path = $file->store(Lampiran::FOLDER, Lampiran::DISK);
 
                     Lampiran::create([
                         'pengaduan_id' => $pengaduan->id,
@@ -126,12 +126,18 @@ class PengaduanController extends Controller
      * Tampilkan detail laporan pengaduan milik warga (PBI #26).
      * Kriteria: Warga tidak bisa membuka laporan warga lain lewat URL (menghasilkan 403).
      */
-    public function show(Pengaduan $pengaduan): View
+    public function show(Request $request, Pengaduan $pengaduan): View
     {
         Gate::authorize('view', $pengaduan);
 
         return view('warga.pengaduan.show', [
-            'pengaduan' => $pengaduan->load(['kategori', 'user', 'lampiran', 'riwayatStatus.diubahOleh', 'komentar.user']),
+            'pengaduan' => $pengaduan->load([
+                'kategori',
+                'user',
+                'lampiran',
+                'riwayatStatus.diubahOleh',
+                'komentar' => fn ($query) => $query->tampilUntuk($request->user())->with('user'),
+            ]),
         ]);
     }
 }
