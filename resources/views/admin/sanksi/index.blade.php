@@ -17,27 +17,17 @@
             <span class="shrink-0 px-4 py-2 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold">{{ $jumlahBerlaku }} sanksi berlaku</span>
         </div>
 
-        <form method="GET" action="{{ route('admin.sanksi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-end">
+        <form id="filterSanksiForm" method="GET" action="{{ route('admin.sanksi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-end">
             <div class="sm:col-span-2">
                 <label for="q" class="block text-xs font-bold text-gray-700 mb-1.5">Cari Warga</label>
                 <input id="q" name="q" type="text" maxlength="100" value="{{ request('q') }}" placeholder="Nama atau NIK..." class="{{ $kelasInput }}">
             </div>
-            <div>
-                <label for="fitur" class="block text-xs font-bold text-gray-700 mb-1.5">Fitur</label>
-                <select id="fitur" name="fitur" class="{{ $kelasInput }}">
-                    <option value="">Semua Fitur</option>
-                    @foreach (\App\Enums\FiturSanksi::cases() as $fitur)
-                        <option value="{{ $fitur->value }}" @selected(request('fitur') === $fitur->value)>{{ $fitur->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="status" class="block text-xs font-bold text-gray-700 mb-1.5">Status</label>
-                <select id="status" name="status" onchange="this.form.submit()" class="{{ $kelasInput }}">
-                    <option value="berlaku">Sedang berlaku</option>
-                    <option value="semua" @selected(request('status') === 'semua')>Semua riwayat</option>
-                </select>
-            </div>
+            <x-filter-dropdown name="fitur" label="Fitur" form="filterSanksiForm"
+                               :selected="request('fitur', '')"
+                               :options="['' => 'Semua Fitur'] + collect(\App\Enums\FiturSanksi::cases())->mapWithKeys(fn ($fitur) => [$fitur->value => $fitur->label()])->all()" />
+            <x-filter-dropdown name="status" label="Status" form="filterSanksiForm"
+                               :selected="request('status', 'berlaku')"
+                               :options="['berlaku' => 'Sedang Berlaku', 'semua' => 'Semua Riwayat']" />
             <div class="sm:col-span-4 flex justify-end">
                 <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">Terapkan Filter</button>
             </div>

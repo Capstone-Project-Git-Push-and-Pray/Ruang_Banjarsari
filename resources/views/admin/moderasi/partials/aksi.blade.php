@@ -26,15 +26,11 @@
         @csrf
         @method('delete')
         <input type="hidden" name="form_moderasi" value="{{ $idForm }}">
-        <div>
-            <label for="alasan-{{ $idForm }}" class="block text-xs font-bold text-gray-700 mb-1">Alasan Penghapusan</label>
-            <select id="alasan-{{ $idForm }}" name="alasan" x-model="alasan" required class="block w-full rounded-xl border border-[#E2E8E4] text-xs focus:border-[#1F6B4F] focus:ring-[#1F6B4F]">
-                <option value="">Pilih alasan...</option>
-                @foreach (\App\Enums\AlasanModerasi::cases() as $alasan)
-                    <option value="{{ $alasan->value }}">{{ $alasan->label() }}</option>
-                @endforeach
-            </select>
-        </div>
+        <x-filter-dropdown name="alasan" label="Alasan Penghapusan"
+                           x-on:dropdown-changed="alasan = $event.detail.value"
+                           :selected="$isFormAktif ? old('alasan', '') : ''"
+                           placeholder="Pilih alasan..."
+                           :options="collect(\App\Enums\AlasanModerasi::cases())->mapWithKeys(fn ($alasanModerasi) => [$alasanModerasi->value => $alasanModerasi->label()])->all()" />
         <div>
             <label for="catatan-{{ $idForm }}" class="block text-xs font-bold text-gray-700 mb-1">
                 Catatan <span x-text="alasan === 'lainnya' ? '(wajib)' : '(opsional)'"></span>

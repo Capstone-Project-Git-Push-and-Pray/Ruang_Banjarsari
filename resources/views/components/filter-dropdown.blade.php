@@ -1,21 +1,25 @@
 {{--
-    Dropdown filter bergaya kustom (Alpine.js) yang langsung mengirim formulir saat opsi dipilih.
-    Mengikuti tampilan dropdown Status dan Kategori pada halaman kelola aspirasi.
+    Dropdown bergaya kustom (Alpine.js) mengikuti tampilan dropdown Status dan Kategori pada halaman kelola aspirasi.
+    - Dengan prop `form`: formulir dengan id tersebut langsung dikirim saat opsi dipilih (filter).
+    - Tanpa prop `form`: berperan sebagai isian formulir biasa.
+    - Prop `placeholder`: teks tombol saat belum ada pilihan, tanpa ikut tampil sebagai opsi.
+    Setiap pilihan memancarkan event `dropdown-changed` berisi { name, value } agar komponen induk dapat ikut bereaksi.
 --}}
 @props([
     'name',
     'label',
-    'form',
+    'form' => null,
     'options' => [],
     'selected' => '',
+    'placeholder' => null,
 ])
 
 @php
     $selected = (string) $selected;
-    $selectedLabel = $options[$selected] ?? reset($options);
+    $selectedLabel = $options[$selected] ?? $placeholder ?? reset($options);
 @endphp
 
-<div class="relative" x-data="{
+<div {{ $attributes->merge(['class' => 'relative']) }} x-data="{
     open: false,
     selected: @js($selected),
     selectedLabel: @js($selectedLabel),
@@ -23,17 +27,23 @@
         this.selected = value;
         this.selectedLabel = label;
         this.open = false;
-        this.$nextTick(() => document.getElementById(@js($form)).submit());
+        this.$dispatch('dropdown-changed', { name: @js($name), value });
+        @if ($form)
+            this.$nextTick(() => document.getElementById(@js($form)).submit());
+        @endif
     }
 }">
     <label class="block text-xs font-bold text-gray-700 mb-1.5">{{ $label }}</label>
     <input type="hidden" name="{{ $name }}" :value="selected">
 
     <button type="button"
+            aria-haspopup="listbox"
+            :aria-expanded="open"
+            @keydown.escape="open = false"
             @click="open = !open"
             class="w-full flex items-center justify-between text-xs rounded-xl border border-[#E2E8E4] py-2 px-3 text-gray-800 bg-gray-50/40 hover:bg-white focus:outline-none focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F] transition-all cursor-pointer shadow-2xs"
             :class="selected !== '' ? 'border-[#185840] text-[#185840] font-semibold bg-[#F4F9F6]' : ''">
-        <span class="truncate font-medium" x-text="selectedLabel"></span>
+        <span class="truncate font-medium" :class="selected === '' && @js($placeholder !== null) ? 'text-gray-400' : ''" x-text="selectedLabel"></span>
         <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ml-1.5"
              :class="open ? 'rotate-180 text-[#1F6B4F]' : ''"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">

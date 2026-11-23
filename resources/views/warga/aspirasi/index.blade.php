@@ -24,36 +24,20 @@
             $kelasInput = 'block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:outline-none focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]';
             $filterAktif = request()->anyFilled(['q', 'kategori_id', 'status']);
         @endphp
-        <form method="GET" action="{{ route('warga.aspirasi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 items-end">
+        <form id="filterAspirasiWargaForm" method="GET" action="{{ route('warga.aspirasi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 items-end">
             <div class="sm:col-span-2">
                 <label for="q" class="block text-xs font-bold text-gray-700 mb-1.5">Kata Kunci</label>
                 <input type="text" id="q" name="q" maxlength="100" value="{{ request('q') }}" placeholder="Judul, isi, atau lokasi..." class="{{ $kelasInput }}">
             </div>
-            <div>
-                <label for="kategori_id" class="block text-xs font-bold text-gray-700 mb-1.5">Kategori</label>
-                <select id="kategori_id" name="kategori_id" class="{{ $kelasInput }}">
-                    <option value="">Semua Kategori</option>
-                    @foreach ($kategoriList as $kategori)
-                        <option value="{{ $kategori->id }}" @selected((string) $kategori->id === request('kategori_id'))>{{ $kategori->nama }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="status" class="block text-xs font-bold text-gray-700 mb-1.5">Status</label>
-                <select id="status" name="status" class="{{ $kelasInput }}">
-                    <option value="">Semua Status</option>
-                    @foreach ($statusList as $status)
-                        <option value="{{ $status->value }}" @selected($status->value === request('status'))>{{ $status->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="urut" class="block text-xs font-bold text-gray-700 mb-1.5">Urutkan</label>
-                <select id="urut" name="urut" class="{{ $kelasInput }}">
-                    <option value="terbaru">Terbaru</option>
-                    <option value="dukungan" @selected(request('urut') === 'dukungan')>Dukungan terbanyak</option>
-                </select>
-            </div>
+            <x-filter-dropdown name="kategori_id" label="Kategori" form="filterAspirasiWargaForm"
+                               :selected="request('kategori_id', '')"
+                               :options="['' => 'Semua Kategori'] + $kategoriList->pluck('nama', 'id')->all()" />
+            <x-filter-dropdown name="status" label="Status" form="filterAspirasiWargaForm"
+                               :selected="request('status', '')"
+                               :options="['' => 'Semua Status'] + collect($statusList)->mapWithKeys(fn ($status) => [$status->value => $status->label()])->all()" />
+            <x-filter-dropdown name="urut" label="Urutkan" form="filterAspirasiWargaForm"
+                               :selected="request('urut', '')"
+                               :options="['' => 'Terbaru', 'dukungan' => 'Dukungan Terbanyak']" />
             <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">
                 Terapkan
             </button>
