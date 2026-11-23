@@ -230,21 +230,12 @@
 
                 {{-- Filter Visibilitas & Urutan (PBI #41, PBI #44) --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                        <label for="visibilitas" class="block text-xs font-bold text-gray-700 mb-1.5">Visibilitas</label>
-                        <select id="visibilitas" name="visibilitas" onchange="this.form.submit()" class="block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]">
-                            <option value="">Semua</option>
-                            <option value="tampil" @selected(request('visibilitas') === 'tampil')>Tampil publik</option>
-                            <option value="disembunyikan" @selected(request('visibilitas') === 'disembunyikan')>Disembunyikan</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="urut" class="block text-xs font-bold text-gray-700 mb-1.5">Urutkan</label>
-                        <select id="urut" name="urut" onchange="this.form.submit()" class="block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]">
-                            <option value="">Terbaru</option>
-                            <option value="dukungan" @selected(request('urut') === 'dukungan')>Dukungan terbanyak</option>
-                        </select>
-                    </div>
+                    <x-filter-dropdown name="visibilitas" label="Visibilitas" form="filterAspirasiForm"
+                                       :selected="request('visibilitas', '')"
+                                       :options="['' => 'Semua Visibilitas', 'tampil' => 'Tampil Publik', 'disembunyikan' => 'Disembunyikan']" />
+                    <x-filter-dropdown name="urut" label="Urutkan" form="filterAspirasiForm"
+                                       :selected="request('urut', '')"
+                                       :options="['' => 'Terbaru', 'dukungan' => 'Dukungan Terbanyak']" />
                 </div>
 
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
