@@ -55,7 +55,34 @@ Aplikasi dapat diakses melalui peramban web di: `http://localhost:8000`
 
 ---
 
-## 3. Akun Pengguna Bawaan (Development Seeder)
+## 3. Memperbarui Proyek yang Sudah Terpasang
+
+Jika proyek sudah pernah dipasang di komputer Anda, jalankan langkah berikut setiap kali menarik perubahan terbaru dari repository:
+
+```bash
+# 1. Ambil perubahan terbaru dari branch main
+git pull origin main
+
+# 2. Perbarui dependensi backend dan frontend
+composer install
+npm install
+
+# 3. Jalankan migrasi tabel baru (tanpa menghapus data yang sudah ada)
+php artisan migrate
+
+# 4. Pindahkan foto lampiran lama ke penyimpanan privat
+php artisan lampiran:pindahkan-ke-privat
+
+# 5. Bangun ulang aset frontend
+npm run build
+```
+
+> ℹ️ **Tentang `lampiran:pindahkan-ke-privat`:**
+> Sejak Sprint 2, foto lampiran laporan disimpan di `storage/app/private` dan hanya dapat dibuka melalui rute `/lampiran/{id}` yang memeriksa hak akses laporan (foto pengaduan hanya untuk pelapor dan pihak desa). Perintah ini memindahkan foto lama dari `storage/app/public` ke folder privat. Setiap berkas dicocokkan checksum-nya terlebih dahulu dan salinan publik baru dihapus jika salinan privat identik. Perintah aman dijalankan berulang kali. Tanpa perintah ini, foto lama tidak tampil di aplikasi dan tetap dapat dibuka lewat URL publik lama.
+
+---
+
+## 4. Akun Pengguna Bawaan (Development Seeder)
 
 > ⚠️ **PERINGATAN KEAMANAN:**
 > Seluruh akun dan data kependudukan di bawah ini menggunakan data **FIKTIF** untuk keperluan pengembangan lokal. Password default adalah `password`. **WAJIB DIGANTI** apabila aplikasi dideploy di luar lingkungan lokal!
@@ -69,7 +96,7 @@ Aplikasi dapat diakses melalui peramban web di: `http://localhost:8000`
 
 ---
 
-## 4. Struktur Folder Proyek
+## 5. Struktur Folder Proyek
 
 ```text
 Ruang_Banjarsari/
@@ -110,7 +137,7 @@ Ruang_Banjarsari/
 
 ---
 
-## 5. Perintah Pengujian & Standar Gaya Kode
+## 6. Perintah Pengujian & Standar Gaya Kode
 
 ```bash
 # Menjalankan seluruh Automated Testing (PHPUnit dengan SQLite in-memory)
@@ -128,7 +155,7 @@ npm run build
 
 ---
 
-## 6. Alur Kerja Git & Standar Kolaborasi
+## 7. Alur Kerja Git & Standar Kolaborasi
 
 Pengembangan capstone ini dilakukan oleh tim 3 orang menggunakan kerangka kerja Scrum selama 4 minggu.
 
