@@ -176,7 +176,9 @@ Pengembangan capstone ini dilakukan oleh tim 3 orang menggunakan kerangka kerja 
   - *Contoh:* `feature/PBI-09-ajukan-pengaduan`
 
 ### Konvensi Commit
-Setiap pesan commit wajib menyertakan nomor PBI:
+Format pesan commit ditentukan oleh jenis perubahannya.
+
+**1. Pengerjaan atau revisi PBI**: gunakan nomor PBI apabila commit mengerjakan PBI baru, atau merevisi dan mengubah fungsi yang didefinisikan oleh sebuah PBI.
 ```text
 PBI #<nomor>: <deskripsi ringkas perubahan>
 ```
@@ -184,6 +186,27 @@ PBI #<nomor>: <deskripsi ringkas perubahan>
 - `PBI #1: inisialisasi struktur base code dan layout responsive`
 - `PBI #3: tambahkan migration data_kependudukan dan enum status`
 - `PBI #5: implementasikan middleware EnsureRole dan rate limiting`
+
+**2. Perubahan di luar fungsi utama PBI**: perubahan tampilan, perbaikan kecil, dokumentasi, atau perawatan proyek tidak menyertakan nomor PBI. Gunakan awalan jenis perubahan berikut:
+```text
+<jenis>: <deskripsi ringkas perubahan>
+```
+
+| Jenis | Digunakan untuk |
+|---|---|
+| `style` | Perubahan tampilan atau gaya antarmuka tanpa mengubah fungsi |
+| `fix` | Perbaikan bug di luar revisi PBI |
+| `docs` | Perubahan README atau dokumentasi di folder `docs/` |
+| `chore` | Seeder, konfigurasi, dependensi, dan perawatan proyek lainnya |
+| `refactor` | Perapian struktur kode tanpa mengubah perilaku |
+| `test` | Penambahan atau perbaikan pengujian saja |
+
+Lingkup boleh ditambahkan dalam tanda kurung, misalnya `fix(ci): ...`.
+
+*Contoh:*
+- `style: seragamkan seluruh dropdown pilihan dengan gaya dropdown kustom`
+- `docs: perbarui konvensi commit pada README`
+- `fix(ci): upgrade node to v22 and remove unused optional multiplex dependency`
 
 ### Pull Request
 Setiap pull request ke branch `develop` atau `main` wajib mengisi template `.github/pull_request_template.md` dan memastikan seluruh pengujian pada GitHub Actions CI berstatus hijau.
