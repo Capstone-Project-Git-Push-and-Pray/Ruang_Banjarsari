@@ -30,21 +30,23 @@ class DukunganAspirasiTest extends TestCase
     public function test_warga_dapat_mendukung_aspirasi_warga_lain(): void
     {
         $this->actingAs($this->warga)
+            ->from(route('warga.aspirasi.index'))
             ->post(route('warga.aspirasi.dukungan.store', $this->aspirasi))
-            ->assertSessionHas('success');
+            ->assertRedirect(route('warga.aspirasi.index'))
+            ->assertSessionMissing('success');
 
         $this->assertDatabaseHas('dukungan', ['pengaduan_id' => $this->aspirasi->id, 'user_id' => $this->warga->id]);
 
-        $this->get(route('warga.aspirasi.show', $this->aspirasi))->assertSee('Didukung (1)');
-        $this->get(route('warga.aspirasi.index'))->assertSee('Didukung (1)');
+        $this->get(route('warga.aspirasi.show', $this->aspirasi))->assertSeeInOrder(['Didukung', '1 warga mendukung']);
+        $this->get(route('warga.aspirasi.index'))->assertSeeInOrder(['Didukung', '1 warga mendukung']);
     }
 
     public function test_dukungan_ganda_dari_warga_yang_sama_hanya_tercatat_sekali(): void
     {
         $this->actingAs($this->warga);
 
-        $this->post(route('warga.aspirasi.dukungan.store', $this->aspirasi))->assertSessionHas('success');
-        $this->post(route('warga.aspirasi.dukungan.store', $this->aspirasi))->assertSessionHas('success');
+        $this->postJson(route('warga.aspirasi.dukungan.store', $this->aspirasi))->assertExactJson(['didukung' => true, 'jumlah' => 1]);
+        $this->postJson(route('warga.aspirasi.dukungan.store', $this->aspirasi))->assertExactJson(['didukung' => true, 'jumlah' => 1]);
 
         $this->assertDatabaseCount('dukungan', 1);
     }
@@ -55,8 +57,8 @@ class DukunganAspirasiTest extends TestCase
         $dukunganLain = Dukungan::factory()->create(['pengaduan_id' => $this->aspirasi->id]);
 
         $this->actingAs($this->warga)
-            ->delete(route('warga.aspirasi.dukungan.destroy', $this->aspirasi))
-            ->assertSessionHas('success');
+            ->deleteJson(route('warga.aspirasi.dukungan.destroy', $this->aspirasi))
+            ->assertExactJson(['didukung' => false, 'jumlah' => 1]);
 
         $this->assertSame([$dukunganLain->id], Dukungan::pluck('id')->all());
     }

@@ -180,6 +180,30 @@ class AspirasiPublikTest extends TestCase
             ->assertDontSee($this->wargaLain->nama_lengkap);
     }
 
+    public function test_daftar_aspirasi_memuat_popup_isi_lengkap_dan_popup_komentar_terpisah(): void
+    {
+        $aspirasi = $this->buatAspirasi(['judul' => 'Usulan Lapangan Voli', 'lokasi' => 'Lapangan RW 03']);
+        Komentar::factory()->create(['pengaduan_id' => $aspirasi->id, 'isi' => 'Komentar yang terlihat']);
+        Komentar::factory()->disembunyikan()->create(['pengaduan_id' => $aspirasi->id, 'isi' => 'Komentar tersembunyi']);
+
+        $this->actingAs($this->wargaLain)->get(route('warga.aspirasi.index'))
+            ->assertOk()
+            ->assertSee(['Lihat', 'Komentar (1)'])
+            ->assertSeeInOrder(["detail-aspirasi-{$aspirasi->id}", 'Lapangan RW 03', "komentar-aspirasi-{$aspirasi->id}", 'Komentar yang terlihat'])
+            ->assertDontSee('Komentar tersembunyi');
+    }
+
+    public function test_popup_komentar_dibuka_kembali_setelah_mengirim_komentar(): void
+    {
+        $aspirasi = $this->buatAspirasi();
+
+        $this->actingAs($this->wargaLain)
+            ->from(route('warga.aspirasi.index'))
+            ->post(route('komentar.store', $aspirasi), ['isi' => 'Komentar dari popup'])
+            ->assertRedirect(route('warga.aspirasi.index'))
+            ->assertSessionHas('buka_komentar', $aspirasi->id);
+    }
+
     public function test_warga_belum_aktif_dilarang_berkomentar_pada_aspirasi(): void
     {
         $this->actingAs(User::factory()->warga()->menungguTinjauan()->create())

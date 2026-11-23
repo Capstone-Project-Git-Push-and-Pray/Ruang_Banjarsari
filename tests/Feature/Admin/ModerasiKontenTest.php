@@ -72,7 +72,7 @@ class ModerasiKontenTest extends TestCase
         $this->actingAs($this->warga)->get($halamanPublik)->assertDontSee('Komentar yang dimoderasi');
         $this->actingAs($this->aspirasi->user)
             ->get(route('warga.pengaduan.show', $this->aspirasi))->assertDontSee('Komentar yang dimoderasi');
-        $this->actingAs($this->warga)->get(route('warga.aspirasi.index'))->assertSee('0 komentar');
+        $this->actingAs($this->warga)->get(route('warga.aspirasi.index'))->assertSee('Komentar (0)');
         $this->actingAs($this->komentar->user)->get($halamanPublik)
             ->assertSee(['Komentar yang dimoderasi', 'Disembunyikan dari publik']);
         $this->actingAs($this->admin)

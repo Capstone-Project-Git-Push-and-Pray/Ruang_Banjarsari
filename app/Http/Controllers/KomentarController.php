@@ -39,7 +39,9 @@ class KomentarController extends Controller
             'isi' => trim($validated['isi']),
         ]);
 
-        return back()->with('status', 'komentar-berhasil-ditambahkan');
+        return back()
+            ->with('status', 'komentar-berhasil-ditambahkan')
+            ->with('buka_komentar', $pengaduan->id);
     }
 
     /**
@@ -62,7 +64,9 @@ class KomentarController extends Controller
             'isi' => trim($validated['isi']),
         ]);
 
-        return back()->with('status', 'komentar-berhasil-diperbarui');
+        return back()
+            ->with('status', 'komentar-berhasil-diperbarui')
+            ->with('buka_komentar', $komentar->pengaduan_id);
     }
 
     /**
@@ -75,6 +79,8 @@ class KomentarController extends Controller
         // Penghapusan oleh penulis bersifat permanen; soft delete khusus keputusan moderasi
         $komentar->forceDelete();
 
-        return back()->with('status', 'komentar-berhasil-dihapus');
+        return back()
+            ->with('status', 'komentar-berhasil-dihapus')
+            ->with('buka_komentar', $komentar->pengaduan_id);
     }
 }

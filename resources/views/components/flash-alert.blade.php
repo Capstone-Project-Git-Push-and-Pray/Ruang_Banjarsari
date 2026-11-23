@@ -1,10 +1,15 @@
-@if (session('success') || session('status'))
+@php
+    // Status berupa kode (misalnya "komentar-berhasil-ditambahkan") sudah ditampilkan oleh halaman masing-masing
+    $statusSesi = session('status');
+    $pesanSukses = session('success') ?? (is_string($statusSesi) && str_contains($statusSesi, ' ') ? $statusSesi : null);
+@endphp
+@if ($pesanSukses)
     <div x-data="{ show: true }" x-show="show" x-transition class="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-start justify-between shadow-sm">
         <div class="flex items-center space-x-3">
             <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span class="text-sm font-medium">{{ session('success') ?? session('status') }}</span>
+            <span class="text-sm font-medium">{{ $pesanSukses }}</span>
         </div>
         <button @click="show = false" type="button" class="text-emerald-500 hover:text-emerald-700">
             <span class="sr-only">Tutup</span>

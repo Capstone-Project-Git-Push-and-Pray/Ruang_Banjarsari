@@ -8,7 +8,7 @@
 @endphp
 <div x-data="{ hapus: @js($isFormAktif), alasan: @js($isFormAktif ? old('alasan', '') : '') }" class="space-y-3" id="moderasi-{{ $idForm }}">
     <div class="flex flex-wrap items-center gap-2">
-        <form method="POST" action="{{ route("admin.moderasi.{$jenis}.".($konten->isDisembunyikan() ? 'tampilkan' : 'sembunyikan'), $konten) }}">
+        <form method="POST" action="{{ route("admin.moderasi.{$jenis}.".($konten->isDisembunyikan() ? 'tampilkan' : 'sembunyikan'), $konten) }}" data-pertahankan-gulir>
             @csrf
             @method('patch')
             <button type="submit" class="px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-colors cursor-pointer {{ $konten->isDisembunyikan() ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100' : 'border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100' }}">
@@ -20,7 +20,7 @@
         </button>
     </div>
 
-    <form x-show="hapus" x-cloak method="POST" action="{{ route("admin.moderasi.{$jenis}.hapus", $konten) }}"
+    <form x-show="hapus" x-cloak method="POST" action="{{ route("admin.moderasi.{$jenis}.hapus", $konten) }}" data-pertahankan-gulir
           onsubmit="return confirm('Hapus {{ $jenis }} ini? Konten tidak akan terlihat lagi oleh siapa pun di halaman warga maupun desa.')"
           class="p-4 rounded-2xl border border-red-200 bg-red-50/40 space-y-3">
         @csrf

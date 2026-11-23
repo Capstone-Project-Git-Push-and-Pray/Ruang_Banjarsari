@@ -29,7 +29,12 @@ class AspirasiController extends Controller
 
         $aspirasis = Pengaduan::query()
             ->aspirasiPublik()
-            ->with(['user', 'kategori', 'lampiran'])
+            ->with([
+                'user',
+                'kategori',
+                'lampiran',
+                'komentar' => fn ($query) => $query->tampilUntuk($request->user())->with('user'),
+            ])
             ->withCount(['dukungan', 'komentar' => fn ($query) => $query->tampil()])
             ->withExists(['dukungan as didukung' => fn ($query) => $query->where('user_id', $request->user()->id)])
             ->when($filter['kategori_id'] ?? null, fn ($query, $kategoriId) => $query->where('kategori_id', $kategoriId))

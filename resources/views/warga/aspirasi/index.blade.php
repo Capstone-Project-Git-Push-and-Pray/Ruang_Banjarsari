@@ -21,6 +21,8 @@
 
         {{-- ==================== 2. FILTER & PENCARIAN ==================== --}}
         @php
+            // Popup komentar yang dibuka kembali setelah warga mengirim, mengubah, atau menghapus komentar
+            $bukaKomentar = (int) (old('form_komentar') ?: session('buka_komentar'));
             $kelasInput = 'block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:outline-none focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]';
             $filterAktif = request()->anyFilled(['q', 'kategori_id', 'status']);
         @endphp
@@ -71,9 +73,10 @@
                                 </span>
                             </div>
 
-                            <a href="{{ route('warga.aspirasi.show', $aspirasi) }}" class="font-bold text-gray-900 hover:text-[#1F6B4F] text-[15px] sm:text-base leading-snug line-clamp-2 transition-colors block mt-4">
+                            <button type="button" x-data x-on:click="$dispatch('open-modal', 'detail-aspirasi-{{ $aspirasi->id }}')"
+                                    class="font-bold text-gray-900 hover:text-[#1F6B4F] text-[15px] sm:text-base leading-snug line-clamp-2 transition-colors block mt-4 text-left cursor-pointer">
                                 {{ $aspirasi->judul }}
-                            </a>
+                            </button>
                             <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed mt-1.5">{{ $aspirasi->deskripsi }}</p>
 
                             <div class="flex flex-wrap items-center gap-1.5 mt-3.5">
@@ -87,13 +90,54 @@
                             </div>
                         </div>
 
-                        <div class="mt-5 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-3">
-                            @include('warga.aspirasi.partials.tombol-dukung', ['aspirasi' => $aspirasi])
-                            <a href="{{ route('warga.aspirasi.show', $aspirasi) }}" class="text-xs font-semibold text-gray-600 hover:text-[#1F6B4F] transition-colors whitespace-nowrap">
-                                {{ $aspirasi->komentar_count }} komentar &rarr;
-                            </a>
+                        {{-- Aksi: Dukung + jumlah, Komentar + jumlah, lalu Lihat --}}
+                        <div class="mt-5 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-3" x-data>
+                            <div class="flex items-center gap-3">
+                                @include('warga.aspirasi.partials.tombol-dukung', ['aspirasi' => $aspirasi])
+
+                                <button type="button"
+                                        x-on:click="$dispatch('open-modal', 'komentar-aspirasi-{{ $aspirasi->id }}')"
+                                        title="Lihat dan tulis komentar"
+                                        aria-label="Komentar ({{ $aspirasi->komentar_count }})"
+                                        class="inline-flex items-center gap-1.5 p-2 rounded-xl text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE] transition-colors cursor-pointer">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    <span class="text-sm font-bold text-gray-800 tabular-nums">{{ $aspirasi->komentar_count }}</span>
+                                </button>
+                            </div>
+
+                            <button type="button"
+                                    x-on:click="$dispatch('open-modal', 'detail-aspirasi-{{ $aspirasi->id }}')"
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#185840] hover:bg-[#124230] text-white shadow-xs transition-colors cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <span>Lihat</span>
+                            </button>
                         </div>
                     </article>
+
+                    {{-- Popup isi lengkap aspirasi (PBI #40) --}}
+                    <x-modal name="detail-aspirasi-{{ $aspirasi->id }}" maxWidth="2xl" focusable>
+                        <div class="p-6 sm:p-8 space-y-6">
+                            @include('warga.aspirasi.partials.detail', ['pengaduan' => $aspirasi])
+                            <div class="flex justify-end pt-2 border-t border-gray-100">
+                                <button type="button" x-on:click="$dispatch('close-modal', 'detail-aspirasi-{{ $aspirasi->id }}')"
+                                        class="px-4 py-2 rounded-xl border border-[#E2E8E4] text-xs font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer">
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </x-modal>
+
+                    {{-- Popup komentar publik (PBI #42) --}}
+                    <x-modal name="komentar-aspirasi-{{ $aspirasi->id }}" maxWidth="2xl" :show="$bukaKomentar === $aspirasi->id" focusable>
+                        <div class="relative">
+                            <button type="button" x-on:click="$dispatch('close-modal', 'komentar-aspirasi-{{ $aspirasi->id }}')"
+                                    class="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer" aria-label="Tutup">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                            <p class="px-6 sm:px-8 pt-6 pr-14 text-xs font-semibold text-gray-500 line-clamp-1">{{ $aspirasi->judul }}</p>
+                            @include('pengaduan.partials.komentar-section', ['pengaduan' => $aspirasi, 'dalamPopup' => true])
+                        </div>
+                    </x-modal>
                 @endforeach
             </div>
 
