@@ -37,6 +37,16 @@ class ManajemenSanksiTest extends TestCase
             ->assertDontSee('WARGA BERLAKU');
     }
 
+    public function test_tombol_hapus_filter_hanya_tampil_saat_filter_digunakan(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->get(route('admin.sanksi.index'))->assertDontSee('Hapus Filter');
+        $this->get(route('admin.sanksi.index', ['status' => 'berlaku']))->assertDontSee('Hapus Filter');
+        $this->get(route('admin.sanksi.index', ['status' => 'semua']))->assertSee('Hapus Filter');
+        $this->get(route('admin.sanksi.index', ['fitur' => FiturSanksi::Aspirasi->value]))->assertSee('Hapus Filter');
+    }
+
     public function test_admin_mengubah_masa_berlaku_sanksi(): void
     {
         $sanksi = Sanksi::factory()->create();

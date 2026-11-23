@@ -17,19 +17,28 @@
             <span class="shrink-0 px-4 py-2 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold">{{ $jumlahBerlaku }} sanksi berlaku</span>
         </div>
 
-        <form id="filterSanksiForm" method="GET" action="{{ route('admin.sanksi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-end">
+        <form method="GET" action="{{ route('admin.sanksi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-end">
             <div class="sm:col-span-2">
                 <label for="q" class="block text-xs font-bold text-gray-700 mb-1.5">Cari Warga</label>
                 <input id="q" name="q" type="text" maxlength="100" value="{{ request('q') }}" placeholder="Nama atau NIK..." class="{{ $kelasInput }}">
             </div>
-            <x-filter-dropdown name="fitur" label="Fitur" form="filterSanksiForm"
+            <x-filter-dropdown name="fitur" label="Fitur"
                                :selected="request('fitur', '')"
                                :options="['' => 'Semua Fitur'] + collect(\App\Enums\FiturSanksi::cases())->mapWithKeys(fn ($fitur) => [$fitur->value => $fitur->label()])->all()" />
-            <x-filter-dropdown name="status" label="Status" form="filterSanksiForm"
+            <x-filter-dropdown name="status" label="Status"
                                :selected="request('status', 'berlaku')"
                                :options="['berlaku' => 'Sedang Berlaku', 'semua' => 'Semua Riwayat']" />
             <div class="sm:col-span-4 flex justify-end">
-                <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">Terapkan Filter</button>
+                <div class="flex flex-col gap-2 w-full sm:w-auto">
+                    <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">Terapkan Filter</button>
+                    {{-- Tampil hanya jika filter digunakan; status "Sedang Berlaku" adalah bawaan halaman --}}
+                    @if (request()->anyFilled(['q', 'fitur']) || request('status', 'berlaku') !== 'berlaku')
+                        <a href="{{ route('admin.sanksi.index') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-[#E2E8E4] bg-white hover:bg-gray-50 text-gray-600 text-xs font-semibold transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <span>Hapus Filter</span>
+                        </a>
+                    @endif
+                </div>
             </div>
         </form>
 

@@ -88,9 +88,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterPengaduanForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Status Laporan</label>
@@ -167,9 +164,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterPengaduanForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Kategori Masalah</label>
@@ -246,9 +240,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterPengaduanForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Jenis Laporan</label>

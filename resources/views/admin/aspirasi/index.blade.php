@@ -88,9 +88,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterAspirasiForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Status Aspirasi</label>
@@ -167,9 +164,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterAspirasiForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Kategori Masalah</label>
@@ -230,10 +224,10 @@
 
                 {{-- Filter Visibilitas & Urutan (PBI #41, PBI #44) --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <x-filter-dropdown name="visibilitas" label="Visibilitas" form="filterAspirasiForm"
+                    <x-filter-dropdown name="visibilitas" label="Visibilitas"
                                        :selected="request('visibilitas', '')"
                                        :options="['' => 'Semua Visibilitas', 'tampil' => 'Tampil Publik', 'disembunyikan' => 'Disembunyikan']" />
-                    <x-filter-dropdown name="urut" label="Urutkan" form="filterAspirasiForm"
+                    <x-filter-dropdown name="urut" label="Urutkan"
                                        :selected="request('urut', '')"
                                        :options="['' => 'Terbaru', 'dukungan' => 'Dukungan Terbanyak']" />
                 </div>

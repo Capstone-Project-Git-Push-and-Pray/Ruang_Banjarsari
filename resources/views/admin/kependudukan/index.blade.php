@@ -204,9 +204,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterKependudukanForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Wilayah Dusun</label>
@@ -283,9 +280,6 @@
                             this.selected = val;
                             this.selectedLabel = label;
                             this.open = false;
-                            this.$nextTick(() => {
-                                document.getElementById('filterKependudukanForm').submit();
-                            });
                         }
                     }">
                         <label class="block text-xs font-bold text-gray-700 mb-1.5">Status Akun SILAFA</label>

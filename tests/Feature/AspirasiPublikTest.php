@@ -69,6 +69,16 @@ class AspirasiPublikTest extends TestCase
             ->assertDontSee('Lain Kata Kunci');
     }
 
+    public function test_tombol_hapus_filter_hanya_tampil_saat_filter_digunakan(): void
+    {
+        $this->actingAs($this->wargaLain);
+
+        $this->get(route('warga.aspirasi.index'))->assertDontSee('Hapus Filter');
+        $this->get(route('warga.aspirasi.index', ['q' => '', 'status' => '', 'urut' => '']))->assertDontSee('Hapus Filter');
+        $this->get(route('warga.aspirasi.index', ['status' => 'ditinjau']))->assertSee('Hapus Filter');
+        $this->get(route('warga.aspirasi.index', ['urut' => 'dukungan']))->assertSee('Hapus Filter');
+    }
+
     public function test_pencarian_publik_tidak_mengungkap_aspirasi_dari_nik_pengusul(): void
     {
         $this->buatAspirasi(['judul' => 'Usulan Pos Ronda']);

@@ -1,14 +1,12 @@
 {{--
     Dropdown bergaya kustom (Alpine.js) mengikuti tampilan dropdown Status dan Kategori pada halaman kelola aspirasi.
-    - Dengan prop `form`: formulir dengan id tersebut langsung dikirim saat opsi dipilih (filter).
-    - Tanpa prop `form`: berperan sebagai isian formulir biasa.
+    Berperan sebagai isian formulir biasa: pilihan baru dikirim saat formulir dikirim (misalnya tombol Terapkan).
     - Prop `placeholder`: teks tombol saat belum ada pilihan, tanpa ikut tampil sebagai opsi.
     Setiap pilihan memancarkan event `dropdown-changed` berisi { name, value } agar komponen induk dapat ikut bereaksi.
 --}}
 @props([
     'name',
     'label',
-    'form' => null,
     'options' => [],
     'selected' => '',
     'placeholder' => null,
@@ -28,9 +26,6 @@
         this.selectedLabel = label;
         this.open = false;
         this.$dispatch('dropdown-changed', { name: @js($name), value });
-        @if ($form)
-            this.$nextTick(() => document.getElementById(@js($form)).submit());
-        @endif
     }
 }">
     <label class="block text-xs font-bold text-gray-700 mb-1.5">{{ $label }}</label>

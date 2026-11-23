@@ -25,24 +25,35 @@
             $bukaKomentar = (int) (old('form_komentar') ?: session('buka_komentar'));
             $kelasInput = 'block w-full py-2 px-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-gray-50/40 focus:outline-none focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]';
             $filterAktif = request()->anyFilled(['q', 'kategori_id', 'status']);
+            // Tombol Hapus Filter tampil hanya jika ada filter atau urutan yang sedang diterapkan
+            $filterDigunakan = $filterAktif || request()->filled('urut');
         @endphp
-        <form id="filterAspirasiWargaForm" method="GET" action="{{ route('warga.aspirasi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 items-end">
+        <form method="GET" action="{{ route('warga.aspirasi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 items-start">
             <div class="sm:col-span-2">
                 <label for="q" class="block text-xs font-bold text-gray-700 mb-1.5">Kata Kunci</label>
                 <input type="text" id="q" name="q" maxlength="100" value="{{ request('q') }}" placeholder="Judul, isi, atau lokasi..." class="{{ $kelasInput }}">
             </div>
-            <x-filter-dropdown name="kategori_id" label="Kategori" form="filterAspirasiWargaForm"
+            <x-filter-dropdown name="kategori_id" label="Kategori"
                                :selected="request('kategori_id', '')"
                                :options="['' => 'Semua Kategori'] + $kategoriList->pluck('nama', 'id')->all()" />
-            <x-filter-dropdown name="status" label="Status" form="filterAspirasiWargaForm"
+            <x-filter-dropdown name="status" label="Status"
                                :selected="request('status', '')"
                                :options="['' => 'Semua Status'] + collect($statusList)->mapWithKeys(fn ($status) => [$status->value => $status->label()])->all()" />
-            <x-filter-dropdown name="urut" label="Urutkan" form="filterAspirasiWargaForm"
+            <x-filter-dropdown name="urut" label="Urutkan"
                                :selected="request('urut', '')"
                                :options="['' => 'Terbaru', 'dukungan' => 'Dukungan Terbanyak']" />
-            <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">
-                Terapkan
-            </button>
+            <div class="flex flex-col gap-2">
+                <span class="hidden lg:block text-xs mb-[-2px] invisible" aria-hidden="true">Aksi</span>
+                <button type="submit" class="w-full px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">
+                    Terapkan
+                </button>
+                @if ($filterDigunakan)
+                    <a href="{{ route('warga.aspirasi.index') }}" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-[#E2E8E4] bg-white hover:bg-gray-50 text-gray-600 text-xs font-semibold transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <span>Hapus Filter</span>
+                    </a>
+                @endif
+            </div>
         </form>
 
         {{-- ==================== 3. DAFTAR ASPIRASI ==================== --}}
