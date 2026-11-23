@@ -2,9 +2,11 @@
 
 namespace App\Policies;
 
+use App\Enums\FiturSanksi;
 use App\Enums\StatusLaporan;
 use App\Models\Pengaduan;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class PengaduanPolicy
 {
@@ -72,19 +74,27 @@ class PengaduanPolicy
      * - Perangkat desa dapat berkomentar pada seluruh laporan.
      * - Warga aktif dapat berkomentar pada laporannya sendiri dan pada aspirasi publik.
      * - Diskusi warga terkunci selama aspirasi disembunyikan.
+     * - Warga yang terkena sanksi komentar publik tidak dapat berkomentar pada aspirasi (PBI #47).
      */
-    public function komentari(User $user, Pengaduan $pengaduan): bool
+    public function komentari(User $user, Pengaduan $pengaduan): Response
     {
         if ($user->isAdminDesa() || $user->isKepalaDesa()) {
-            return true;
+            return Response::allow();
         }
 
-        if (! $user->isAktif() || $pengaduan->isDisembunyikan()) {
-            return false;
+        $berwenang = $user->isAktif()
+            && ! $pengaduan->isDisembunyikan()
+            && ((int) $user->id === (int) $pengaduan->user_id || $this->lihatPublik($user, $pengaduan));
+
+        if (! $berwenang) {
+            return Response::deny('Anda tidak memiliki hak akses untuk menambahkan komentar pada laporan ini.');
         }
 
-        return (int) $user->id === (int) $pengaduan->user_id
-            || $this->lihatPublik($user, $pengaduan);
+        $sanksi = $pengaduan->isAspirasi() ? $user->sanksiBerlaku(FiturSanksi::KomentarPublik) : null;
+
+        return $sanksi === null
+            ? Response::allow()
+            : Response::deny('Fitur komentar publik Anda sedang dibatasi. '.$sanksi->keteranganMasaBerlaku().'.');
     }
 
     /**

@@ -23,11 +23,7 @@ class KomentarController extends Controller
         $user = $request->user();
 
         // Validasi hak akses komentar berdasarkan kepemilikan, peran, dan visibilitas (PBI #33, PBI #42)
-        abort_unless(
-            Gate::allows('komentari', $pengaduan),
-            403,
-            'Anda tidak memiliki hak akses untuk menambahkan komentar pada laporan ini.'
-        );
+        Gate::authorize('komentari', $pengaduan);
 
         $validated = $request->validate([
             'isi' => ['required', 'string', 'min:2', 'max:2000'],

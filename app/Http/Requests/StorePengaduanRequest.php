@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\FiturSanksi;
 use App\Enums\JenisLaporan;
+use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,7 +30,7 @@ class StorePengaduanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jenis' => ['required', Rule::enum(JenisLaporan::class)],
+            'jenis' => ['required', Rule::enum(JenisLaporan::class), $this->tolakAspirasiSaatSanksi(...)],
             'kategori_id' => ['required', 'integer', 'exists:kategori,id'],
             'judul' => ['required', 'string', 'min:5', 'max:255'],
             'deskripsi' => ['required', 'string', 'min:10'],
@@ -37,6 +39,22 @@ class StorePengaduanRequest extends FormRequest
             'foto' => ['nullable', 'array', 'max:3'],
             'foto.*' => ['image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
+    }
+
+    /**
+     * Tolak aspirasi baru selama fitur aspirasi warga dibatasi sanksi (PBI #46, PBI #48).
+     */
+    private function tolakAspirasiSaatSanksi(string $attribute, mixed $value, Closure $fail): void
+    {
+        if ($value !== JenisLaporan::Aspirasi->value) {
+            return;
+        }
+
+        $sanksi = $this->user()->sanksiBerlaku(FiturSanksi::Aspirasi);
+
+        if ($sanksi !== null) {
+            $fail('Fitur aspirasi Anda sedang dibatasi. '.$sanksi->keteranganMasaBerlaku().'. Pengaduan tetap dapat diajukan.');
+        }
     }
 
     /**

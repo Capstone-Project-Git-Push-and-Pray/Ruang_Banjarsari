@@ -7,6 +7,7 @@ use App\Enums\AlasanModerasi;
 use App\Enums\JenisKonten;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class RiwayatModerasi extends Model
 {
@@ -61,6 +62,14 @@ class RiwayatModerasi extends Model
     public function pemilik(): BelongsTo
     {
         return $this->belongsTo(User::class, 'pemilik_id');
+    }
+
+    /**
+     * Sanksi otomatis yang dipicu keputusan ini (PBI #46, PBI #47).
+     */
+    public function sanksi(): HasOne
+    {
+        return $this->hasOne(Sanksi::class);
     }
 
     /**

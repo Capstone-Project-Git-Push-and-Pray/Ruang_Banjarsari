@@ -23,7 +23,7 @@ class ModerasiController extends Controller
      */
     public function index(): View
     {
-        $riwayatModerasi = RiwayatModerasi::with(['pengaduan', 'pemilik', 'dilakukanOleh'])
+        $riwayatModerasi = RiwayatModerasi::with(['pengaduan', 'pemilik', 'dilakukanOleh', 'sanksi'])
             ->latest()
             ->latest('id')
             ->paginate(20);
@@ -58,10 +58,10 @@ class ModerasiController extends Controller
      */
     public function hapusAspirasi(HapusKontenRequest $request, Pengaduan $pengaduan): RedirectResponse
     {
-        $this->hapus($request, $pengaduan);
+        $riwayat = $this->hapus($request, $pengaduan);
 
         return redirect()->route('admin.aspirasi.index')
-            ->with('success', 'Aspirasi dihapus dan alasannya telah dicatat.');
+            ->with('success', $this->pesanHapus('Aspirasi', $riwayat));
     }
 
     /**
@@ -91,23 +91,38 @@ class ModerasiController extends Controller
      */
     public function hapusKomentar(HapusKontenRequest $request, Komentar $komentar): RedirectResponse
     {
-        $this->hapus($request, $komentar);
+        $riwayat = $this->hapus($request, $komentar);
 
-        return back()->with('success', 'Komentar dihapus dan alasannya telah dicatat.');
+        return back()->with('success', $this->pesanHapus('Komentar', $riwayat));
     }
 
     /**
      * Teruskan keputusan penghapusan yang sudah tervalidasi ke layanan moderasi.
      */
-    private function hapus(HapusKontenRequest $request, Pengaduan|Komentar $konten): void
+    private function hapus(HapusKontenRequest $request, Pengaduan|Komentar $konten): ?RiwayatModerasi
     {
         $validated = $request->validated();
 
-        $this->moderasiService->hapus(
+        return $this->moderasiService->hapus(
             $konten,
             $request->user(),
             AlasanModerasi::from($validated['alasan']),
             $validated['catatan_moderasi'] ?? null,
         );
+    }
+
+    /**
+     * Pesan hasil penghapusan, termasuk sanksi otomatis yang diterapkan (PBI #46, PBI #47).
+     */
+    private function pesanHapus(string $jenis, ?RiwayatModerasi $riwayat): string
+    {
+        $pesan = "{$jenis} dihapus dan alasannya telah dicatat.";
+        $sanksi = $riwayat?->sanksi;
+
+        if ($sanksi !== null) {
+            $pesan .= " Sanksi otomatis tingkat {$sanksi->tingkat} untuk fitur {$sanksi->fitur->label()}: {$sanksi->keteranganMasaBerlaku()}.";
+        }
+
+        return $pesan;
     }
 }

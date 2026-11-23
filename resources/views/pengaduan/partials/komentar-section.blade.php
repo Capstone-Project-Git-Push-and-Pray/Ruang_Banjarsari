@@ -1,4 +1,4 @@
-<div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-[#E2E8E4] space-y-6">
+<div id="diskusi" class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-[#E2E8E4] space-y-6">
     <div class="flex items-center justify-between border-b border-gray-100 pb-4">
         <div>
             <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
@@ -125,6 +125,9 @@
     @php
         $user = Auth::user();
         $canComment = $user->can('komentari', $pengaduan);
+        $sanksiKomentar = ! $canComment && $user->isWarga() && $pengaduan->isAspirasi()
+            ? $user->sanksiBerlaku(\App\Enums\FiturSanksi::KomentarPublik)
+            : null;
     @endphp
 
     @if ($canComment)
@@ -155,6 +158,11 @@
                     </x-primary-button>
                 </div>
             </form>
+        </div>
+    @elseif ($sanksiKomentar)
+        {{-- Komentar publik dibatasi sanksi (PBI #47, PBI #48) --}}
+        <div class="border-t border-gray-100 pt-4">
+            @include('warga.sanksi.partials.banner', ['sanksi' => $sanksiKomentar])
         </div>
     @else
         <div class="border-t border-gray-100 pt-4 text-center">

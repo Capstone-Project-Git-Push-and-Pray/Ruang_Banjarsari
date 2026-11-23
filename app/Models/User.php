@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FiturSanksi;
 use App\Enums\Role;
 use App\Enums\StatusAkun;
 use Database\Factories\UserFactory;
@@ -174,6 +175,27 @@ class User extends Authenticatable
     public function pengaduan(): HasMany
     {
         return $this->hasMany(Pengaduan::class);
+    }
+
+    /**
+     * Sanksi fitur yang pernah diterima user (PBI #46, PBI #47).
+     */
+    public function sanksi(): HasMany
+    {
+        return $this->hasMany(Sanksi::class);
+    }
+
+    /**
+     * Sanksi yang sedang membatasi fitur tertentu, jika ada (PBI #48).
+     */
+    public function sanksiBerlaku(FiturSanksi $fitur): ?Sanksi
+    {
+        return $this->sanksi()
+            ->berlaku()
+            ->where('fitur', $fitur)
+            ->orderByDesc('permanen')
+            ->orderByDesc('berakhir_pada')
+            ->first();
     }
 
     /**

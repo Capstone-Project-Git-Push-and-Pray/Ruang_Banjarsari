@@ -41,6 +41,11 @@
                                 @if ($riwayat->catatan)
                                     <p class="text-gray-500 mt-1 break-words">{{ $riwayat->catatan }}</p>
                                 @endif
+                                @if ($riwayat->sanksi)
+                                    <a href="{{ route('admin.sanksi.index', ['status' => 'semua', 'q' => $riwayat->pemilik?->nik]) }}" class="inline-block mt-1 text-red-700 font-semibold hover:underline">
+                                        Sanksi tingkat {{ $riwayat->sanksi->tingkat }} &bull; {{ $riwayat->sanksi->fitur->label() }}
+                                    </a>
+                                @endif
                             </td>
                             <td class="px-5 py-4 text-gray-700">{{ $riwayat->dilakukanOleh->nama_lengkap ?? 'akun terhapus' }}</td>
                         </tr>

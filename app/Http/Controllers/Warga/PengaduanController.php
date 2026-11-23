@@ -48,6 +48,7 @@ class PengaduanController extends Controller
 
         $pengaduans = (clone $baseQuery)
             ->with(['kategori', 'lampiran', 'komentar' => fn ($query) => $query->tampil()])
+            ->withCount(['dukungan', 'komentar as komentar_masuk_count' => fn ($query) => $query->komentarMasuk()])
             ->latest()
             ->paginate(50);
 
@@ -137,7 +138,7 @@ class PengaduanController extends Controller
                 'lampiran',
                 'riwayatStatus.diubahOleh',
                 'komentar' => fn ($query) => $query->tampilUntuk($request->user())->with('user'),
-            ]),
+            ])->loadCount(['dukungan', 'komentar as komentar_masuk_count' => fn ($query) => $query->komentarMasuk()]),
         ]);
     }
 }

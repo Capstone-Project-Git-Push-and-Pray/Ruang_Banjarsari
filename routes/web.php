@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ModerasiController;
 use App\Http\Controllers\Admin\PengaduanController as AdminPengaduanController;
 use App\Http\Controllers\Admin\PeninjauanPendaftaranController;
 use App\Http\Controllers\Admin\RekapitulasiController as AdminRekapitulasiController;
+use App\Http\Controllers\Admin\SanksiController as AdminSanksiController;
 use App\Http\Controllers\Kepala\DashboardController as KepalaDashboardController;
 use App\Http\Controllers\Kepala\PengaduanController as KepalaPengaduanController;
 use App\Http\Controllers\KomentarController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Warga\AspirasiController as WargaAspirasiController;
 use App\Http\Controllers\Warga\DashboardController as WargaDashboardController;
 use App\Http\Controllers\Warga\DukunganController;
 use App\Http\Controllers\Warga\PengaduanController as WargaPengaduanController;
+use App\Http\Controllers\Warga\SanksiController as WargaSanksiController;
 use App\Http\Controllers\Warga\StatusPendaftaranController;
 use App\Models\Pengaduan;
 use Illuminate\Support\Facades\Gate;
@@ -89,6 +91,9 @@ Route::middleware(['auth', 'role:warga'])->prefix('warga')->name('warga.')->grou
         Route::get('/aspirasi/{pengaduan}', [WargaAspirasiController::class, 'show'])->name('aspirasi.show');
         Route::post('/aspirasi/{pengaduan}/dukungan', [DukunganController::class, 'store'])->name('aspirasi.dukungan.store');
         Route::delete('/aspirasi/{pengaduan}/dukungan', [DukunganController::class, 'destroy'])->name('aspirasi.dukungan.destroy');
+
+        // Info Sanksi Warga (PBI #48)
+        Route::get('/sanksi', [WargaSanksiController::class, 'index'])->name('sanksi.index');
     });
 });
 
@@ -143,6 +148,10 @@ Route::middleware(['auth', 'role:admin_desa'])->prefix('admin')->name('admin.')-
         Route::patch('/komentar/{komentar}/tampilkan', [ModerasiController::class, 'tampilkanKomentar'])->name('komentar.tampilkan');
         Route::delete('/komentar/{komentar}', [ModerasiController::class, 'hapusKomentar'])->name('komentar.hapus');
     });
+
+    // Manajemen Sanksi Warga (PBI #49)
+    Route::get('/sanksi', [AdminSanksiController::class, 'index'])->name('sanksi.index');
+    Route::patch('/sanksi/{sanksi}', [AdminSanksiController::class, 'update'])->name('sanksi.update');
 
     // Manajemen Kategori (PBI #30)
     Route::prefix('kategori')->name('kategori.')->group(function () {

@@ -53,6 +53,17 @@ class Komentar extends Model
         $query->where(fn (Builder $sub) => $sub->tampil()->orWhere('user_id', $user->id));
     }
 
+    /**
+     * Batasi ke komentar publik dari selain pemilik laporan (PBI #43).
+     * Dipakai di dalam subquery hitung relasi komentar milik laporan.
+     *
+     * @param  Builder<Komentar>  $query
+     */
+    public function scopeKomentarMasuk(Builder $query): void
+    {
+        $query->tampil()->whereColumn('komentar.user_id', '!=', 'pengaduan.user_id');
+    }
+
     // -------------------------------------------------------
     // Relasi
     // -------------------------------------------------------

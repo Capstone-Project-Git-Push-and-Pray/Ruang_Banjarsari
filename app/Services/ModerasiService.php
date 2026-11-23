@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class ModerasiService
 {
+    public function __construct(private SanksiService $sanksiService) {}
+
     /**
      * Sembunyikan konten dari publik dan catat keputusannya (PBI #44).
      *
@@ -56,23 +58,25 @@ class ModerasiService
     }
 
     /**
-     * Hapus konten (soft delete) beserta alasan yang tercatat (PBI #45).
+     * Hapus konten (soft delete) beserta alasan yang tercatat (PBI #45),
+     * lalu terapkan sanksi otomatis bila alasannya termasuk pelanggaran (PBI #46, PBI #47).
      *
-     * @return bool False jika konten sudah dihapus sebelumnya.
+     * @return RiwayatModerasi|null Null jika konten sudah dihapus sebelumnya.
      */
-    public function hapus(Pengaduan|Komentar $konten, User $admin, AlasanModerasi $alasan, ?string $catatan = null): bool
+    public function hapus(Pengaduan|Komentar $konten, User $admin, AlasanModerasi $alasan, ?string $catatan = null): ?RiwayatModerasi
     {
-        return DB::transaction(function () use ($konten, $admin, $alasan, $catatan): bool {
+        return DB::transaction(function () use ($konten, $admin, $alasan, $catatan): ?RiwayatModerasi {
             $terkunci = $konten->newQuery()->lockForUpdate()->find($konten->getKey());
 
             if ($terkunci === null) {
-                return false;
+                return null;
             }
 
-            $this->catat($terkunci, AksiModerasi::Hapus, $admin, $alasan, $catatan);
+            $riwayat = $this->catat($terkunci, AksiModerasi::Hapus, $admin, $alasan, $catatan);
             $terkunci->delete();
+            $riwayat->setRelation('sanksi', $this->sanksiService->terapkanOtomatis($riwayat));
 
-            return true;
+            return $riwayat;
         });
     }
 
@@ -97,10 +101,10 @@ class ModerasiService
         User $admin,
         ?AlasanModerasi $alasan = null,
         ?string $catatan = null,
-    ): void {
+    ): RiwayatModerasi {
         $isAspirasi = $konten instanceof Pengaduan;
 
-        RiwayatModerasi::create([
+        return RiwayatModerasi::create([
             'jenis_konten' => $isAspirasi ? JenisKonten::Aspirasi : JenisKonten::Komentar,
             'pengaduan_id' => $isAspirasi ? $konten->id : $konten->pengaduan_id,
             'komentar_id' => $isAspirasi ? null : $konten->id,

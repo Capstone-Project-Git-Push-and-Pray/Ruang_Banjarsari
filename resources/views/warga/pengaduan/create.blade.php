@@ -2,6 +2,7 @@
     @php
         $kategoriList = $kategoriList ?? \App\Models\Kategori::where('aktif', true)->orderBy('nama')->get();
         $user = Auth::user();
+        $sanksiAspirasi = $user->sanksiBerlaku(\App\Enums\FiturSanksi::Aspirasi);
         $nik = $user->nik ?? '';
         $maskedNik = strlen($nik) >= 8
             ? substr($nik, 0, 4) . '************' . substr($nik, -3)
@@ -167,6 +168,13 @@
 
                         {{-- Hidden Input untuk Form Submission --}}
                         <input type="hidden" name="jenis" :value="jenis">
+
+                        {{-- Fitur aspirasi dibatasi sanksi (PBI #46, PBI #48) --}}
+                        @if ($sanksiAspirasi)
+                            <div class="mt-3" x-show="jenis === 'aspirasi'">
+                                @include('warga.sanksi.partials.banner', ['sanksi' => $sanksiAspirasi])
+                            </div>
+                        @endif
 
                         {{-- Informasi Visibilitas (PBI #38) --}}
                         <p class="mt-3 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5">

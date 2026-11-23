@@ -30,4 +30,13 @@ enum AlasanModerasi: string
             self::Lainnya => 'Lainnya',
         };
     }
+
+    /**
+     * Cek apakah penghapusan dengan alasan ini termasuk penyalahgunaan yang memicu sanksi (PBI #46, PBI #47).
+     * Konten duplikat, tidak relevan, atau alasan lainnya tidak dianggap pelanggaran warga.
+     */
+    public function memicuSanksi(): bool
+    {
+        return in_array($this, [self::Spam, self::KataKasar, self::InformasiPalsu, self::DataPribadi], true);
+    }
 }

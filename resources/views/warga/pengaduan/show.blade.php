@@ -56,9 +56,23 @@
                     <span>Admin Desa menyembunyikan aspirasi ini dari publik selama proses peninjauan. Saat ini hanya Anda dan pihak desa yang dapat melihatnya.</span>
                 </div>
             @elseif ($pengaduan->isAspirasi())
-                <div class="bg-sky-50 border border-sky-200 text-sky-900 p-4 rounded-2xl text-xs shadow-xs flex flex-wrap items-center justify-between gap-2">
-                    <span><strong class="font-bold">Publik.</strong> Aspirasi ini dapat dibaca, didukung, dan dikomentari warga lain.</span>
-                    <a href="{{ route('warga.aspirasi.show', $pengaduan) }}" class="font-semibold text-sky-800 hover:underline">Lihat halaman publik &rarr;</a>
+                <div class="bg-sky-50 border border-sky-200 text-sky-900 p-4 rounded-2xl text-xs shadow-xs space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span><strong class="font-bold">Publik.</strong> Aspirasi ini dapat dibaca, didukung, dan dikomentari warga lain.</span>
+                        <a href="{{ route('warga.aspirasi.show', $pengaduan) }}" class="font-semibold text-sky-800 hover:underline">Lihat halaman publik &rarr;</a>
+                    </div>
+
+                    {{-- Respons warga lain (PBI #43) --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white rounded-xl border border-sky-100 p-3">
+                            <span class="block text-xl font-extrabold text-gray-900">{{ $pengaduan->dukungan_count }}</span>
+                            <span class="text-gray-600">warga mendukung</span>
+                        </div>
+                        <a href="#diskusi" class="bg-white rounded-xl border border-sky-100 p-3 hover:border-sky-300 transition-colors">
+                            <span class="block text-xl font-extrabold text-gray-900">{{ $pengaduan->komentar_masuk_count }}</span>
+                            <span class="text-gray-600">komentar dari warga lain dan aparatur</span>
+                        </a>
+                    </div>
                 </div>
             @else
                 <div class="bg-gray-50 border border-gray-200 text-gray-700 p-4 rounded-2xl text-xs shadow-xs">

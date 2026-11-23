@@ -28,6 +28,22 @@
     <div x-data="{ showLogoutModal: false }" class="max-w-5xl mx-auto space-y-8">
         <span class="sr-only">Dashboard Warga</span>
 
+        {{-- Pemberitahuan Sanksi (PBI #48) --}}
+        @php
+            $sanksiAktifList = collect(\App\Enums\FiturSanksi::cases())
+                ->map(fn ($fitur) => Auth::user()->sanksiBerlaku($fitur))
+                ->filter();
+        @endphp
+        @foreach ($sanksiAktifList as $sanksiAktif)
+            @include('warga.sanksi.partials.banner', ['sanksi' => $sanksiAktif])
+        @endforeach
+        @if ($sanksiAktifList->isEmpty() && Auth::user()->sanksi()->where('mulai_pada', '>=', now()->subDays(30))->exists())
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-2xl text-xs shadow-xs flex flex-wrap items-center justify-between gap-2">
+                <span><strong class="font-bold">Peringatan.</strong> Konten Anda pernah dihapus Admin Desa dalam 30 hari terakhir. Pelanggaran berikutnya dapat membatasi fitur akun.</span>
+                <a href="{{ route('warga.sanksi.index') }}" class="font-semibold text-amber-800 hover:underline">Lihat rincian &rarr;</a>
+            </div>
+        @endif
+
         {{-- ==================== 1. KARTU HERO UTAMA (FOREST GREEN) ==================== --}}
         <div class="relative overflow-hidden bg-[#185840] rounded-[28px] p-6 sm:p-8 lg:p-10 shadow-sm text-white">
             {{-- Hiasan Garis Gelombang Kontur (SVG Waves) --}}
