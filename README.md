@@ -92,7 +92,16 @@ npm run build
 | **Admin Desa** | `admin@desa-banjarsari.test` | `password` | `aktif` | Pengelola pengaduan & tinjauan akun |
 | **Kepala Desa** | `kades@desa-banjarsari.test` | `password` | `aktif` | Supervisi laporan & statistik |
 | **Warga (Contoh 1)** | NIK: `9999000000000001`<br>Email: `warga.aktif@desa-banjarsari.test` | `password` | `aktif` | Budi Santoso (cocok kependudukan) |
-| **Warga (Contoh 2)** | NIK: `9999000000000002`<br>Email: `warga.pending@desa-banjarsari.test` | `password` | `menunggu_tinjauan` | Siti Aminah (menunggu tinjauan manual) |
+| **Warga (Contoh 2)** | NIK: `9999000000000004`<br>Email: `dewi.lestari@desa-banjarsari.test` | `password` | `aktif` | Dewi Lestari (cocok kependudukan) |
+| **Warga (Contoh 3)** | NIK: `9999000000000005`<br>Email: `eko.prasetyo@desa-banjarsari.test` | `password` | `aktif` | Eko Prasetyo (cocok kependudukan) |
+| **Warga (Contoh 4)** | NIK: `9999000000000002`<br>Email: `warga.pending@desa-banjarsari.test` | `password` | `menunggu_tinjauan` | Siti Aminah (menunggu tinjauan manual) |
+
+> 💡 Gunakan dua atau lebih akun warga aktif untuk menguji fitur antarwarga, misalnya dukungan dan komentar pada aspirasi. Warga tidak dapat mendukung aspirasinya sendiri.
+>
+> Jika proyek sudah terpasang sebelumnya, tambahkan akun warga baru tanpa mengulang seluruh seeder:
+> ```bash
+> php artisan db:seed --class=UserSeeder
+> ```
 
 ---
 

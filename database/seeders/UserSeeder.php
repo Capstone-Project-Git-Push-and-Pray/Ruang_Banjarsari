@@ -121,5 +121,41 @@ class UserSeeder extends Seeder
                 ]
             );
         }
+
+        // 6. Warga Contoh 4 & 5: Berstatus Aktif (data cocok dengan data kependudukan desa),
+        //    agar fitur antarwarga seperti dukungan dan komentar aspirasi dapat diuji
+        $wargaAktifTambahan = [
+            '9999000000000004' => ['email' => 'dewi.lestari@desa-banjarsari.test', 'telepon' => '081234567893'],
+            '9999000000000005' => ['email' => 'eko.prasetyo@desa-banjarsari.test', 'telepon' => '081234567894'],
+        ];
+
+        foreach ($wargaAktifTambahan as $nik => $kontak) {
+            $penduduk = DataKependudukan::where('nik', $nik)->first();
+
+            if (! $penduduk) {
+                continue;
+            }
+
+            User::firstOrCreate(
+                ['nik' => $penduduk->nik],
+                [
+                    'nama_lengkap' => $penduduk->nama_lengkap,
+                    'tanggal_lahir' => $penduduk->tanggal_lahir,
+                    'alamat' => $penduduk->alamat,
+                    'rt' => $penduduk->rt,
+                    'rw' => $penduduk->rw,
+                    'dusun' => $penduduk->dusun,
+                    'email' => $kontak['email'],
+                    'telepon' => $kontak['telepon'],
+                    'whatsapp' => $kontak['telepon'],
+                    'password' => $defaultPassword,
+                    'role' => Role::Warga,
+                    'status_akun' => StatusAkun::Aktif,
+                    'persetujuan_pada' => now(),
+                    'email_verified_at' => now(),
+                    'wajib_ganti_password' => false,
+                ]
+            );
+        }
     }
 }

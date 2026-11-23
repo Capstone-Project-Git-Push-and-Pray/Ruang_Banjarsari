@@ -29,7 +29,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertTrue(DataKependudukan::where('nik', '9999000000000001')->exists());
 
         // Verifikasi akun pengguna bawaan seeder
-        $this->assertDatabaseCount('users', 5);
+        $this->assertDatabaseCount('users', 7);
 
         // Verifikasi Admin Desa
         $admin = User::where('email', 'admin@desa-banjarsari.test')->first();
@@ -48,6 +48,15 @@ class DatabaseSeederTest extends TestCase
         $this->assertNotNull($wargaAktif);
         $this->assertSame(Role::Warga, $wargaAktif->role);
         $this->assertSame(StatusAkun::Aktif, $wargaAktif->status_akun);
+
+        // Verifikasi Warga Aktif tambahan sesuai data kependudukan
+        foreach (['9999000000000004' => 'DEWI LESTARI', '9999000000000005' => 'EKO PRASETYO'] as $nik => $nama) {
+            $warga = User::where('nik', $nik)->first();
+            $this->assertNotNull($warga);
+            $this->assertSame($nama, $warga->nama_lengkap);
+            $this->assertSame(Role::Warga, $warga->role);
+            $this->assertSame(StatusAkun::Aktif, $warga->status_akun);
+        }
 
         // Verifikasi Warga Menunggu Tinjauan
         $wargaPending = User::where('nik', '9999000000000002')->first();
