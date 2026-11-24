@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ModerasiController;
 use App\Http\Controllers\Admin\PengaduanController as AdminPengaduanController;
 use App\Http\Controllers\Admin\PeninjauanPendaftaranController;
 use App\Http\Controllers\Admin\RekapitulasiController as AdminRekapitulasiController;
+use App\Http\Controllers\Admin\ResetAkunWargaController;
 use App\Http\Controllers\Admin\SanksiController as AdminSanksiController;
 use App\Http\Controllers\Kepala\DashboardController as KepalaDashboardController;
 use App\Http\Controllers\Kepala\PengaduanController as KepalaPengaduanController;
@@ -164,6 +165,13 @@ Route::middleware(['auth', 'role:admin_desa'])->prefix('admin')->name('admin.')-
 
     // Rekapitulasi Laporan (PBI #35)
     Route::get('/rekapitulasi', [AdminRekapitulasiController::class, 'index'])->name('rekapitulasi.index');
+
+    // Bantuan Reset Akun Warga
+    Route::prefix('reset-akun')->name('reset-akun.')->group(function () {
+        Route::get('/', [ResetAkunWargaController::class, 'index'])->name('index');
+        Route::post('/{user}/kirim-tautan', [ResetAkunWargaController::class, 'kirimTautan'])->name('kirim-tautan');
+        Route::post('/{user}/kata-sandi-sementara', [ResetAkunWargaController::class, 'kataSandiSementara'])->name('kata-sandi-sementara');
+    });
 });
 
 // Grup Rute Kepala Desa

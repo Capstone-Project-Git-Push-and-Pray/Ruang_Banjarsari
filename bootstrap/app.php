@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountActive;
+use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Daftarkan header keamanan global pada web group
         $middleware->web(append: [
             SecurityHeaders::class,
+            EnsurePasswordChanged::class,
         ]);
 
         // Alias middleware untuk otorisasi peran dan status akun

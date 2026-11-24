@@ -38,6 +38,9 @@
                             <x-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')">
                                 Kategori
                             </x-nav-link>
+                            <x-nav-link :href="route('admin.reset-akun.index')" :active="request()->routeIs('admin.reset-akun.*')">
+                                Reset Akun
+                            </x-nav-link>
                         @elseif (Auth::user()->isKepalaDesa())
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('*.dashboard')">
                                 Dashboard
@@ -126,6 +129,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.kategori.index')" :active="request()->routeIs('admin.kategori.*')">
                         Kategori
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.reset-akun.index')" :active="request()->routeIs('admin.reset-akun.*')">
+                        Reset Akun
                     </x-responsive-nav-link>
                 @elseif (Auth::user()->isKepalaDesa())
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('*.dashboard')">

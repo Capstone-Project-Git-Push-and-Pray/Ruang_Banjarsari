@@ -188,11 +188,11 @@
                                 </div>
                             </a>
 
-                            {{-- 8. Bantuan Reset Akun / Profil --}}
-                            <a href="{{ route('profile.edit') }}"
-                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('profile.edit') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
+                            {{-- 8. Bantuan Reset Akun Warga --}}
+                            <a href="{{ route('admin.reset-akun.index') }}"
+                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.reset-akun.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
                                 <div class="flex items-center gap-3">
-                                    <i data-lucide="shield-check" class="w-4 h-4 {{ request()->routeIs('profile.edit') ? 'text-white' : 'text-gray-400' }}"></i>
+                                    <i data-lucide="key-round" class="w-4 h-4 {{ request()->routeIs('admin.reset-akun.*') ? 'text-white' : 'text-gray-400' }}"></i>
                                     <span>Bantuan Reset Akun</span>
                                 </div>
                             </a>
@@ -244,7 +244,7 @@
                     request()->routeIs('admin.sanksi.*') => 'Manajemen Sanksi',
                     request()->routeIs('admin.rekapitulasi.*') => 'Rekapitulasi & Analitik',
                     request()->routeIs('admin.kategori.*') => 'Pengaturan Kategori',
-                    request()->routeIs('profile.*') => 'Bantuan Reset Akun',
+                    request()->routeIs('admin.reset-akun.*') => 'Bantuan Reset Akun',
                     default => ($title ?? 'Panel Admin Desa'),
                 };
             @endphp
