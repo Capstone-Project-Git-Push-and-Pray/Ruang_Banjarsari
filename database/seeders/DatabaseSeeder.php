@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             PengaduanSeeder::class,
             AspirasiSeeder::class,
             ModerasiSeeder::class,
+            KomentarSeeder::class,
         ]);
     }
 }
