@@ -71,7 +71,6 @@
                     <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Kembali ke Beranda</span>
                 </a>
-                <span class="text-[11px] text-gray-400 font-medium hidden sm:inline-block">Portal Resmi Layanan Digital Desa Banjarsari</span>
             </div>
 
             {{-- 2-Column Auth Card (Sesuai Mockup Desain) --}}
@@ -79,7 +78,26 @@
                  x-data="{
                      roleTab: 'warga',
                      showPassword: false,
-                     loginVal: '{{ old('login', old('email', '')) }}'
+                     loginVal: '{{ old('login', old('email', '')) }}',
+                     tertangguhSampai: {{ (int) session('login_tertangguh_sampai', 0) }},
+                     sisaDetik: 0,
+                     init() {
+                         this.hitungSisa();
+                         if (this.sisaDetik > 0) {
+                             const timer = setInterval(() => {
+                                 this.hitungSisa();
+                                 if (this.sisaDetik <= 0) { clearInterval(timer); }
+                             }, 1000);
+                         }
+                     },
+                     hitungSisa() {
+                         this.sisaDetik = Math.max(0, this.tertangguhSampai - Math.floor(Date.now() / 1000));
+                     },
+                     get waktuMundur() {
+                         const menit = String(Math.floor(this.sisaDetik / 60)).padStart(2, '0');
+                         const detik = String(this.sisaDetik % 60).padStart(2, '0');
+                         return menit + ':' + detik;
+                     }
                  }">
 
                 {{-- ==================== KOLOM KIRI: HERO BANNER HIJAU ==================== --}}
@@ -110,7 +128,7 @@
                                 SILAFA Banjarsari
                             </h1>
                             <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed mt-2.5">
-                                Sistem Informasi Layanan Pengaduan dan Aspirasi warga resmi dan terenkripsi untuk transparansi pelayanan masyarakat Desa Banjarsari.
+                                Layanan Pengaduan dan Aspirasi warga resmi dan terenkripsi untuk transparansi pelayanan masyarakat Desa Banjarsari.
                             </p>
                         </div>
 
@@ -150,15 +168,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Footer Bawah Kolom Kiri --}}
-                    <div class="relative z-10 pt-6 mt-6 border-t border-white/15 flex items-center justify-between text-xs text-emerald-100/80">
-                        <span>Pemerintah Desa Banjarsari</span>
-                        <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-200">
-                            <svg class="w-3.5 h-3.5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Sistem Terverifikasi
-                        </span>
-                    </div>
                 </div>
 
                 {{-- ==================== KOLOM KANAN: FORM AUTENTIKASI ==================== --}}
@@ -175,7 +184,7 @@
                         </div>
 
                         {{-- Segmented Tabs Pilihan Peran (Warga vs Aparatur) --}}
-                        <div class="bg-gray-100 p-1 rounded-xl flex items-center gap-1 mb-4 border border-gray-200/80">
+                        <div class="bg-gray-100 p-1 rounded-xl flex items-center gap-1 mb-6 border border-gray-200/80">
                             <button type="button"
                                     @click="roleTab = 'warga'"
                                     class="flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
@@ -192,38 +201,11 @@
                             </button>
                         </div>
 
-                        {{-- Box Panduan Konseptual --}}
-                        <div class="mb-5 rounded-xl border border-emerald-200 bg-[#EAF5EE] p-3 flex items-start gap-2.5 text-xs text-gray-700">
-                            <svg class="w-4 h-4 text-[#1F6B4F] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <div class="leading-relaxed text-[11px] sm:text-xs text-[#174B39]">
-                                <template x-if="roleTab === 'warga'">
-                                    <span>Gunakan <strong>16 digit NIK</strong> sesuai KTP-el warga Desa Banjarsari dan Kata Sandi terdaftar.</span>
-                                </template>
-                                <template x-if="roleTab === 'petugas'">
-                                    <span>Gunakan <strong>Username</strong> atau <strong>Email Resmi</strong> aparatur desa dan Kata Sandi terdaftar.</span>
-                                </template>
-                            </div>
-                        </div>
-
-                        {{-- Status Session & Error Messages --}}
+                        {{-- Status Session --}}
                         @if (session('status'))
                             <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
                                 <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 <span>{{ session('status') }}</span>
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="mb-4 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl space-y-1">
-                                <div class="font-semibold flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span>Gagal Masuk:</span>
-                                </div>
-                                <ul class="list-disc list-inside pl-1 space-y-0.5 text-[11px]">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
                             </div>
                         @endif
 
@@ -251,9 +233,9 @@
                                            x-model="loginVal"
                                            required
                                            autofocus
-                                           :placeholder="roleTab === 'warga' ? 'Contoh: 3207012345678901' : 'Contoh: admin@banjarsari.desa.id atau kades'"
+                                           :placeholder="roleTab === 'warga' ? 'Contoh: 3207012345678901' : 'Masukan Email/Username'"
                                            :maxlength="roleTab === 'warga' ? '16' : '100'"
-                                           class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white border border-[#D5DDD6] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
+                                           class="w-full pl-10 pr-4 py-2.5 sm:py-3 border {{ $errors->any() ? 'bg-rose-50/60 border-rose-400' : 'bg-white border-[#D5DDD6]' }} rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
                                 </div>
                             </div>
 
@@ -279,7 +261,7 @@
                                            required
                                            autocomplete="current-password"
                                            placeholder="Masukkan kata sandi akun"
-                                           class="w-full pl-10 pr-11 py-2.5 sm:py-3 bg-white border border-[#D5DDD6] rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
+                                           class="w-full pl-10 pr-11 py-2.5 sm:py-3 border {{ $errors->any() ? 'bg-rose-50/60 border-rose-400' : 'bg-white border-[#D5DDD6]' }} rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
                                     <button type="button"
                                             @click="showPassword = !showPassword"
                                             class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
@@ -289,6 +271,23 @@
                                         <svg x-show="showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
                                     </button>
                                 </div>
+
+                                {{-- Pesan Kesalahan Login (inline di bawah kata sandi) --}}
+                                @if (session('login_tertangguh_sampai'))
+                                    <p x-show="sisaDetik > 0" role="alert" class="text-xs text-rose-600">
+                                        Akun ditangguhkan sementara. Coba lagi dalam <span class="font-semibold tabular-nums" x-text="waktuMundur"></span>
+                                    </p>
+                                    <p x-show="sisaDetik <= 0" style="display: none;" class="text-xs text-[#1F6B4F]">
+                                        Silakan coba masuk kembali.
+                                    </p>
+                                @elseif ($errors->any())
+                                    <p role="alert" class="text-xs text-rose-600">
+                                        {{ $errors->first() }}
+                                        @if (session()->has('login_sisa_percobaan'))
+                                            <span class="text-rose-500/80">Sisa {{ session('login_sisa_percobaan') }} percobaan.</span>
+                                        @endif
+                                    </p>
+                                @endif
                             </div>
 
                             {{-- Checkbox Remember Me --}}
@@ -305,9 +304,11 @@
                             {{-- Tombol Masuk ke Layanan --}}
                             <div class="pt-2">
                                 <button type="submit"
-                                        class="w-full py-3 sm:py-3.5 px-4 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-sm sm:text-base font-bold rounded-xl shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer group">
-                                    <span>Masuk ke Layanan</span>
-                                    <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                        :disabled="sisaDetik > 0"
+                                        class="w-full py-3 sm:py-3.5 px-4 bg-[#1F6B4F] hover:bg-[#174B39] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white text-sm sm:text-base font-bold rounded-xl shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer group">
+                                    <span x-show="sisaDetik <= 0">Masuk ke Layanan</span>
+                                    <span x-show="sisaDetik > 0" style="display: none;">Tunggu <span x-text="waktuMundur"></span></span>
+                                    <svg x-show="sisaDetik <= 0" class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                 </button>
                             </div>
                         </form>
@@ -328,21 +329,15 @@
                         {{-- Bantuan WhatsApp & Balai Desa --}}
                         <div class="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-500 text-center">
                             <span>Butuh bantuan saat masuk?</span>
-                            <a href="https://wa.me/6281234567890" target="_blank" class="font-semibold text-gray-800 hover:text-[#1F6B4F] inline-flex items-center gap-1">
+                            <a href="https://wa.me/6289662893128?text={{ rawurlencode('Halo Admin Desa Banjarsari, saya butuh bantuan untuk masuk ke akun SILAFA.') }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-gray-800 hover:text-[#1F6B4F] inline-flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.668-.699c.974.536 1.764.814 2.792.814 3.18 0 5.766-2.587 5.766-5.766 0-3.18-2.586-5.766-5.766-5.766zm9.969 5.766c0 5.485-4.453 9.938-9.969 9.938-1.745 0-3.385-.45-4.819-1.237l-5.212 1.361 1.39-5.078c-.887-1.488-1.359-3.21-1.359-4.984 0-5.485 4.453-9.938 9.969-9.938 5.516 0 10 4.453 10 9.938z"/></svg>
-                                <span>WhatsApp: 0812-3456-7890</span>
+                                <span>WhatsApp: 0896-6289-3128</span>
                             </a>
                             <span class="text-gray-300">•</span>
-                            <a href="{{ url('/') }}#kontak" class="font-semibold text-gray-800 hover:text-[#1F6B4F] inline-flex items-center gap-1">
+                            <a href="https://www.google.com/maps/dir//QR6M%2BQH2+Kantor+Desa+Banjarsari,+Banjarsari,+Kec.+Bayongbong,+Kabupaten+Garut,+Jawa+Barat+44162/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x2e68bac7ed2768fb:0xa1e17fc9b9ff1f3e" target="_blank" rel="noopener noreferrer" class="font-semibold text-gray-800 hover:text-[#1F6B4F] inline-flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                                 <span>Balai Desa</span>
                             </a>
-                        </div>
-
-                        {{-- Banner Perlindungan Data Kependudukan --}}
-                        <div class="mt-3 p-2.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center gap-2 text-center text-[11px] text-gray-600 font-medium">
-                            <svg class="w-4 h-4 text-[#1F6B4F] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                            <span>Data Kependudukan Terlindungi Enkripsi Standar Keamanan Informasi Publik.</span>
                         </div>
                     </div>
                 </div>
@@ -352,7 +347,7 @@
             <div class="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500 pt-3 pb-2 px-1">
                 <div>
                     <p class="font-medium text-gray-700">&copy; {{ date('Y') }} Pemerintah Desa Banjarsari. Seluruh Hak Cipta Dilindungi.</p>
-                    <p class="text-[11px] text-gray-500 mt-0.5">Jam Layanan Kantor Desa: Senin - Jumat (08.00 - 15.30 WIB) | Portal Pengaduan Digital: 24 Jam</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">Jam Layanan Kantor Desa: Senin - Jumat (08.00 - 16.00 WIB) | Portal Pengaduan Digital: 24 Jam</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-600">
                     <a href="{{ url('/') }}" class="hover:text-[#1F6B4F] transition-colors">Panduan Registrasi NIK</a>
@@ -408,7 +403,7 @@
                     <h4 class="font-display font-semibold text-gray-900 text-xs sm:text-sm mb-3">Kontak Sekretariat</h4>
                     <ul class="space-y-2">
                         <li class="text-xs text-gray-500">Kantor Balai Desa Banjarsari</li>
-                        <li class="text-xs text-gray-500">WhatsApp Siaga Warga: 0812-3456-7890</li>
+                        <li class="text-xs text-gray-500">WhatsApp Siaga Warga: 0896-6289-3128</li>
                         <li class="text-xs text-gray-500">Email: aduan@banjarsari.desa.id</li>
                     </ul>
                 </div>

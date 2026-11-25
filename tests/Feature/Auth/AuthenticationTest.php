@@ -125,26 +125,114 @@ class AuthenticationTest extends TestCase
         $response->assertSessionHasErrors('login');
     }
 
-    public function test_login_attempts_are_rate_limited(): void
+    public function test_failed_login_shows_readable_indonesian_message(): void
     {
         $user = User::factory()->create();
 
-        // Lakukan 5 percobaan salah
-        for ($i = 0; $i < 5; $i++) {
-            $this->post('/login', [
-                'login' => $user->email,
-                'password' => 'wrong-password',
-            ]);
-        }
-
-        // Percobaan ke-6 harus terkunci oleh rate limiter
-        $response = $this->post('/login', [
+        $response = $this->from('/login')->post('/login', [
             'login' => $user->email,
             'password' => 'wrong-password',
         ]);
 
-        $this->assertTrue($response->isRedirect() || $response->status() === 429);
+        $response->assertRedirect('/login');
+        $response->assertSessionHasErrors([
+            'login' => 'NIK/username atau kata sandi salah.',
+        ]);
         $this->assertGuest();
+    }
+
+    public function test_failed_login_flashes_remaining_attempts(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('/login', ['login' => $user->email, 'password' => 'salah'])
+            ->assertSessionHas('login_sisa_percobaan', 2);
+
+        $this->post('/login', ['login' => $user->email, 'password' => 'salah'])
+            ->assertSessionHas('login_sisa_percobaan', 1);
+    }
+
+    public function test_account_is_suspended_after_three_failures_even_with_correct_password(): void
+    {
+        $user = User::factory()->create(['password' => bcrypt('password-benar')]);
+
+        $this->gagalLogin($user->email, 3);
+
+        $response = $this->post('/login', ['login' => $user->email, 'password' => 'password-benar']);
+
+        $response->assertSessionHas('login_tertangguh_sampai');
+        $response->assertSessionHasErrors('login');
+        $this->assertGuest();
+    }
+
+    public function test_suspension_follows_the_account_not_the_ip_address(): void
+    {
+        $user = User::factory()->create(['password' => bcrypt('password-benar')]);
+
+        $this->gagalLogin($user->email, 3);
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.99'])
+            ->post('/login', ['login' => $user->email, 'password' => 'password-benar']);
+
+        $this->assertGuest();
+    }
+
+    public function test_suspension_is_shared_between_email_and_username_of_same_account(): void
+    {
+        $user = User::factory()->adminDesa()->create([
+            'email' => 'operator@desa-banjarsari.test',
+            'password' => bcrypt('password-benar'),
+        ]);
+
+        $this->gagalLogin('operator', 3);
+
+        $this->post('/login', ['login' => $user->email, 'password' => 'password-benar']);
+
+        $this->assertGuest();
+    }
+
+    public function test_suspension_duration_escalates_and_resets_after_successful_login(): void
+    {
+        $user = User::factory()->create(['password' => bcrypt('password-benar')]);
+
+        // Penangguhan pertama: 5 menit
+        $this->gagalLogin($user->email, 3);
+        $this->travel(5)->minutes();
+        $this->travel(1)->seconds();
+
+        // Penangguhan kedua: 15 menit, sehingga 5 menit kemudian masih terkunci
+        $this->gagalLogin($user->email, 3);
+        $this->travel(6)->minutes();
+        $this->post('/login', ['login' => $user->email, 'password' => 'password-benar']);
+        $this->assertGuest();
+
+        // Setelah 15 menit berlalu, login benar berhasil dan riwayat direset
+        $this->travel(10)->minutes();
+        $this->post('/login', ['login' => $user->email, 'password' => 'password-benar']);
+        $this->assertAuthenticatedAs($user);
+
+        $this->post('/logout');
+        $this->post('/login', ['login' => $user->email, 'password' => 'salah'])
+            ->assertSessionHas('login_sisa_percobaan', 2);
+    }
+
+    public function test_login_page_shows_suspension_countdown(): void
+    {
+        $user = User::factory()->create();
+
+        $this->gagalLogin($user->email, 3);
+
+        $this->followingRedirects()
+            ->from('/login')
+            ->post('/login', ['login' => $user->email, 'password' => 'salah'])
+            ->assertSee('Akun ditangguhkan sementara.');
+    }
+
+    private function gagalLogin(string $login, int $kali): void
+    {
+        for ($i = 0; $i < $kali; $i++) {
+            $this->post('/login', ['login' => $login, 'password' => 'password-salah']);
+        }
     }
 
     public function test_users_can_logout(): void

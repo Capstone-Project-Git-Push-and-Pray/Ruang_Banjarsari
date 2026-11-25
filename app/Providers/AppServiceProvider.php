@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,13 +30,6 @@ class AppServiceProvider extends ServiceProvider
         // Daftarkan kebijakan otorisasi model (PBI #22)
         Gate::policy(Pengaduan::class, PengaduanPolicy::class);
         Gate::policy(Komentar::class, KomentarPolicy::class);
-
-        // Rate limiter untuk proteksi brute force login (5 percobaan / menit per identitas + IP)
-        RateLimiter::for('login', function (Request $request) {
-            $identifier = (string) ($request->input('login') ?? $request->input('email') ?? $request->input('nik') ?? $request->ip());
-
-            return Limit::perMinute(5)->by(Str::lower($identifier).'|'.$request->ip());
-        });
 
         // Rate limiter untuk formulir registrasi (5 per menit per IP)
         RateLimiter::for('registrasi', function (Request $request) {

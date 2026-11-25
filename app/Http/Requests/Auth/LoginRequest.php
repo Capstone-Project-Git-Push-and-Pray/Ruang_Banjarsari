@@ -3,13 +3,11 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Events\Lockout;
+use App\Services\PenguncianLoginService;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -46,17 +44,37 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Get the custom validation messages for the login form.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'login.required' => 'NIK, username, atau email wajib diisi.',
+            'password.required' => 'Kata sandi wajib diisi.',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws ValidationException
      */
     public function authenticate(): void
     {
-        $this->ensureIsNotRateLimited();
+        $penguncian = app(PenguncianLoginService::class);
 
         $login = trim((string) $this->input('login', $this->input('email')));
         $password = (string) $this->input('password');
         $remember = $this->boolean('remember');
+        $identitas = $this->identitasPenangguhan($login);
+
+        $sisaDetik = $penguncian->sisaDetikTertangguh($identitas);
+
+        if ($sisaDetik > 0) {
+            $this->tolakKarenaTertangguh($sisaDetik);
+        }
 
         $attempt = false;
 
@@ -79,47 +97,54 @@ class LoginRequest extends FormRequest
             }
         }
 
-        if (! $attempt) {
-            RateLimiter::hit($this->throttleKey());
+        if ($attempt) {
+            $penguncian->bersihkan($identitas);
 
-            throw ValidationException::withMessages([
-                'login' => trans('auth.failed'),
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey());
-    }
-
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws ValidationException
-     */
-    public function ensureIsNotRateLimited(): void
-    {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
-        event(new Lockout($this));
+        $hasil = $penguncian->catatGagal($identitas);
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        if ($hasil['detik_tertangguh'] > 0) {
+            $this->tolakKarenaTertangguh($hasil['detik_tertangguh']);
+        }
+
+        $this->session()->flash('login_sisa_percobaan', $hasil['sisa_percobaan']);
 
         throw ValidationException::withMessages([
-            'login' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'login' => 'NIK/username atau kata sandi salah.',
         ]);
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Identitas penangguhan per akun: ID pengguna bila akun ditemukan,
+     * sehingga NIK, email, dan username milik akun yang sama berbagi satu hitungan.
      */
-    public function throttleKey(): string
+    private function identitasPenangguhan(string $login): string
     {
-        $login = $this->input('login', $this->input('email'));
+        $user = User::query()
+            ->where('nik', $login)
+            ->orWhere('email', mb_strtolower($login))
+            ->first();
 
-        return Str::transliterate(Str::lower($login).'|'.$this->ip());
+        if ($user === null && $login !== '' && ! str_contains($login, '@')) {
+            $user = User::where('email', 'like', $login.'@%')->first();
+        }
+
+        return $user !== null ? 'user:'.$user->getKey() : 'login:'.mb_strtolower($login);
+    }
+
+    /**
+     * Tolak login karena akun sedang ditangguhkan sementara.
+     *
+     * @throws ValidationException
+     */
+    private function tolakKarenaTertangguh(int $sisaDetik): never
+    {
+        $this->session()->flash('login_tertangguh_sampai', now()->getTimestamp() + $sisaDetik);
+
+        throw ValidationException::withMessages([
+            'login' => 'Akun ditangguhkan sementara karena terlalu banyak percobaan masuk yang gagal. Silakan coba lagi dalam '.ceil($sisaDetik / 60).' menit.',
+        ]);
     }
 }
