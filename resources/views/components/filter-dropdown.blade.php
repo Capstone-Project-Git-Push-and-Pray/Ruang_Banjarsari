@@ -2,6 +2,7 @@
     Dropdown bergaya kustom (Alpine.js) mengikuti tampilan dropdown Status dan Kategori pada halaman kelola aspirasi.
     Berperan sebagai isian formulir biasa: pilihan baru dikirim saat formulir dikirim (misalnya tombol Terapkan).
     - Prop `placeholder`: teks tombol saat belum ada pilihan, tanpa ikut tampil sebagai opsi.
+    - Prop `labelTersembunyi`: sembunyikan label secara visual (tetap terbaca pembaca layar), untuk baris filter ringkas.
     Setiap pilihan memancarkan event `dropdown-changed` berisi { name, value } agar komponen induk dapat ikut bereaksi.
 --}}
 @props([
@@ -10,6 +11,7 @@
     'options' => [],
     'selected' => '',
     'placeholder' => null,
+    'labelTersembunyi' => false,
 ])
 
 @php
@@ -28,7 +30,7 @@
         this.$dispatch('dropdown-changed', { name: @js($name), value });
     }
 }">
-    <label class="block text-xs font-bold text-gray-700 mb-1.5">{{ $label }}</label>
+    <label class="{{ $labelTersembunyi ? 'sr-only' : 'block text-xs font-bold text-gray-700 mb-1.5' }}">{{ $label }}</label>
     <input type="hidden" name="{{ $name }}" :value="selected">
 
     <button type="button"

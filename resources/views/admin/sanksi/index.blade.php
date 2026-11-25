@@ -17,30 +17,53 @@
             <span class="shrink-0 px-4 py-2 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-bold">{{ $jumlahBerlaku }} sanksi berlaku</span>
         </div>
 
-        <form method="GET" action="{{ route('admin.sanksi.index') }}" class="bg-white p-5 rounded-3xl border border-[#E2E8E4] shadow-xs grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-end">
-            <div class="sm:col-span-2">
-                <label for="q" class="block text-xs font-bold text-gray-700 mb-1.5">Cari Warga</label>
-                <input id="q" name="q" type="text" maxlength="100" value="{{ request('q') }}" placeholder="Nama atau NIK..." class="{{ $kelasInput }}">
-            </div>
-            <x-filter-dropdown name="fitur" label="Fitur"
-                               :selected="request('fitur', '')"
-                               :options="['' => 'Semua Fitur'] + collect(\App\Enums\FiturSanksi::cases())->mapWithKeys(fn ($fitur) => [$fitur->value => $fitur->label()])->all()" />
-            <x-filter-dropdown name="status" label="Status"
-                               :selected="request('status', 'berlaku')"
-                               :options="['berlaku' => 'Sedang Berlaku', 'semua' => 'Semua Riwayat']" />
-            <div class="sm:col-span-4 flex justify-end">
-                <div class="flex flex-col gap-2 w-full sm:w-auto">
-                    <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">Terapkan Filter</button>
-                    {{-- Tampil hanya jika filter digunakan; status "Sedang Berlaku" adalah bawaan halaman --}}
-                    @if (request()->anyFilled(['q', 'fitur']) || request('status', 'berlaku') !== 'berlaku')
-                        <a href="{{ route('admin.sanksi.index') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-[#E2E8E4] bg-white hover:bg-gray-50 text-gray-600 text-xs font-semibold transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            <span>Hapus Filter</span>
-                        </a>
-                    @endif
+        @php
+            $tabFitur = [['label' => 'Semua', 'fitur' => null, 'jumlah' => array_sum($jumlahPerFitur)]];
+            foreach (\App\Enums\FiturSanksi::cases() as $fitur) {
+                $tabFitur[] = ['label' => $fitur->label(), 'fitur' => $fitur, 'jumlah' => $jumlahPerFitur[$fitur->value] ?? 0];
+            }
+            $parameterFilter = request()->only(['q', 'status']);
+        @endphp
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            {{-- Tab fitur yang dibatasi (mempertahankan pencarian dan status) --}}
+            <nav class="flex flex-wrap items-center gap-2 shrink-0" aria-label="Fitur sanksi">
+                @foreach ($tabFitur as $tab)
+                    @php
+                        $aktif = $fiturAktif === $tab['fitur'];
+                    @endphp
+                    <a href="{{ route('admin.sanksi.index', array_filter($parameterFilter + ['fitur' => $tab['fitur']?->value])) }}"
+                       @if ($aktif) aria-current="page" @endif
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-colors {{ $aktif ? 'bg-[#1F6B4F] text-white border-[#1F6B4F] shadow-sm' : 'bg-white text-gray-600 border-[#E2E8E4] hover:text-[#1F6B4F] hover:border-[#1F6B4F]/40' }}">
+                        {{ $tab['label'] }}
+                        <span class="min-w-6 px-1.5 py-0.5 rounded-full text-[11px] font-bold text-center {{ $aktif ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600' }}">{{ $tab['jumlah'] }}</span>
+                    </a>
+                @endforeach
+            </nav>
+
+            {{-- Pencarian warga dan status --}}
+            <form method="GET" action="{{ route('admin.sanksi.index') }}" class="flex flex-wrap lg:justify-end items-center gap-2">
+                @if ($fiturAktif)
+                    <input type="hidden" name="fitur" value="{{ $fiturAktif->value }}">
+                @endif
+                <div class="relative w-full sm:w-64">
+                    <label for="q" class="sr-only">Cari warga</label>
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg>
+                    <input id="q" name="q" type="text" maxlength="100" value="{{ request('q') }}" placeholder="Cari nama atau NIK warga..."
+                           class="block w-full py-2.5 pl-9 pr-3 text-xs rounded-xl border border-[#E2E8E4] text-gray-800 bg-white focus:outline-none focus:border-[#1F6B4F] focus:ring-1 focus:ring-[#1F6B4F]">
                 </div>
-            </div>
-        </form>
+                <x-filter-dropdown class="w-40" name="status" label="Status" label-tersembunyi
+                                   :selected="request('status', 'berlaku')"
+                                   :options="['berlaku' => 'Sedang Berlaku', 'semua' => 'Semua Riwayat']" />
+                <button type="submit" class="px-4 py-2.5 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">Cari</button>
+                {{-- Tampil hanya jika filter digunakan; status "Sedang Berlaku" adalah bawaan halaman --}}
+                @if ($adaFilter)
+                    <a href="{{ route('admin.sanksi.index', $fiturAktif ? ['fitur' => $fiturAktif->value] : []) }}" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#E2E8E4] bg-white hover:bg-gray-50 text-gray-600 text-xs font-semibold transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <span>Hapus Filter</span>
+                    </a>
+                @endif
+            </form>
+        </div>
 
         @forelse ($sanksiList as $sanksi)
             @php
@@ -133,7 +156,15 @@
             </div>
         @empty
             <div class="bg-white rounded-3xl p-12 border border-[#E2E8E4] text-center shadow-xs text-sm text-gray-500">
-                Tidak ada sanksi yang sesuai dengan filter.
+                @if ($adaFilter)
+                    <div class="flex flex-col items-center gap-2">
+                        <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg>
+                        <p class="text-sm font-bold text-gray-700">Data Tidak Ditemukan</p>
+                        <p class="text-xs text-gray-500">Tidak ada sanksi yang sesuai dengan pencarian atau status. Coba ubah atau hapus filter.</p>
+                    </div>
+                @else
+                    {{ $fiturAktif ? 'Tidak ada sanksi yang sedang berlaku untuk fitur '.$fiturAktif->label().'.' : 'Tidak ada sanksi yang sedang berlaku.' }}
+                @endif
             </div>
         @endforelse
 

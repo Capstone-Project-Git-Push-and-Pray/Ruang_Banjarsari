@@ -37,6 +37,31 @@ class ManajemenSanksiTest extends TestCase
             ->assertDontSee('WARGA BERLAKU');
     }
 
+    public function test_sanksi_dipisah_per_tab_fitur(): void
+    {
+        Sanksi::factory()->create([
+            'user_id' => User::factory()->warga()->create(['nama_lengkap' => 'Warga Aspirasi']),
+            'fitur' => FiturSanksi::Aspirasi,
+        ]);
+        Sanksi::factory()->komentarPublik()->create([
+            'user_id' => User::factory()->warga()->create(['nama_lengkap' => 'Warga Komentar']),
+        ]);
+
+        $this->actingAs($this->admin);
+
+        $this->get(route('admin.sanksi.index', ['fitur' => FiturSanksi::Aspirasi->value]))
+            ->assertOk()
+            ->assertSee('WARGA ASPIRASI')
+            ->assertDontSee('WARGA KOMENTAR');
+
+        $this->get(route('admin.sanksi.index', ['fitur' => FiturSanksi::KomentarPublik->value]))
+            ->assertSee('WARGA KOMENTAR')
+            ->assertDontSee('WARGA ASPIRASI');
+
+        $this->get(route('admin.sanksi.index'))
+            ->assertSee(['WARGA ASPIRASI', 'WARGA KOMENTAR', 'Komentar Publik']);
+    }
+
     public function test_tombol_hapus_filter_hanya_tampil_saat_filter_digunakan(): void
     {
         $this->actingAs($this->admin);
@@ -44,7 +69,7 @@ class ManajemenSanksiTest extends TestCase
         $this->get(route('admin.sanksi.index'))->assertDontSee('Hapus Filter');
         $this->get(route('admin.sanksi.index', ['status' => 'berlaku']))->assertDontSee('Hapus Filter');
         $this->get(route('admin.sanksi.index', ['status' => 'semua']))->assertSee('Hapus Filter');
-        $this->get(route('admin.sanksi.index', ['fitur' => FiturSanksi::Aspirasi->value]))->assertSee('Hapus Filter');
+        $this->get(route('admin.sanksi.index', ['fitur' => FiturSanksi::Aspirasi->value]))->assertDontSee('Hapus Filter');
     }
 
     public function test_admin_mengubah_masa_berlaku_sanksi(): void

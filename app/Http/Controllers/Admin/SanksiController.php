@@ -18,7 +18,7 @@ class SanksiController extends Controller
     public function __construct(private SanksiService $sanksiService) {}
 
     /**
-     * Tampilkan seluruh sanksi warga dengan filter (PBI #49).
+     * Tampilkan seluruh sanksi warga, dipisah per fitur dan dapat difilter (PBI #49).
      */
     public function index(Request $request): View
     {
@@ -29,23 +29,38 @@ class SanksiController extends Controller
         ]);
 
         $kataKunci = trim($filter['q'] ?? '');
+        $fiturAktif = FiturSanksi::tryFrom((string) ($filter['fitur'] ?? ''));
+        $statusAktif = $filter['status'] ?? 'berlaku';
 
-        $sanksiList = Sanksi::query()
-            ->with(['user', 'riwayatModerasi', 'diubahOleh'])
-            ->when(($filter['status'] ?? 'berlaku') === 'berlaku', fn ($query) => $query->berlaku())
-            ->when($filter['fitur'] ?? null, fn ($query, $fitur) => $query->where('fitur', $fitur))
+        $sanksiTersaring = Sanksi::query()
+            ->when($statusAktif === 'berlaku', fn ($query) => $query->berlaku())
             ->when($kataKunci !== '', fn ($query) => $query->whereHas(
                 'user',
                 fn ($userQuery) => $userQuery->whereAny(['nama_lengkap', 'nik'], 'like', "%{$kataKunci}%")
-            ))
+            ));
+
+        $sanksiList = (clone $sanksiTersaring)
+            ->with(['user', 'riwayatModerasi', 'diubahOleh'])
+            ->when($fiturAktif, fn ($query) => $query->where('fitur', $fiturAktif))
             ->latest('mulai_pada')
             ->latest('id')
             ->paginate(20)
             ->withQueryString();
 
+        /** @var array<string, int> $jumlahPerFitur */
+        $jumlahPerFitur = (clone $sanksiTersaring)->toBase()
+            ->selectRaw('fitur, COUNT(*) as jumlah')
+            ->groupBy('fitur')
+            ->pluck('jumlah', 'fitur')
+            ->map(fn ($jumlah) => (int) $jumlah)
+            ->all();
+
         return view('admin.sanksi.index', [
             'sanksiList' => $sanksiList,
             'jumlahBerlaku' => Sanksi::berlaku()->count(),
+            'fiturAktif' => $fiturAktif,
+            'jumlahPerFitur' => $jumlahPerFitur,
+            'adaFilter' => $kataKunci !== '' || $statusAktif !== 'berlaku',
         ]);
     }
 
