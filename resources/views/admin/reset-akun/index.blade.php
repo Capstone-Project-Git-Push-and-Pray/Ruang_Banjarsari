@@ -13,6 +13,7 @@
                 <p class="text-xs sm:text-sm text-gray-600 mt-2 max-w-3xl">
                     Bantu warga yang lupa kata sandi. Kirim tautan atur ulang ke email warga, atau buat kata sandi sementara
                     bila warga tidak dapat membuka emailnya. Pastikan identitas warga sudah dicocokkan dengan KTP sebelum mereset.
+                    Hanya akun berstatus Aktif atau Menunggu Tinjauan yang dapat dibantu.
                 </p>
             </div>
             <span class="shrink-0 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-bold">{{ $jumlahMenungguGanti }} menunggu ganti kata sandi</span>
@@ -44,7 +45,7 @@
             </div>
             <x-filter-dropdown name="status" label="Status Akun"
                                :selected="request('status', '')"
-                               :options="['' => 'Semua Status'] + collect(\App\Enums\StatusAkun::cases())->mapWithKeys(fn ($status) => [$status->value => $status->label()])->all()" />
+                               :options="['' => 'Semua Status'] + collect($statusDapatDireset)->mapWithKeys(fn ($status) => [$status->value => $status->label()])->all()" />
             <div class="sm:col-span-4 flex justify-end">
                 <div class="flex flex-col gap-2 w-full sm:w-auto">
                     <button type="submit" class="px-4 py-2 bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs rounded-xl font-semibold shadow-xs transition-colors cursor-pointer">Terapkan Filter</button>
@@ -85,7 +86,10 @@
                         </button>
                     </form>
                     <form method="POST" action="{{ route('admin.reset-akun.kata-sandi-sementara', $warga) }}"
-                          onsubmit="return confirm({{ Js::from('Buat kata sandi sementara untuk '.$warga->nama_lengkap.'? Kata sandi lama tidak dapat dipakai lagi.') }})">
+                          data-konfirmasi="Kata sandi lama {{ $warga->nama_lengkap }} tidak dapat dipakai lagi. Kata sandi sementara hanya ditampilkan sekali dan wajib diganti warga saat masuk berikutnya."
+                          data-konfirmasi-judul="Buat kata sandi sementara?"
+                          data-konfirmasi-tombol="Buat"
+                          data-konfirmasi-ikon="kunci">
                         @csrf
                         <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs font-semibold cursor-pointer">
                             <i data-lucide="key-round" class="w-3.5 h-3.5"></i>

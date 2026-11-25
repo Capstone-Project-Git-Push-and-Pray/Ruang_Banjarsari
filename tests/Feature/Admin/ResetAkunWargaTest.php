@@ -92,6 +92,27 @@ class ResetAkunWargaTest extends TestCase
         Notification::assertNothingSent();
     }
 
+    public function test_akun_warga_ditolak_tidak_tampil_dan_tidak_dapat_direset(): void
+    {
+        Notification::fake();
+        User::factory()->warga()->create(['nama_lengkap' => 'Warga Aktif']);
+        User::factory()->warga()->menungguTinjauan()->create(['nama_lengkap' => 'Warga Ditinjau']);
+        $ditolak = User::factory()->warga()->ditolak()->create(['nama_lengkap' => 'Warga Ditolak']);
+
+        $this->actingAs($this->admin);
+
+        $this->get(route('admin.reset-akun.index'))
+            ->assertOk()
+            ->assertSee(['WARGA AKTIF', 'WARGA DITINJAU'])
+            ->assertDontSee('WARGA DITOLAK');
+
+        $this->post(route('admin.reset-akun.kirim-tautan', $ditolak))->assertNotFound();
+        $this->post(route('admin.reset-akun.kata-sandi-sementara', $ditolak))->assertNotFound();
+
+        $this->assertTrue(Hash::check('password', $ditolak->fresh()->password));
+        Notification::assertNothingSent();
+    }
+
     public function test_warga_dan_kepala_desa_dilarang_membuka_bantuan_reset_akun(): void
     {
         $warga = User::factory()->warga()->create();
