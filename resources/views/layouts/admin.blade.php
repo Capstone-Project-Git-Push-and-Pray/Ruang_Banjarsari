@@ -258,6 +258,7 @@
                     request()->routeIs('admin.rekapitulasi.*') => 'Rekapitulasi & Analitik',
                     request()->routeIs('admin.kategori.*') => 'Pengaturan Kategori',
                     request()->routeIs('admin.reset-akun.*') => 'Bantuan Reset Akun',
+                    request()->routeIs('profile.edit') => 'Profil Saya',
                     default => ($title ?? 'Panel Admin Desa'),
                 };
             @endphp

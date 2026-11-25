@@ -21,6 +21,38 @@ class ProfileTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_admin_profile_page_uses_admin_panel_layout(): void
+    {
+        $admin = User::factory()->adminDesa()->create();
+
+        $this->actingAs($admin)
+            ->get('/profile')
+            ->assertOk()
+            ->assertSee(['Profil Saya', 'Riwayat Moderasi', 'Admin Desa'])
+            ->assertDontSee('Hapus Akun Saya');
+    }
+
+    public function test_kepala_desa_profile_page_hides_account_deletion(): void
+    {
+        $kepala = User::factory()->kepalaDesa()->create();
+
+        $this->actingAs($kepala)
+            ->get('/profile')
+            ->assertOk()
+            ->assertSee(['Ubah Kata Sandi', 'Kepala Desa'])
+            ->assertDontSee('Hapus Akun Saya');
+    }
+
+    public function test_warga_profile_page_shows_identity_and_account_deletion(): void
+    {
+        $warga = User::factory()->warga()->create(['nik' => '3207010101900009']);
+
+        $this->actingAs($warga)
+            ->get('/profile')
+            ->assertOk()
+            ->assertSee(['3207010101900009', 'Ubah Kata Sandi', 'Hapus Akun Saya', 'Kembali ke Beranda', route('dashboard')]);
+    }
+
     public function test_profile_information_can_be_updated_by_admin(): void
     {
         $user = User::factory()->adminDesa()->create();
