@@ -1,9 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <a href="{{ route('kepala.pengaduan.index') }}" class="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+            <div class="flex flex-col items-start gap-3 lg:flex-row lg:items-center">
+                <a href="{{ route('kepala.pengaduan.index') }}" class="tombol-kembali p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" aria-label="Kembali">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span class="lg:hidden">Kembali</span>
                 </a>
                 <div>
                     <h2 class="font-bold text-xl text-gray-900 leading-tight">

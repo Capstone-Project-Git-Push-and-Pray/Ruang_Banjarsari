@@ -67,7 +67,7 @@
 
             {{-- Navigasi Breadcrumb --}}
             <div class="flex items-center justify-between text-xs text-gray-500 px-1">
-                <a href="{{ url('/') }}" class="inline-flex items-center gap-1.5 font-semibold hover:text-[#1F6B4F] transition-colors group">
+                <a href="{{ url('/') }}" class="tombol-kembali inline-flex items-center gap-1.5 font-semibold hover:text-[#1F6B4F] transition-colors group">
                     <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Kembali ke Beranda</span>
                 </a>

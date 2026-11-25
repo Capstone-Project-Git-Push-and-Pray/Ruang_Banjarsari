@@ -23,7 +23,7 @@
                 {{-- Action Shortcuts --}}
                 <div class="flex flex-wrap items-center gap-3 shrink-0">
                     <a href="{{ route('admin.pengaduan.index') }}"
-                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E2E8E4] hover:border-gray-300 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition shadow-2xs">
+                       class="tombol-kembali inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E2E8E4] hover:border-gray-300 text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition shadow-2xs">
                         <i data-lucide="arrow-left" class="w-4 h-4 text-[#1F6B4F]"></i>
                         <span>Kembali ke Laporan</span>
                     </a>

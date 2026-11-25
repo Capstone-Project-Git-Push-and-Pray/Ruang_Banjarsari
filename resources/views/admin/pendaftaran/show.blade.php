@@ -9,7 +9,7 @@
         {{-- ==================== 1. TOP HEADER & BREADCRUMB ==================== --}}
         <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2E8E4] shadow-xs space-y-4">
             <div class="flex items-center gap-2 text-xs text-gray-500">
-                <a href="{{ route('admin.pendaftaran.index') }}" class="hover:text-[#1F6B4F] transition-colors flex items-center gap-1 font-semibold text-[#1F6B4F]">
+                <a href="{{ route('admin.pendaftaran.index') }}" class="tombol-kembali hover:text-[#1F6B4F] transition-colors flex items-center gap-1 font-semibold text-[#1F6B4F]">
                     <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
                     <span>Kembali ke Daftar Antrean</span>
                 </a>
