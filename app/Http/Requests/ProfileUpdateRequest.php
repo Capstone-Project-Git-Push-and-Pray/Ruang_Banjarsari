@@ -46,6 +46,9 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'email.required' => 'Alamat email wajib diisi untuk keperluan reset kata sandi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'email.unique' => 'Alamat email ini sudah dipakai akun lain.',
+            'telepon.unique' => 'Nomor telepon ini sudah dipakai akun lain.',
             'telepon.required' => 'Nomor telepon / HP wajib diisi.',
         ];
     }

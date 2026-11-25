@@ -151,6 +151,19 @@ class ProfileTest extends TestCase
         $this->assertNull($user->fresh());
     }
 
+    public function test_password_is_required_to_delete_account(): void
+    {
+        $user = User::factory()->warga()->create();
+
+        $this->actingAs($user)
+            ->from('/profile')
+            ->delete('/profile', ['password' => ''])
+            ->assertSessionHasErrorsIn('userDeletion', ['password' => 'Kata sandi wajib diisi.'])
+            ->assertRedirect('/profile');
+
+        $this->assertNotNull($user->fresh());
+    }
+
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
         $user = User::factory()->create();
