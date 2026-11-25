@@ -117,6 +117,77 @@ class ModerasiKontenTest extends TestCase
         $this->assertModelExists($komentar);
     }
 
+    public function test_riwayat_moderasi_dapat_dipisah_per_jenis_konten(): void
+    {
+        $this->actingAs($this->admin)->patch(route('admin.moderasi.aspirasi.sembunyikan', $this->aspirasi));
+        $this->actingAs($this->admin)->patch(route('admin.moderasi.komentar.sembunyikan', $this->komentar));
+
+        $this->get(route('admin.moderasi.index', ['jenis' => JenisKonten::Aspirasi->value]))
+            ->assertOk()
+            ->assertSee('Aspirasi Yang Dimoderasi')
+            ->assertDontSee('Komentar yang dimoderasi');
+
+        $this->get(route('admin.moderasi.index', ['jenis' => JenisKonten::Komentar->value]))
+            ->assertOk()
+            ->assertSee('Komentar yang dimoderasi')
+            ->assertDontSee('Aspirasi Yang Dimoderasi');
+
+        $this->get(route('admin.moderasi.index'))
+            ->assertOk()
+            ->assertSee(['Aspirasi Yang Dimoderasi', 'Komentar yang dimoderasi']);
+    }
+
+    public function test_riwayat_moderasi_dapat_difilter_berdasarkan_keputusan_warga_sanksi_dan_tanggal(): void
+    {
+        $this->travelTo(now()->subDays(5));
+        $this->actingAs($this->admin)->patch(route('admin.moderasi.aspirasi.sembunyikan', $this->aspirasi));
+        $this->travelBack();
+
+        $this->actingAs($this->admin)->delete(route('admin.moderasi.komentar.hapus', $this->komentar), [
+            'alasan' => AlasanModerasi::KataKasar->value,
+        ]);
+
+        $this->get(route('admin.moderasi.index', ['aksi' => AksiModerasi::Hapus->value]))
+            ->assertOk()
+            ->assertSee('Komentar yang dimoderasi')
+            ->assertDontSee('Aspirasi Yang Dimoderasi');
+
+        $this->get(route('admin.moderasi.index', ['sanksi' => 'tidak']))
+            ->assertOk()
+            ->assertSee('Aspirasi Yang Dimoderasi')
+            ->assertDontSee('Komentar yang dimoderasi');
+
+        $this->get(route('admin.moderasi.index', ['q' => $this->komentar->user->nik]))
+            ->assertOk()
+            ->assertSee('Komentar yang dimoderasi')
+            ->assertDontSee('Aspirasi Yang Dimoderasi');
+
+        $this->get(route('admin.moderasi.index', [
+            'tanggal_mulai' => now()->subDays(6)->toDateString(),
+            'tanggal_selesai' => now()->subDays(4)->toDateString(),
+        ]))
+            ->assertOk()
+            ->assertSee('Aspirasi Yang Dimoderasi')
+            ->assertDontSee('Komentar yang dimoderasi');
+    }
+
+    public function test_riwayat_moderasi_menampilkan_data_tidak_ditemukan_saat_filter_kosong(): void
+    {
+        $this->actingAs($this->admin)->patch(route('admin.moderasi.aspirasi.sembunyikan', $this->aspirasi));
+
+        $this->get(route('admin.moderasi.index', ['aksi' => AksiModerasi::Hapus->value]))
+            ->assertOk()
+            ->assertSee('Data Tidak Ditemukan')
+            ->assertDontSee('Aspirasi Yang Dimoderasi');
+    }
+
+    public function test_tanggal_akhir_filter_riwayat_tidak_boleh_sebelum_tanggal_awal(): void
+    {
+        $this->actingAs($this->admin)
+            ->get(route('admin.moderasi.index', ['tanggal_mulai' => '2026-11-20', 'tanggal_selesai' => '2026-11-10']))
+            ->assertSessionHasErrors('tanggal_selesai');
+    }
+
     public function test_aspirasi_dihapus_dengan_alasan_yang_tercatat(): void
     {
         $this->actingAs($this->admin)
