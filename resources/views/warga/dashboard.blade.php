@@ -25,7 +25,7 @@
             ->get();
     @endphp
 
-    <div x-data="{ showLogoutModal: false }" class="max-w-5xl mx-auto space-y-8">
+    <div class="max-w-5xl mx-auto space-y-8">
         <span class="sr-only">Dashboard Warga</span>
 
         {{-- Pemberitahuan Sanksi (PBI #48) --}}
@@ -33,6 +33,7 @@
             $sanksiAktifList = collect(\App\Enums\FiturSanksi::cases())
                 ->map(fn ($fitur) => Auth::user()->sanksiBerlaku($fitur))
                 ->filter();
+            $jumlahSanksiBerlaku = $sanksiAktifList->count();
         @endphp
         @foreach ($sanksiAktifList as $sanksiAktif)
             @include('warga.sanksi.partials.banner', ['sanksi' => $sanksiAktif])
@@ -126,7 +127,7 @@
                 <p class="text-xs text-gray-500 mt-0.5">Semua yang Anda butuhkan ada di sini</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mt-4">
                 {{-- Kartu: Buat Laporan Baru --}}
                 <a href="{{ route('warga.pengaduan.create') }}" class="group bg-white rounded-2xl p-5 border border-gray-100 shadow-xs hover:shadow-md hover:border-emerald-200 transition-all duration-200 flex flex-col justify-between">
                     <div>
@@ -195,6 +196,34 @@
                     </div>
                 </a>
 
+                {{-- Kartu: Status Sanksi Akun (PBI #48) --}}
+                <a href="{{ route('warga.sanksi.index') }}" class="group bg-white rounded-2xl p-5 border shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between {{ $jumlahSanksiBerlaku > 0 ? 'border-rose-200 hover:border-rose-300' : 'border-gray-100 hover:border-emerald-200' }}">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center {{ $jumlahSanksiBerlaku > 0 ? 'bg-rose-50 text-rose-600' : 'bg-[#EAF5EE] text-[#1F6B4F]' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            @if ($jumlahSanksiBerlaku > 0)
+                                <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[11px] font-bold">{{ $jumlahSanksiBerlaku }} berlaku</span>
+                            @else
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">Aman</span>
+                            @endif
+                        </div>
+                        <h3 class="font-bold text-sm sm:text-base text-gray-900 mt-4 transition-colors {{ $jumlahSanksiBerlaku > 0 ? 'group-hover:text-rose-600' : 'group-hover:text-[#1F6B4F]' }}">Status Sanksi Akun</h3>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">Lihat sanksi yang berlaku, peringatan, dan riwayat pelanggaran akun Anda</p>
+                    </div>
+                    <div class="mt-4 pt-2">
+                        <span class="text-xs font-semibold inline-flex items-center gap-1 group-hover:gap-1.5 transition-all {{ $jumlahSanksiBerlaku > 0 ? 'text-rose-600' : 'text-[#1F6B4F]' }}">
+                            <span>Lihat status sanksi</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
                 {{-- Kartu: Profil Saya --}}
                 <a href="{{ route('profile.edit') }}" class="group bg-white rounded-2xl p-5 border border-gray-100 shadow-xs hover:shadow-md hover:border-emerald-200 transition-all duration-200 flex flex-col justify-between">
                     <div>
@@ -217,8 +246,14 @@
                 </a>
 
                 {{-- Kartu: Keluar (Logout dengan Validasi Popup) --}}
-                <div class="flex">
-                    <button type="button" @click="showLogoutModal = true" class="w-full text-left group bg-white rounded-2xl p-5 border border-gray-100 shadow-xs hover:shadow-md hover:border-rose-200 transition-all duration-200 flex flex-col justify-between cursor-pointer">
+                <form method="POST" action="{{ route('logout') }}" class="flex"
+                      data-konfirmasi="Anda perlu masuk kembali untuk memakai layanan SILAFA."
+                      data-konfirmasi-judul="Keluar dari akun?"
+                      data-konfirmasi-tombol="Keluar"
+                      data-konfirmasi-ikon="keluar"
+                      data-konfirmasi-jenis="bahaya">
+                    @csrf
+                    <button type="submit" class="w-full text-left group bg-white rounded-2xl p-5 border border-gray-100 shadow-xs hover:shadow-md hover:border-rose-200 transition-all duration-200 flex flex-col justify-between cursor-pointer">
                         <div>
                             <div class="w-10 h-10 rounded-xl bg-gray-50 text-gray-500 group-hover:bg-rose-50 group-hover:text-rose-600 transition-colors flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,7 +269,7 @@
                             </span>
                         </div>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
 
@@ -327,71 +362,6 @@
                         </div>
                     </div>
                 @endforelse
-            </div>
-        </div>
-
-        {{-- ==================== MODAL KONFIRMASI LOGOUT ==================== --}}
-        <div x-show="showLogoutModal"
-            x-cloak
-            style="display: none;"
-            class="fixed inset-0 z-50 overflow-y-auto"
-            aria-labelledby="modal-title"
-            role="dialog"
-            aria-modal="true"
-            @keydown.escape.window="showLogoutModal = false">
-
-            {{-- Backdrop Gelap dengan Efek Blur --}}
-            <div x-show="showLogoutModal"
-                x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-200"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity"
-                @click="showLogoutModal = false">
-            </div>
-
-            {{-- Kontainer Dialog Tengah --}}
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div x-show="showLogoutModal"
-                    x-transition:enter="ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave="ease-in duration-200"
-                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    @click.outside="showLogoutModal = false"
-                    class="relative transform overflow-hidden rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl transition-all w-full max-w-sm sm:max-w-md border border-gray-100">
-
-
-                    {{-- Judul & Pesan Validasi --}}
-                    <div class="mt-4">
-                        <h3 class="text-lg sm:text-xl font-extrabold text-gray-900" id="modal-title">
-                            Keluar dari Akun?
-                        </h3>
-                        <p class="text-xs sm:text-sm text-gray-500 mt-2 leading-relaxed">
-                            Apakah Anda yakin ingin keluar dari akun Anda?
-                        </p>
-                    </div>
-
-                    {{-- Tombol Tindakan Batal & Konfirmasi Keluar --}}
-                    <div class="mt-6 grid grid-cols-2 gap-3">
-                        <button type="button"
-                            @click="showLogoutModal = false"
-                            class="w-full inline-flex justify-center items-center py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs sm:text-sm font-semibold rounded-xl transition-colors cursor-pointer">
-                            Batal
-                        </button>
-
-                        <form method="POST" action="{{ route('logout') }}" class="w-full">
-                            @csrf
-                            <button type="submit"
-                                class="w-full inline-flex justify-center items-center py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer">
-                                Ya, Keluar
-                            </button>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

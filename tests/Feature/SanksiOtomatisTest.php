@@ -202,6 +202,18 @@ class SanksiOtomatisTest extends TestCase
         ]);
     }
 
+    public function test_menu_status_sanksi_tampil_di_dashboard_warga(): void
+    {
+        $this->actingAs($this->warga)->get(route('warga.dashboard'))
+            ->assertOk()
+            ->assertSee(['Status Sanksi Akun', 'Aman', route('warga.sanksi.index')]);
+
+        $this->hapusKomentarWarga();
+
+        $this->actingAs($this->warga)->get(route('warga.dashboard'))
+            ->assertSee(['Status Sanksi Akun', '1 berlaku']);
+    }
+
     public function test_peringatan_ditampilkan_di_dashboard_tanpa_membatasi(): void
     {
         $this->hapusAspirasiWarga();
