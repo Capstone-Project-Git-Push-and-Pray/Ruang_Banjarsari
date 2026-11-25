@@ -35,7 +35,7 @@
 
     {{-- Daftar komentar, terlama di atas seperti percakapan --}}
     <div class="space-y-4 {{ $dalamPopup ? 'max-h-[50vh] overflow-y-auto pr-1 -mr-1 overscroll-contain' : '' }}"
-         @if ($dalamPopup) x-data x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)" @endif>
+         @if ($dalamPopup) data-gulir-ke-bawah x-data x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)" @endif>
         @forelse ($pengaduan->komentar as $komentar)
             @php
                 $penulis = $komentar->user;
@@ -165,7 +165,6 @@
                         <svg class="w-5 h-5 rotate-90" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
                     </button>
                 </div>
-                <p class="text-[11px] text-gray-400 mt-1 ms-4">Enter untuk mengirim, Shift + Enter untuk baris baru.</p>
                 @if ($isFormKomentarIni)
                     <x-input-error class="mt-1 ms-4" :messages="$errors->get('isi')" />
                 @endif

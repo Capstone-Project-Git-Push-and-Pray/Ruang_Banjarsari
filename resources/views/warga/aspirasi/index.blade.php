@@ -138,17 +138,17 @@
                         </div>
                     </x-modal>
 
-                    {{-- Popup komentar publik (PBI #42) --}}
-                    <x-modal name="komentar-aspirasi-{{ $aspirasi->id }}" maxWidth="2xl" :show="$bukaKomentar === $aspirasi->id" focusable>
+                    {{-- Popup komentar publik (PBI #42): lembar bawah di ponsel/tablet, popup di desktop --}}
+                    <x-lembar-bawah name="komentar-aspirasi-{{ $aspirasi->id }}" :show="$bukaKomentar === $aspirasi->id">
                         <div class="relative">
                             <button type="button" x-on:click="$dispatch('close-modal', 'komentar-aspirasi-{{ $aspirasi->id }}')"
-                                    class="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer" aria-label="Tutup">
+                                    class="absolute top-0 lg:top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer" aria-label="Tutup">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
-                            <p class="px-6 sm:px-8 pt-6 pr-14 text-xs font-semibold text-gray-500 line-clamp-1">{{ $aspirasi->judul }}</p>
+                            <p class="px-6 sm:px-8 pt-1.5 lg:pt-6 pr-14 text-xs font-semibold text-gray-500 line-clamp-1">{{ $aspirasi->judul }}</p>
                             @include('pengaduan.partials.komentar-section', ['pengaduan' => $aspirasi, 'dalamPopup' => true])
                         </div>
-                    </x-modal>
+                    </x-lembar-bawah>
                 @endforeach
             </div>
 
