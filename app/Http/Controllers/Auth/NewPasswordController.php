@@ -35,6 +35,12 @@ class NewPasswordController extends Controller
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'password.required' => 'Kata sandi baru wajib diisi.',
+            'password.min' => 'Kata sandi baru minimal harus 8 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we
@@ -56,9 +62,19 @@ class NewPasswordController extends Controller
         // If the password was successfully reset, we will redirect the user back to
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('login')
+                ->with('status', 'Kata sandi berhasil diperbarui. Silakan masuk menggunakan kata sandi baru Anda.');
+        }
+
+        $pesanGagal = match ($status) {
+            // Pesan disamakan agar tidak membocorkan apakah email terdaftar (PBI #20)
+            Password::INVALID_TOKEN, Password::INVALID_USER => 'Tautan reset kata sandi tidak valid atau sudah kedaluwarsa. Silakan minta tautan baru.',
+            Password::RESET_THROTTLED => 'Terlalu banyak percobaan. Silakan tunggu sebentar lalu coba lagi.',
+            default => 'Kata sandi gagal diperbarui. Silakan coba lagi.',
+        };
+
+        return back()->withInput($request->only('email'))
+            ->withErrors(['email' => $pesanGagal]);
     }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -28,7 +28,7 @@ class PasswordResetTest extends TestCase
 
         $response = $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        Notification::assertSentTo($user, ResetPasswordNotification::class);
         $response->assertSessionHas('status');
     }
 
@@ -51,6 +51,25 @@ class PasswordResetTest extends TestCase
         $responseUnregistered->assertSessionHas('status', 'Jika alamat email Anda terdaftar, tautan pengaturan ulang kata sandi telah dikirimkan.');
     }
 
+    public function test_reset_password_email_is_in_indonesian_with_reset_link(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use ($user) {
+            $mail = $notification->toMail($user);
+
+            $this->assertSame('Atur Ulang Kata Sandi Akun SILAFA Banjarsari', $mail->subject);
+            $this->assertSame('emails.reset-password', $mail->view);
+            $this->assertStringContainsString('/reset-password/'.$notification->token, $mail->viewData['tautanReset']);
+
+            return true;
+        });
+    }
+
     public function test_reset_password_screen_can_be_rendered(): void
     {
         Notification::fake();
@@ -59,7 +78,7 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+        Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) {
             $response = $this->get('/reset-password/'.$notification->token);
 
             $response->assertStatus(200);
@@ -76,7 +95,7 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+        Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $user->email,
@@ -86,7 +105,8 @@ class PasswordResetTest extends TestCase
 
             $response
                 ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
+                ->assertRedirect(route('login'))
+                ->assertSessionHas('status', 'Kata sandi berhasil diperbarui. Silakan masuk menggunakan kata sandi baru Anda.');
 
             return true;
         });
@@ -100,7 +120,7 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+        Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {
             // Pemakaian pertama token -> Berhasil
             $this->post('/reset-password', [
                 'token' => $notification->token,
@@ -117,7 +137,9 @@ class PasswordResetTest extends TestCase
                 'password_confirmation' => 'new-password-2',
             ]);
 
-            $responseSecond->assertSessionHasErrors('email');
+            $responseSecond->assertSessionHasErrors([
+                'email' => 'Tautan reset kata sandi tidak valid atau sudah kedaluwarsa. Silakan minta tautan baru.',
+            ]);
 
             return true;
         });

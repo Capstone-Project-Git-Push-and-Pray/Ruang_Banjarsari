@@ -35,6 +35,8 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
-        return back()->with('status', 'Jika alamat email Anda terdaftar, tautan pengaturan ulang kata sandi telah dikirimkan.');
+        return back()
+            ->withInput($request->only('email'))
+            ->with('status', 'Jika alamat email Anda terdaftar, tautan pengaturan ulang kata sandi telah dikirimkan.');
     }
 }

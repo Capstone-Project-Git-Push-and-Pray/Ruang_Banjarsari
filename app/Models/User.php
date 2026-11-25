@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\FiturSanksi;
 use App\Enums\Role;
 use App\Enums\StatusAkun;
+use App\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,6 +114,16 @@ class User extends Authenticatable
     public function setNamaLengkapAttribute(?string $value): void
     {
         $this->attributes['nama_lengkap'] = $value !== null ? Str::of($value)->squish()->upper()->toString() : null;
+    }
+
+    /**
+     * Kirim email atur ulang kata sandi berbahasa Indonesia bertema SILAFA.
+     *
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     /**

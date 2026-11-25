@@ -3,7 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -55,7 +55,7 @@ class ResetAkunWargaTest extends TestCase
             ->assertRedirect(route('admin.reset-akun.index'))
             ->assertSessionHas('success');
 
-        Notification::assertSentTo($warga, ResetPassword::class);
+        Notification::assertSentTo($warga, ResetPasswordNotification::class);
     }
 
     public function test_admin_membuat_kata_sandi_sementara_yang_ditampilkan_sekali(): void
