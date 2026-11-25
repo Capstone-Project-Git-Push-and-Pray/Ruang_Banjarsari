@@ -757,5 +757,6 @@
             counterElements.forEach(el => counterObserver.observe(el));
         });
     </script>
+    <x-tombol-ke-atas />
 </body>
 </html>

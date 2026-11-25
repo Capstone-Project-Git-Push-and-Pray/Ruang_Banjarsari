@@ -749,5 +749,6 @@
             lucide.createIcons();
         });
     </script>
+    <x-tombol-ke-atas />
 </body>
 </html>
