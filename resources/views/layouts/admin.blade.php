@@ -89,6 +89,15 @@
                                     <span>Ringkasan Dashboard</span>
                                 </div>
                             </a>
+
+                            {{-- 6. Rekapitulasi & Analitik --}}
+                            <a href="{{ route('admin.rekapitulasi.index') }}"
+                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.rekapitulasi.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="bar-chart-3" class="w-4 h-4 {{ request()->routeIs('admin.rekapitulasi.*') ? 'text-white' : 'text-gray-400' }}"></i>
+                                    <span>Rekapitulasi & Analitik</span>
+                                </div>
+                            </a>
                         </nav>
                     </div>
 
@@ -143,7 +152,15 @@
                                     <span>Kelola Aspirasi</span>
                                 </div>
                             </a>
+                        </nav>
+                    </div>
 
+                    {{-- Grup 3: MODERASI & SANKSI --}}
+                    <div>
+                        <span class="px-3 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block mb-2">
+                            MODERASI & SANKSI
+                        </span>
+                        <nav class="space-y-1">
                             {{-- Riwayat Moderasi Konten (PBI #44, PBI #45) --}}
                             <a href="{{ route('admin.moderasi.index') }}"
                                class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.moderasi.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
@@ -161,19 +178,10 @@
                                     <span>Manajemen Sanksi</span>
                                 </div>
                             </a>
-
-                            {{-- 6. Rekapitulasi & Analitik --}}
-                            <a href="{{ route('admin.rekapitulasi.index') }}"
-                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.rekapitulasi.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
-                                <div class="flex items-center gap-3">
-                                    <i data-lucide="bar-chart-3" class="w-4 h-4 {{ request()->routeIs('admin.rekapitulasi.*') ? 'text-white' : 'text-gray-400' }}"></i>
-                                    <span>Rekapitulasi & Analitik</span>
-                                </div>
-                            </a>
                         </nav>
                     </div>
 
-                    {{-- Grup 3: PENGATURAN & AKSES --}}
+                    {{-- Grup 4: PENGATURAN & AKSES --}}
                     <div>
                         <span class="px-3 text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block mb-2">
                             PENGATURAN & AKSES
