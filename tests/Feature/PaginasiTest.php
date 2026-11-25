@@ -21,4 +21,18 @@ class PaginasiTest extends TestCase
             ->assertSee(['Navigasi halaman', 'Menampilkan', 'Halaman berikutnya', 'Berikutnya'])
             ->assertDontSee('Showing');
     }
+
+    public function test_tombol_halaman_pertama_muncul_mulai_halaman_ketiga(): void
+    {
+        Kategori::factory()->count(50)->create();
+        $this->actingAs(User::factory()->adminDesa()->create());
+
+        $this->get(route('admin.kategori.index', ['page' => 2]))
+            ->assertOk()
+            ->assertDontSee('Halaman Pertama');
+
+        $this->get(route('admin.kategori.index', ['page' => 3]))
+            ->assertOk()
+            ->assertSee(['Halaman Pertama', 'Ke halaman pertama', route('admin.kategori.index', ['page' => 1])], false);
+    }
 }

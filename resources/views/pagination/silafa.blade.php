@@ -9,36 +9,44 @@
         $kelasAktif = 'bg-[#1F6B4F] text-white shadow-sm shadow-[#1F6B4F]/25';
         $kelasBiasa = 'bg-white text-gray-600 border border-[#E2E8E4] hover:border-[#1F6B4F]/40 hover:text-[#1F6B4F] hover:bg-[#F4F9F6]';
         $kelasNonaktif = 'bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed';
+        // Tombol ke halaman pertama muncul setelah pengguna maju 2 halaman atau lebih dari awal
+        $tampilkanKeAwal = $paginator->currentPage() >= 3;
     @endphp
 
     <nav role="navigation" aria-label="Navigasi halaman" class="w-full">
         {{-- ==================== PONSEL ==================== --}}
-        <div class="flex items-center justify-between gap-3 sm:hidden">
+        <div class="flex items-center justify-between gap-2 sm:hidden">
+            <div class="flex items-center gap-2">
+            @if ($tampilkanKeAwal)
+                <a href="{{ $paginator->url(1) }}" class="{{ $kelasTombol }} {{ $kelasBiasa }}" aria-label="Ke halaman pertama" title="Ke halaman pertama">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+                </a>
+            @endif
             @if ($paginator->onFirstPage())
-                <span class="{{ $kelasTombol }} {{ $kelasNonaktif }} gap-1.5 px-3.5" aria-disabled="true">
+                <span class="{{ $kelasTombol }} {{ $kelasNonaktif }} gap-1.5 {{ $tampilkanKeAwal ? '' : 'px-3.5' }}" aria-disabled="true">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
-                    Sebelumnya
+                    <span class="{{ $tampilkanKeAwal ? 'sr-only' : '' }}">Sebelumnya</span>
                 </span>
             @else
-                <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="{{ $kelasTombol }} {{ $kelasBiasa }} gap-1.5 px-3.5">
+                <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="{{ $kelasTombol }} {{ $kelasBiasa }} gap-1.5 {{ $tampilkanKeAwal ? '' : 'px-3.5' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
-                    Sebelumnya
+                    <span class="{{ $tampilkanKeAwal ? 'sr-only' : '' }}">Sebelumnya</span>
                 </a>
             @endif
             </div>
 
-            <span class="text-xs text-gray-500">
-                <span class="font-bold text-gray-800">{{ $paginator->currentPage() }}</span> / {{ $paginator->lastPage() }}
+            <span class="text-xs text-gray-500 whitespace-nowrap">
+                <span class="{{ $tampilkanKeAwal ? '' : 'sr-only' }}">Halaman</span> <span class="font-bold text-gray-800">{{ $paginator->currentPage() }}</span> {{ $tampilkanKeAwal ? 'dari' : '/' }} {{ $paginator->lastPage() }}
             </span>
 
             @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="{{ $kelasTombol }} {{ $kelasBiasa }} gap-1.5 px-3.5">
-                    Berikutnya
+                <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="{{ $kelasTombol }} {{ $kelasBiasa }} gap-1.5 {{ $tampilkanKeAwal ? '' : 'px-3.5' }}">
+                    <span class="{{ $tampilkanKeAwal ? 'sr-only' : '' }}">Berikutnya</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
                 </a>
             @else
-                <span class="{{ $kelasTombol }} {{ $kelasNonaktif }} gap-1.5 px-3.5" aria-disabled="true">
-                    Berikutnya
+                <span class="{{ $kelasTombol }} {{ $kelasNonaktif }} gap-1.5 {{ $tampilkanKeAwal ? '' : 'px-3.5' }}" aria-disabled="true">
+                    <span class="{{ $tampilkanKeAwal ? 'sr-only' : '' }}">Berikutnya</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
                 </span>
             @endif
@@ -55,6 +63,15 @@
             </p>
 
             <div class="flex items-center gap-1.5">
+                {{-- Ke halaman pertama --}}
+                @if ($tampilkanKeAwal)
+                    <a href="{{ $paginator->url(1) }}" class="{{ $kelasTombol }} {{ $kelasBiasa }} gap-1.5 px-3" aria-label="Ke halaman pertama">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+                        <span>Halaman Pertama</span>
+                    </a>
+                    <span class="w-px h-5 bg-[#E2E8E4] mx-0.5" aria-hidden="true"></span>
+                @endif
+
                 {{-- Sebelumnya --}}
                 @if ($paginator->onFirstPage())
                     <span class="{{ $kelasTombol }} {{ $kelasNonaktif }}" aria-disabled="true" aria-label="Halaman sebelumnya">
