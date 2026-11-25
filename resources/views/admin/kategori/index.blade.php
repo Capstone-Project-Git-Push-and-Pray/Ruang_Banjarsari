@@ -239,9 +239,11 @@
             </div>
 
             {{-- Pagination --}}
-            <div class="px-6 py-4 border-t border-[#E2E8E4] bg-white">
-                {{ $kategoris->links() }}
-            </div>
+            @if ($kategoris->hasPages())
+                <div class="px-6 py-4 border-t border-[#E2E8E4] bg-white">
+                    {{ $kategoris->links() }}
+                </div>
+            @endif
         </div>
 
     </div>

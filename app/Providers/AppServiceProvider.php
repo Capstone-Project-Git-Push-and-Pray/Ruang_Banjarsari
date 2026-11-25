@@ -8,6 +8,7 @@ use App\Policies\KomentarPolicy;
 use App\Policies\PengaduanPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         // Daftarkan kebijakan otorisasi model (PBI #22)
         Gate::policy(Pengaduan::class, PengaduanPolicy::class);
         Gate::policy(Komentar::class, KomentarPolicy::class);
+
+        // Navigasi halaman bertema SILAFA untuk seluruh tabel dan daftar
+        Paginator::defaultView('pagination.silafa');
 
         // Rate limiter untuk formulir registrasi (5 per menit per IP)
         RateLimiter::for('registrasi', function (Request $request) {
