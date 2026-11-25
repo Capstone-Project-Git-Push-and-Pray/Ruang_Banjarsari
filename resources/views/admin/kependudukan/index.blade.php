@@ -509,7 +509,10 @@
                                         {{-- Tombol Hapus --}}
                                         <form method="POST"
                                               action="{{ route('admin.kependudukan.destroy', $penduduk) }}"
-                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus data kependudukan warga {{ $penduduk->nama_lengkap }} (NIK: {{ $penduduk->nik }}) dari master data?');"
+                                              data-konfirmasi="Data {{ $penduduk->nama_lengkap }} (NIK {{ $penduduk->nik }}) akan dihapus dari master data kependudukan desa."
+                                              data-konfirmasi-judul="Hapus data kependudukan?"
+                                              data-konfirmasi-tombol="Hapus"
+                                              data-konfirmasi-jenis="bahaya"
                                               class="inline">
                                             @csrf
                                             @method('DELETE')

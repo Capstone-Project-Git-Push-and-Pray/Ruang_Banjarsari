@@ -227,9 +227,14 @@
                     </div>
 
                     {{-- Form Logout --}}
-                    <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+                    <form method="POST" action="{{ route('logout') }}" class="shrink-0"
+                          data-konfirmasi="Anda perlu masuk kembali untuk mengakses panel admin."
+                          data-konfirmasi-judul="Keluar dari akun?"
+                          data-konfirmasi-tombol="Keluar"
+                          data-konfirmasi-ikon="keluar"
+                          data-konfirmasi-jenis="bahaya">
                         @csrf
-                        <button type="submit" onclick="return confirm('Apakah Anda yakin ingin keluar dari akun Anda?')" title="Keluar dari Akun" class="p-2 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-white transition cursor-pointer">
+                        <button type="submit" title="Keluar dari Akun" class="p-2 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-white transition cursor-pointer">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                         </button>
                     </form>
@@ -317,5 +322,6 @@
             lucide.createIcons();
         });
     </script>
+    <x-dialog-konfirmasi />
 </body>
 </html>

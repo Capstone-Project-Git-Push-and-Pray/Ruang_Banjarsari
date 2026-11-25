@@ -78,12 +78,16 @@
                             </x-dropdown-link>
 
                             <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form method="POST" action="{{ route('logout') }}"
+                                  data-konfirmasi="Anda perlu masuk kembali untuk memakai layanan SILAFA."
+                                  data-konfirmasi-judul="Keluar dari akun?"
+                                  data-konfirmasi-tombol="Keluar"
+                          data-konfirmasi-ikon="keluar"
+                                  data-konfirmasi-jenis="bahaya">
                                 @csrf
 
                                 <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    if (confirm('Apakah Anda yakin ingin keluar dari akun Anda?')) { this.closest('form').submit(); }">
+                                        onclick="event.preventDefault(); this.closest('form').requestSubmit();">
                                     Keluar
                                 </x-dropdown-link>
                             </form>
@@ -156,12 +160,16 @@
                     </x-responsive-nav-link>
 
                     <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}"
+                                  data-konfirmasi="Anda perlu masuk kembali untuk memakai layanan SILAFA."
+                                  data-konfirmasi-judul="Keluar dari akun?"
+                                  data-konfirmasi-tombol="Keluar"
+                          data-konfirmasi-ikon="keluar"
+                                  data-konfirmasi-jenis="bahaya">
                         @csrf
 
                         <x-responsive-nav-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                            if (confirm('Apakah Anda yakin ingin keluar dari akun Anda?')) { this.closest('form').submit(); }">
+                                onclick="event.preventDefault(); this.closest('form').requestSubmit();">
                             Keluar
                         </x-responsive-nav-link>
                     </form>

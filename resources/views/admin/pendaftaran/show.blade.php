@@ -231,10 +231,12 @@
                 </button>
 
                 {{-- Form Setujui --}}
-                <form method="POST" action="{{ route('admin.pendaftaran.setujui', $user) }}">
+                <form method="POST" action="{{ route('admin.pendaftaran.setujui', $user) }}"
+                      data-konfirmasi="Akun warga ini akan langsung berstatus Aktif dan dapat memakai seluruh layanan SILAFA."
+                      data-konfirmasi-judul="Setujui pendaftaran warga?"
+                      data-konfirmasi-tombol="Setujui">
                     @csrf
                     <button type="submit"
-                            onclick="return confirm('Apakah Anda yakin ingin menyetujui pendaftaran warga ini? Akun warga akan langsung berstatus Aktif.')"
                             class="px-6 py-2.5 rounded-xl bg-[#1F6B4F] hover:bg-[#174B39] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shadow-xs flex items-center gap-2 cursor-pointer">
                         <i data-lucide="check-circle" class="w-4 h-4"></i>
                         <span>Setujui Pendaftaran</span>

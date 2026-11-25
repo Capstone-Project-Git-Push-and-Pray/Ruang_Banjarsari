@@ -95,7 +95,7 @@
                         {{-- Aksi Edit/Hapus (Kriteria: komentar tidak dapat diubah orang lain) --}}
                         @can('update', $komentar)
                             <button type="button" @click="editing = true" class="font-semibold hover:text-gray-800 cursor-pointer">Edit</button>
-                            <form method="POST" action="{{ route('komentar.destroy', $komentar) }}" data-pertahankan-gulir onsubmit="return confirm('Hapus komentar ini?')" class="inline">
+                            <form method="POST" action="{{ route('komentar.destroy', $komentar) }}" data-pertahankan-gulir data-konfirmasi="Komentar Anda akan dihapus dan tidak dapat dikembalikan." data-konfirmasi-judul="Hapus komentar ini?" data-konfirmasi-tombol="Hapus" data-konfirmasi-jenis="bahaya" class="inline">
                                 @csrf
                                 @method('delete')
                                 <button type="submit" class="font-semibold hover:text-rose-600 cursor-pointer">Hapus</button>

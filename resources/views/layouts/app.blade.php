@@ -54,5 +54,6 @@
                 <p>&copy; {{ date('Y') }} SILAFA Banjarsari — Sistem Informasi Layanan Pengaduan dan Aspirasi Warga Desa Banjarsari.</p>
             </footer>
         </div>
-    </body>
+        <x-dialog-konfirmasi />
+</body>
 </html>

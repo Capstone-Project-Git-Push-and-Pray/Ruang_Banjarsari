@@ -21,7 +21,10 @@
     </div>
 
     <form x-show="hapus" x-cloak method="POST" action="{{ route("admin.moderasi.{$jenis}.hapus", $konten) }}" data-pertahankan-gulir
-          onsubmit="return confirm('Hapus {{ $jenis }} ini? Konten tidak akan terlihat lagi oleh siapa pun di halaman warga maupun desa.')"
+          data-konfirmasi="Konten tidak akan terlihat lagi oleh siapa pun di halaman warga maupun desa. Alasan penghapusan akan dicatat di Riwayat Moderasi."
+          data-konfirmasi-judul="Hapus {{ $jenis }} ini?"
+          data-konfirmasi-tombol="Hapus"
+          data-konfirmasi-jenis="bahaya"
           class="p-4 rounded-2xl border border-red-200 bg-red-50/40 space-y-3">
         @csrf
         @method('delete')

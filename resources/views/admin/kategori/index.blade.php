@@ -215,7 +215,7 @@
 
                                         {{-- Tombol Hapus (Kriteria: hanya bisa dihapus jika BELUM pernah dipakai laporan) --}}
                                         @if ($kategori->pengaduan_count === 0)
-                                            <form method="POST" action="{{ route('admin.kategori.destroy', $kategori) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')" class="inline">
+                                            <form method="POST" action="{{ route('admin.kategori.destroy', $kategori) }}" data-konfirmasi="Kategori {{ $kategori->nama }} akan dihapus permanen dan tidak dapat dipilih lagi saat membuat laporan." data-konfirmasi-judul="Hapus kategori ini?" data-konfirmasi-tombol="Hapus" data-konfirmasi-jenis="bahaya" class="inline">
                                                 @csrf
                                                 @method('delete')
                                                 <button type="submit"
