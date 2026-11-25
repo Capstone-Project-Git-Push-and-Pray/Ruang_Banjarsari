@@ -67,7 +67,7 @@
         {{-- Nomor Telepon --}}
         <div>
             <x-input-label for="telepon" value="Nomor Telepon / HP" />
-            <x-text-input id="telepon" name="telepon" type="tel" class="mt-1 block w-full" :value="old('telepon', $user->telepon)" placeholder="Contoh: 081234567890" />
+            <x-text-input id="telepon" name="telepon" type="tel" class="mt-1 block w-full" :value="old('telepon', $user->telepon)" placeholder="Contoh: 081234567890" :required="$user->isWarga()" />
             <x-input-error class="mt-2" :messages="$errors->get('telepon')" />
         </div>
 

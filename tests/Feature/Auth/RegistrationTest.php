@@ -73,6 +73,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567891',
+            'email' => 'warga1@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
@@ -98,6 +99,7 @@ class RegistrationTest extends TestCase
             'rw' => '001',
             'dusun' => 'Dusun Krajan',
             'email' => 'agus@example.com',
+            'telepon' => '081200000002',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
@@ -133,6 +135,7 @@ class RegistrationTest extends TestCase
             'rw' => '001',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567893',
+            'email' => 'warga3@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
@@ -165,6 +168,7 @@ class RegistrationTest extends TestCase
             'rw' => '001',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567833',
+            'email' => 'warga4@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
@@ -190,6 +194,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567890',
+            'email' => 'warga5@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
@@ -214,6 +219,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567890',
+            'email' => 'warga6@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
@@ -222,41 +228,58 @@ class RegistrationTest extends TestCase
         $response->assertSessionHasErrors('nik');
     }
 
-    public function test_registration_requires_at_least_one_contact_between_email_and_phone(): void
+    public function test_registration_requires_both_email_and_phone(): void
     {
-        // 1. Tanpa telepon dan tanpa email -> Gagal
-        $response = $this->post('/register', [
+        // 1. Hanya telepon tanpa email -> Gagal
+        $this->post('/register', [
             'nama_lengkap' => 'Warga Baru',
+            'tanggal_lahir' => '1995-05-12',
+            'alamat' => 'Jl. Merpati No. 10',
+            'rt' => '001',
+            'rw' => '002',
+            'dusun' => 'Dusun Krajan',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'persetujuan' => '1',
             'nik' => '3207011205950005',
-            'tanggal_lahir' => '1995-05-12',
-            'alamat' => 'Jl. Merpati No. 10',
-            'rt' => '001',
-            'rw' => '002',
-            'dusun' => 'Dusun Krajan',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-            'persetujuan' => '1',
-        ]);
-
-        $response->assertSessionHasErrors(['email', 'telepon']);
-
-        // 2. Hanya mengisi telepon -> Berhasil
-        $responsePhoneOnly = $this->post('/register', [
-            'nama_lengkap' => 'Warga Baru',
-            'nik' => '3207011205950006',
-            'tanggal_lahir' => '1995-05-12',
-            'alamat' => 'Jl. Merpati No. 10',
-            'rt' => '001',
-            'rw' => '002',
-            'dusun' => 'Dusun Krajan',
             'telepon' => '081234567899',
+        ])->assertSessionHasErrors('email');
+
+        // 2. Hanya email tanpa telepon -> Gagal
+        $this->post('/register', [
+            'nama_lengkap' => 'Warga Baru',
+            'tanggal_lahir' => '1995-05-12',
+            'alamat' => 'Jl. Merpati No. 10',
+            'rt' => '001',
+            'rw' => '002',
+            'dusun' => 'Dusun Krajan',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'persetujuan' => '1',
-        ]);
+            'nik' => '3207011205950006',
+            'email' => 'wargabaru@example.com',
+        ])->assertSessionHasErrors('telepon');
 
-        $responsePhoneOnly->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('users', ['nik' => '3207011205950006']);
+        $this->assertDatabaseMissing('users', ['nik' => '3207011205950005']);
+        $this->assertDatabaseMissing('users', ['nik' => '3207011205950006']);
+
+        // 3. Email dan telepon diisi -> Berhasil
+        $this->post('/register', [
+            'nama_lengkap' => 'Warga Baru',
+            'tanggal_lahir' => '1995-05-12',
+            'alamat' => 'Jl. Merpati No. 10',
+            'rt' => '001',
+            'rw' => '002',
+            'dusun' => 'Dusun Krajan',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'persetujuan' => '1',
+            'nik' => '3207011205950007',
+            'telepon' => '081234567899',
+            'email' => 'wargabaru@example.com',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('users', ['nik' => '3207011205950007', 'email' => 'wargabaru@example.com']);
     }
 
     public function test_registration_requires_password_minimum_8_characters_and_confirmed(): void
@@ -270,6 +293,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567890',
+            'email' => 'warga9@example.com',
             'password' => '1234567',
             'password_confirmation' => '1234567',
             'persetujuan' => '1',
@@ -289,6 +313,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567890',
+            'email' => 'warga10@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
@@ -365,6 +390,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567890',
+            'email' => 'warga11@example.com',
         ]);
 
         $user->refresh();
@@ -389,6 +415,7 @@ class RegistrationTest extends TestCase
             'rw' => '002',
             'dusun' => 'Dusun Krajan',
             'telepon' => '081234567890',
+            'email' => 'warga12@example.com',
         ]);
 
         $user->refresh();

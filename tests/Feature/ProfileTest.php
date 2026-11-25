@@ -70,6 +70,19 @@ class ProfileTest extends TestCase
         $this->assertSame('083333333333', $user->whatsapp);
     }
 
+    public function test_warga_cannot_remove_email_or_phone_from_profile(): void
+    {
+        $user = User::factory()->warga()->create();
+
+        $this->actingAs($user)
+            ->patch('/profile', ['email' => '', 'telepon' => '081234567800'])
+            ->assertSessionHasErrors('email');
+
+        $this->actingAs($user)
+            ->patch('/profile', ['email' => 'warga@example.com', 'telepon' => ''])
+            ->assertSessionHasErrors('telepon');
+    }
+
     public function test_warga_cannot_change_nik_and_nama_lengkap(): void
     {
         $originalNik = '3207010101900001';
@@ -87,6 +100,7 @@ class ProfileTest extends TestCase
                 'name' => 'NAMA PALSU',
                 'nama_lengkap' => 'NAMA PALSU',
                 'email' => 'budi.baru@example.com',
+                'telepon' => '081234567800',
             ]);
 
         $response

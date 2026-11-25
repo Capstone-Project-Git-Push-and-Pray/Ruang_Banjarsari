@@ -60,6 +60,12 @@
               showPassword: false,
               showConfirmPassword: false,
               nextStep() {
+                  const panel = this.$root.querySelector(`[data-step='${this.currentStep}']`);
+                  const fieldTidakValid = panel ? [...panel.querySelectorAll('input, select, textarea')].find((field) => ! field.checkValidity()) : null;
+                  if (fieldTidakValid) {
+                      fieldTidakValid.reportValidity();
+                      return;
+                  }
                   if (this.currentStep < 4) this.currentStep++;
                   window.scrollTo({ top: 120, behavior: 'smooth' });
               },
@@ -99,7 +105,7 @@
                     </div>
                     <div>
                         <span class="text-xs text-gray-500 block leading-tight">Butuh bantuan pendaftaran?</span>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="text-xs sm:text-sm font-bold text-gray-900 hover:text-[#1F6B4F] transition-colors block">
+                        <a href="https://wa.me/6289662893128" target="_blank" rel="noopener noreferrer" class="text-xs sm:text-sm font-bold text-gray-900 hover:text-[#1F6B4F] transition-colors block">
                             Sekretariat Balai Desa
                         </a>
                     </div>
@@ -210,7 +216,7 @@
                 @csrf
 
                 {{-- ==================== STEP 1: IDENTITAS DIRI ==================== --}}
-                <div x-show="currentStep === 1" class="space-y-6">
+                <div x-show="currentStep === 1" data-step="1" class="space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E8E4] gap-2">
                         <div>
                             <h2 class="font-display font-bold text-lg sm:text-xl text-gray-900">
@@ -355,7 +361,7 @@
                 </div>
 
                 {{-- ==================== STEP 2: DOMISILI ==================== --}}
-                <div x-show="currentStep === 2" class="space-y-6" style="display: none;">
+                <div x-show="currentStep === 2" data-step="2" class="space-y-6" style="display: none;">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E8E4] gap-2">
                         <div>
                             <h2 class="font-display font-bold text-lg sm:text-xl text-gray-900">
@@ -440,7 +446,7 @@
                 </div>
 
                 {{-- ==================== STEP 3: KONTAK AKTIF ==================== --}}
-                <div x-show="currentStep === 3" class="space-y-6" style="display: none;">
+                <div x-show="currentStep === 3" data-step="3" class="space-y-6" style="display: none;">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E8E4] gap-2">
                         <div>
                             <h2 class="font-display font-bold text-lg sm:text-xl text-gray-900">
@@ -462,7 +468,7 @@
                     <div class="p-3.5 bg-[#EAF5EE] border border-[#1F6B4F]/20 rounded-xl flex items-start gap-3">
                         <i data-lucide="info" class="w-4 h-4 text-[#1F6B4F] shrink-0 mt-0.5"></i>
                         <p class="text-xs text-[#1F6B4F] leading-relaxed">
-                            <strong>Ketentuan Kontak:</strong> Minimal salah satu antara <strong>Nomor Telepon / HP</strong> atau <strong>Email</strong> wajib diisi untuk verifikasi dan notifikasi aduan Anda.
+                            <strong>Ketentuan Kontak:</strong> <strong>Nomor Telepon / HP</strong> dan <strong>Email</strong> wajib diisi. Email digunakan untuk mengirim tautan reset kata sandi jika Anda lupa kata sandi.
                         </p>
                     </div>
 
@@ -470,7 +476,7 @@
                         {{-- Telepon --}}
                         <div class="space-y-1.5">
                             <label for="telepon" class="text-xs sm:text-sm font-semibold text-gray-800">
-                                Nomor Telepon / HP
+                                Nomor Telepon / HP <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -480,10 +486,11 @@
                                        type="tel"
                                        name="telepon"
                                        value="{{ old('telepon') }}"
+                                       required
                                        placeholder="Contoh: 081234567890"
                                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2E8E4] rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
                             </div>
-                            <p class="text-[11px] text-gray-400">Wajib jika email tidak diisi.</p>
+                            <p class="text-[11px] text-gray-400">Nomor aktif yang dapat dihubungi.</p>
                         </div>
 
                         {{-- WhatsApp --}}
@@ -508,7 +515,7 @@
                         {{-- Email --}}
                         <div class="space-y-1.5">
                             <label for="email" class="text-xs sm:text-sm font-semibold text-gray-800">
-                                Alamat Email
+                                Alamat Email <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
@@ -518,10 +525,11 @@
                                        type="email"
                                        name="email"
                                        value="{{ old('email') }}"
+                                       required
                                        placeholder="nama@email.com"
                                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2E8E4] rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
                             </div>
-                            <p class="text-[11px] text-gray-400">Wajib jika telepon tidak diisi.</p>
+                            <p class="text-[11px] text-gray-400">Untuk menerima tautan reset kata sandi.</p>
                         </div>
                     </div>
 
@@ -543,7 +551,7 @@
                 </div>
 
                 {{-- ==================== STEP 4: KEAMANAN ==================== --}}
-                <div x-show="currentStep === 4" class="space-y-6" style="display: none;">
+                <div x-show="currentStep === 4" data-step="4" class="space-y-6" style="display: none;">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E8E4] gap-2">
                         <div>
                             <h2 class="font-display font-bold text-lg sm:text-xl text-gray-900">
@@ -720,7 +728,7 @@
                     <h4 class="font-display font-semibold text-gray-900 text-xs sm:text-sm mb-3">Kontak Sekretariat</h4>
                     <ul class="space-y-2">
                         <li class="text-xs text-gray-500">Kantor Balai Desa Banjarsari</li>
-                        <li class="text-xs text-gray-500">WhatsApp Siaga Warga: 0812-3456-7890</li>
+                        <li class="text-xs text-gray-500">WhatsApp Siaga Warga: 0896-6289-3128</li>
                         <li class="text-xs text-gray-500">Email: aduan@banjarsari.desa.id</li>
                     </ul>
                 </div>

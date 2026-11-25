@@ -47,15 +47,14 @@ class StatusPendaftaranController extends Controller
             'rw' => ['required', 'string', 'max:3'],
             'dusun' => ['required', 'string', 'max:100'],
             'email' => [
-                'nullable',
+                'required',
                 'string',
                 'lowercase',
                 'email',
                 'max:255',
                 Rule::unique(User::class, 'email')->ignore($user->id),
-                'required_without:telepon',
             ],
-            'telepon' => ['nullable', 'string', 'max:20', 'required_without:email'],
+            'telepon' => ['required', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
         ], [
             'nama_lengkap.required' => 'Nama lengkap sesuai KTP wajib diisi.',
@@ -65,8 +64,9 @@ class StatusPendaftaranController extends Controller
             'rt.required' => 'RT wajib diisi.',
             'rw.required' => 'RW wajib diisi.',
             'dusun.required' => 'Dusun tempat tinggal wajib diisi.',
-            'email.required_without' => 'Minimal salah satu kontak (Email atau Nomor Telepon) wajib diisi.',
-            'telepon.required_without' => 'Minimal salah satu kontak (Email atau Nomor Telepon) wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi untuk keperluan reset kata sandi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'telepon.required' => 'Nomor telepon / HP wajib diisi.',
             'email.unique' => 'Alamat email ini telah digunakan oleh akun lain.',
         ]);
 

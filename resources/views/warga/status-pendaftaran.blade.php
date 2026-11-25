@@ -136,7 +136,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span>Butuh percepatan?</span>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="text-[#1F6B4F] font-bold hover:underline inline-flex items-center gap-1">
+                        <a href="https://wa.me/6289662893128" target="_blank" rel="noopener noreferrer" class="text-[#1F6B4F] font-bold hover:underline inline-flex items-center gap-1">
                             Hubungi Admin Desa
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
@@ -274,15 +274,16 @@
                     <div class="grid sm:grid-cols-3 gap-5 pt-2 border-t border-[#E2E8E4]">
                         <div class="space-y-1.5">
                             <label for="telepon" class="text-xs sm:text-sm font-semibold text-gray-800 block">
-                                No. Telepon / HP
+                                No. Telepon / HP <span class="text-rose-500">*</span>
                             </label>
                             <input id="telepon"
                                    type="tel"
                                    name="telepon"
                                    value="{{ old('telepon', $user->telepon) }}"
+                                   required
                                    placeholder="081234567890"
                                    class="w-full px-4 py-2.5 bg-white border border-[#E2E8E4] rounded-lg text-sm text-gray-800 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20">
-                            <p class="text-[11px] text-gray-400">Minimal salah satu (Email / Telepon) wajib diisi.</p>
+                            <p class="text-[11px] text-gray-400">Wajib diisi.</p>
                         </div>
 
                         <div class="space-y-1.5">
@@ -299,12 +300,13 @@
 
                         <div class="space-y-1.5">
                             <label for="email" class="text-xs sm:text-sm font-semibold text-gray-800 block">
-                                Email
+                                Email <span class="text-rose-500">*</span>
                             </label>
                             <input id="email"
                                    type="email"
                                    name="email"
                                    value="{{ old('email', $user->email) }}"
+                                   required
                                    placeholder="warga@email.com"
                                    class="w-full px-4 py-2.5 bg-white border border-[#E2E8E4] rounded-lg text-sm text-gray-800 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20">
                         </div>

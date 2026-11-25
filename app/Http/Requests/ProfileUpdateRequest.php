@@ -20,7 +20,7 @@ class ProfileUpdateRequest extends FormRequest
             'name' => ['nullable', 'string', 'max:255'],
             'nama_lengkap' => ['nullable', 'string', 'max:255'],
             'email' => [
-                $this->user()?->isWarga() ? 'nullable' : 'required',
+                'required',
                 'string',
                 'lowercase',
                 'email',
@@ -28,7 +28,7 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()?->id),
             ],
             'telepon' => [
-                'nullable',
+                $this->user()?->isWarga() ? 'required' : 'nullable',
                 'string',
                 'max:20',
                 Rule::unique(User::class)->ignore($this->user()?->id),
@@ -38,14 +38,15 @@ class ProfileUpdateRequest extends FormRequest
     }
 
     /**
-     * Konfigurasi validasi lanjutan untuk memastikan warga memiliki kontak aktif.
+     * Pesan validasi kustom untuk pembaruan profil.
+     *
+     * @return array<string, string>
      */
-    public function withValidator($validator): void
+    public function messages(): array
     {
-        $validator->after(function ($validator) {
-            if ($this->user()?->isWarga() && empty($this->email) && empty($this->telepon)) {
-                $validator->errors()->add('email', 'Minimal cantumkan salah satu dari email atau nomor telepon yang aktif.');
-            }
-        });
+        return [
+            'email.required' => 'Alamat email wajib diisi untuk keperluan reset kata sandi.',
+            'telepon.required' => 'Nomor telepon / HP wajib diisi.',
+        ];
     }
 }
