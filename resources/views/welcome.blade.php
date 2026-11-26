@@ -186,17 +186,17 @@
                         {{-- Quick Stats --}}
                         <div class="flex flex-wrap items-center gap-6 pt-4 border-t border-border mt-2">
                             <div>
-                                <span class="font-display font-bold text-xl text-gray-900">1,482 <span class="text-primary text-sm">+</span></span>
+                                <span class="font-display font-bold text-xl text-gray-900">{{ number_format($statistik['total'], 0, ',', '.') }}</span>
                                 <p class="text-xs text-gray-500">Total Aduan Warga</p>
                             </div>
                             <div class="w-px h-8 bg-border"></div>
                             <div>
-                                <span class="font-display font-bold text-xl text-gray-900">94.8%</span>
+                                <span class="font-display font-bold text-xl text-gray-900">{{ number_format($statistik['tingkat_respon'], 1, ',', '.') }}%</span>
                                 <p class="text-xs text-gray-500">Tingkat Respon</p>
                             </div>
                             <div class="w-px h-8 bg-border"></div>
                             <div>
-                                <span class="font-display font-bold text-xl text-gray-900">< 24 Jam</span>
+                                <span class="font-display font-bold text-xl text-gray-900">{{ $statistik['rata_respon']['label'] ?? '-' }}</span>
                                 <p class="text-xs text-gray-500">Rata-rata Respon</p>
                             </div>
                         </div>
@@ -423,7 +423,7 @@
                         Statistik Kinerja Penanganan Layanan
                     </h2>
                     <p class="mt-3 text-gray-500 text-sm max-w-2xl mx-auto">
-                        Pemutakhiran data otomatis berdasarkan catatan sistem. Data pelayanan balai desa satu tahun terakhir.
+                        Dihitung langsung dari data laporan di sistem setiap kali halaman dibuka. Data pelayanan balai desa 12 bulan terakhir.
                     </p>
                 </div>
 
@@ -433,11 +433,15 @@
                         <div class="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-3">
                             <i data-lucide="file-text" class="w-6 h-6 text-primary"></i>
                         </div>
-                        <p class="font-display text-3xl font-bold text-gray-900" data-counter="1570">0</p>
+                        <p class="font-display text-3xl font-bold text-gray-900" data-counter="{{ $statistik['total'] }}">0</p>
                         <p class="text-xs text-gray-500 mt-1">Total Aduan Masuk</p>
                         <div class="flex items-center justify-center gap-1 mt-2">
-                            <i data-lucide="trending-up" class="w-3 h-3 text-green-600"></i>
-                            <span class="text-[11px] font-medium text-green-600">+12% dari tahun lalu</span>
+                            @if ($statistik['tren_total_persen'] === null)
+                                <span class="text-[11px] font-medium text-gray-400">12 bulan terakhir</span>
+                            @else
+                                <i data-lucide="{{ $statistik['tren_total_persen'] >= 0 ? 'trending-up' : 'trending-down' }}" class="w-3 h-3 text-gray-500"></i>
+                                <span class="text-[11px] font-medium text-gray-500">{{ $statistik['tren_total_persen'] >= 0 ? '+' : '' }}{{ number_format($statistik['tren_total_persen'], 1, ',', '.') }}% dari tahun lalu</span>
+                            @endif
                         </div>
                     </div>
 
@@ -446,11 +450,18 @@
                         <div class="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-3">
                             <i data-lucide="check-circle-2" class="w-6 h-6 text-primary"></i>
                         </div>
-                        <p class="font-display text-3xl font-bold text-gray-900"><span data-counter="94.4">0</span>%</p>
+                        <p class="font-display text-3xl font-bold text-gray-900"><span data-counter="{{ $statistik['tingkat_penyelesaian'] }}" data-desimal="1">0</span>%</p>
                         <p class="text-xs text-gray-500 mt-1">Tingkat Penyelesaian</p>
                         <div class="flex items-center justify-center gap-1 mt-2">
-                            <i data-lucide="trending-up" class="w-3 h-3 text-green-600"></i>
-                            <span class="text-[11px] font-medium text-green-600">Naik dari 90.1%</span>
+                            @if ($statistik['penyelesaian_sebelumnya'] === null)
+                                <span class="text-[11px] font-medium text-gray-400">Laporan berstatus selesai</span>
+                            @else
+                                @php
+                                    $naik = $statistik['tingkat_penyelesaian'] >= $statistik['penyelesaian_sebelumnya'];
+                                @endphp
+                                <i data-lucide="{{ $naik ? 'trending-up' : 'trending-down' }}" class="w-3 h-3 {{ $naik ? 'text-green-600' : 'text-rose-500' }}"></i>
+                                <span class="text-[11px] font-medium {{ $naik ? 'text-green-600' : 'text-rose-500' }}">{{ $naik ? 'Naik' : 'Turun' }} dari {{ number_format($statistik['penyelesaian_sebelumnya'], 1, ',', '.') }}%</span>
+                            @endif
                         </div>
                     </div>
 
@@ -459,55 +470,54 @@
                         <div class="w-12 h-12 rounded-xl bg-primary-light flex items-center justify-center mx-auto mb-3">
                             <i data-lucide="clock" class="w-6 h-6 text-primary"></i>
                         </div>
-                        <p class="font-display text-3xl font-bold text-gray-900"><span data-counter="1.2">0</span> hari</p>
+                        @if ($statistik['rata_respon'])
+                            <p class="font-display text-3xl font-bold text-gray-900"><span data-counter="{{ $statistik['rata_respon']['nilai'] }}" data-desimal="{{ fmod($statistik['rata_respon']['nilai'], 1) == 0 ? 0 : 1 }}">0</span> {{ $statistik['rata_respon']['satuan'] }}</p>
+                        @else
+                            <p class="font-display text-3xl font-bold text-gray-900">-</p>
+                        @endif
                         <p class="text-xs text-gray-500 mt-1">Rata-rata Respon</p>
                         <div class="flex items-center justify-center gap-1 mt-2">
-                            <i data-lucide="trending-down" class="w-3 h-3 text-green-600"></i>
-                            <span class="text-[11px] font-medium text-green-600">Lebih cepat dari bulan lalu</span>
+                            <span class="text-[11px] font-medium text-gray-400">Dari laporan masuk hingga pertama ditanggapi</span>
                         </div>
                     </div>
 
                     {{-- Stat 4 - Donut Chart --}}
                     <div class="bg-canvas rounded-card border border-border p-6 text-center hover:shadow-card-hover transition-all duration-300 reveal delay-300">
                         <div class="relative w-28 h-28 mx-auto mb-3">
-                            <svg viewBox="0 0 36 36" class="w-full h-full">
-                                {{-- Background circle --}}
-                                <path d="M18 2.0845
-                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                    fill="none" stroke="#E2E8E4" stroke-width="3"/>
-                                {{-- Selesai (green) --}}
-                                <path d="M18 2.0845
-                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                    fill="none" stroke="#1F6B4F" stroke-width="3"
-                                    stroke-dasharray="82, 100" stroke-linecap="round"/>
-                                {{-- Diproses (blue) --}}
-                                <path d="M18 2.0845
-                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                    fill="none" stroke="#2563EB" stroke-width="3"
-                                    stroke-dasharray="10, 100" stroke-dashoffset="-82"/>
-                                {{-- Pending (yellow) --}}
-                                <path d="M18 2.0845
-                                    a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                    fill="none" stroke="#D97706" stroke-width="3"
-                                    stroke-dasharray="5, 100" stroke-dashoffset="-92"/>
+                            @php
+                                $segmenDonut = [
+                                    ['nilai' => $statistik['persen']['selesai'], 'warna' => '#1F6B4F'],
+                                    ['nilai' => $statistik['persen']['proses'], 'warna' => '#2563EB'],
+                                    ['nilai' => $statistik['persen']['menunggu'], 'warna' => '#D97706'],
+                                    ['nilai' => $statistik['persen']['ditolak'], 'warna' => '#E11D48'],
+                                ];
+                                $posisiDonut = 0;
+                            @endphp
+                            <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#E2E8E4" stroke-width="3"/>
+                                @foreach ($segmenDonut as $segmen)
+                                    @if ($segmen['nilai'] > 0)
+                                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="{{ $segmen['warna'] }}" stroke-width="3"
+                                                stroke-dasharray="{{ $segmen['nilai'] }} {{ 100 - $segmen['nilai'] }}" stroke-dashoffset="{{ -$posisiDonut }}"/>
+                                    @endif
+                                    @php
+                                        $posisiDonut += $segmen['nilai'];
+                                    @endphp
+                                @endforeach
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="font-display font-bold text-lg text-gray-900">1,482</span>
+                                <span class="font-display font-bold text-lg text-gray-900">{{ number_format($statistik['total'], 0, ',', '.') }}</span>
                                 <span class="text-[10px] text-gray-500">Total</span>
                             </div>
                         </div>
                         <p class="text-xs font-semibold text-gray-900">Distribusi Status Aduan</p>
-                        <div class="flex justify-center gap-3 mt-2">
-                            <span class="flex items-center gap-1 text-[10px] text-gray-500">
-                                <span class="w-2 h-2 rounded-full bg-primary inline-block"></span> Selesai (82%)
-                            </span>
-                            <span class="flex items-center gap-1 text-[10px] text-gray-500">
-                                <span class="w-2 h-2 rounded-full bg-info inline-block"></span> Proses (10%)
-                            </span>
+                        <div class="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2">
+                            @foreach ([['Selesai', 'selesai', '#1F6B4F'], ['Proses', 'proses', '#2563EB'], ['Menunggu', 'menunggu', '#D97706'], ['Ditolak', 'ditolak', '#E11D48']] as [$labelStatus, $kunciStatus, $warnaStatus])
+                                <span class="flex items-center gap-1 text-[10px] text-gray-500">
+                                    <span class="w-2 h-2 rounded-full inline-block" style="background-color: {{ $warnaStatus }}"></span>
+                                    {{ $labelStatus }} ({{ number_format($statistik['persen'][$kunciStatus], 0, ',', '.') }}%)
+                                </span>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -698,7 +708,8 @@
                     if (entry.isIntersecting) {
                         const el = entry.target;
                         const target = parseFloat(el.dataset.counter);
-                        const isDecimal = target % 1 !== 0;
+                        const isDecimal = el.dataset.desimal === '1' || target % 1 !== 0;
+                        const formatDesimal = (angka) => angka.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
                         const duration = 2000;
                         const start = performance.now();
 
@@ -709,7 +720,7 @@
                             const current = target * eased;
 
                             if (isDecimal) {
-                                el.textContent = current.toFixed(1);
+                                el.textContent = formatDesimal(current);
                             } else {
                                 el.textContent = Math.floor(current).toLocaleString('id-ID');
                             }
@@ -718,7 +729,7 @@
                                 requestAnimationFrame(updateCounter);
                             } else {
                                 if (isDecimal) {
-                                    el.textContent = target.toFixed(1);
+                                    el.textContent = formatDesimal(target);
                                 } else {
                                     el.textContent = Math.floor(target).toLocaleString('id-ID');
                                 }

@@ -23,12 +23,13 @@ use App\Http\Controllers\Warga\PengaduanController as WargaPengaduanController;
 use App\Http\Controllers\Warga\SanksiController as WargaSanksiController;
 use App\Http\Controllers\Warga\StatusPendaftaranController;
 use App\Models\Pengaduan;
+use App\Services\StatistikLayananService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 // Halaman Landing
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (StatistikLayananService $statistikLayanan) {
+    return view('welcome', ['statistik' => $statistikLayanan->ringkasan()]);
 })->name('landing');
 
 // Router Dasbor Utama (Mengarahkan otomatis sesuai peran pengguna saat ini)
