@@ -61,13 +61,6 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // Dokumentasi Foto Lapangan Terkini
-        $fotoProgres = Pengaduan::has('lampiran')
-            ->with(['lampiran', 'user', 'kategori'])
-            ->latest()
-            ->take(2)
-            ->get();
-
         // Log Aktivitas Petugas Terkini
         $logAktivitas = RiwayatStatus::with(['pengaduan', 'diubahOleh'])
             ->latest()
@@ -86,7 +79,6 @@ class DashboardController extends Controller
             'pendingWarga',
             'kategoriBreakdown',
             'antreanAduan',
-            'fotoProgres',
             'logAktivitas',
         ));
     }

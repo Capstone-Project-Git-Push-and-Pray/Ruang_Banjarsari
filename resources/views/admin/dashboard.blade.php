@@ -380,84 +380,9 @@
         </div>
     </div>
 
-    {{-- ==================== 6. ROW DOKUMENTASI & LOG AKTIVITAS (2 KOLOM) ==================== --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {{-- Kiri: Dokumentasi Progres Lapangan Terkini (7 Kolom) --}}
-        <div class="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8E4] shadow-xs flex flex-col justify-between space-y-6">
-            <div>
-                <div class="flex items-center justify-between gap-4 mb-4">
-                    <div>
-                        <h2 class="font-bold text-base sm:text-lg text-gray-900 leading-tight">
-                            Dokumentasi Progres Lapangan Terkini
-                        </h2>
-                        <p class="text-xs text-gray-400 mt-0.5">
-                            Laporan visual sebelum & sesudah dari Satgas/Warga Lapangan Banjarsari
-                        </p>
-                    </div>
-                    <a href="{{ route('admin.pengaduan.index') }}" class="text-xs font-semibold text-[#1F6B4F] hover:underline shrink-0">
-                        Buka Seluruh Antrean &rarr;
-                    </a>
-                </div>
-
-                {{-- 2 Kartu Foto --}}
-                <div class="grid sm:grid-cols-2 gap-4">
-                    {{-- Foto 1 --}}
-                    <div class="rounded-2xl border border-[#E2E8E4] overflow-hidden bg-[#F8FAF9] flex flex-col justify-between">
-                        <div class="h-40 bg-gray-200 relative overflow-hidden group">
-                            <img src="https://images.unsplash.com/photo-1541888946425-d0fbb186156f?auto=format&fit=crop&w=600&q=80"
-                                 alt="Dokumentasi Lapangan"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                            <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-[#1F6B4F] text-white shadow-xs">
-                                Selesai 100%
-                            </span>
-                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md text-[10px] font-medium bg-black/60 text-white backdrop-blur-xs">
-                                Dusun Krajan
-                            </span>
-                        </div>
-                        <div class="p-4 space-y-1.5">
-                            <h3 class="font-bold text-sm text-gray-900 leading-snug">
-                                Pemasangan Lampu LED Baru
-                            </h3>
-                            <p class="text-xs text-gray-500 leading-relaxed">
-                                Regu 2 Sarpras telah mendirikan tiang pengganti, kondisi penerangan jalan kembali normal.
-                            </p>
-                            <span class="text-[10px] text-gray-400 block pt-1">
-                                Mandor: Bpk. Slamet • 13:20 WIB Hari Ini
-                            </span>
-                        </div>
-                    </div>
-
-                    {{-- Foto 2 --}}
-                    <div class="rounded-2xl border border-[#E2E8E4] overflow-hidden bg-[#F8FAF9] flex flex-col justify-between">
-                        <div class="h-40 bg-gray-200 relative overflow-hidden group">
-                            <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=600&q=80"
-                                 alt="Dokumentasi Lapangan"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                            <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-xs">
-                                Sedang Diproses
-                            </span>
-                            <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md text-[10px] font-medium bg-black/60 text-white backdrop-blur-xs">
-                                Dusun Mulyasari
-                            </span>
-                        </div>
-                        <div class="p-4 space-y-1.5">
-                            <h3 class="font-bold text-sm text-gray-900 leading-snug">
-                                Pengerukan Sedimen Lumpur
-                            </h3>
-                            <p class="text-xs text-gray-500 leading-relaxed">
-                                Regu 1 bersama warga gotong royong membersihkan pintu air sepanjang 120 meter saluran primer.
-                            </p>
-                            <span class="text-[10px] text-gray-400 block pt-1">
-                                Mandor: Bpk. Kusnanto • 11:45 WIB Hari Ini
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Kanan: Log Aktivitas Petugas (5 Kolom) --}}
-        <div class="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8E4] shadow-xs flex flex-col justify-between space-y-6">
+    {{-- ==================== 6. LOG AKTIVITAS PETUGAS ==================== --}}
+    <div>
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8E4] shadow-xs flex flex-col justify-between space-y-6">
             <div>
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-bold text-base sm:text-lg text-gray-900 leading-tight">
