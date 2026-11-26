@@ -93,7 +93,7 @@
                             Registrasi Akun Warga Baru
                         </h1>
                         <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
-                            Desa Banjarsari • Kecamatan Ciamis • Kabupaten Ciamis
+                            Desa Banjarsari • Kecamatan Bayongbong • Kabupaten Garut
                         </p>
                     </div>
                 </div>
@@ -283,7 +283,7 @@
                                        placeholder="16 digit angka NIK"
                                        class="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2E8E4] rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#1F6B4F] focus:ring-2 focus:ring-[#1F6B4F]/20 transition-all">
                             </div>
-                            <p class="text-[11px] text-gray-400">NIK terdaftar pada data Dinas Kependudukan & Pencatatan Sipil Ciamis.</p>
+                            <p class="text-[11px] text-gray-400">NIK terdaftar pada data Dinas Kependudukan & Pencatatan Sipil Kabupaten Garut.</p>
                         </div>
 
                         {{-- Jenis Kelamin --}}
@@ -662,7 +662,7 @@
                             Jaminan Kerahasiaan & Keamanan Data
                         </h4>
                         <p class="text-[11px] sm:text-xs text-gray-500 leading-relaxed mt-0.5 max-w-2xl">
-                            Data Anda dijamin kerahasiaannya dan hanya diverifikasi dengan database kependudukan internal Pemerintah Desa Banjarsari serta SIAK Disdukcapil Ciamis demi kepentingan administrasi kenegaraan.
+                            Data Anda dijamin kerahasiaannya dan hanya diverifikasi dengan database kependudukan internal Pemerintah Desa Banjarsari serta SIAK Disdukcapil Kabupaten Garut demi kepentingan administrasi kenegaraan.
                         </p>
                     </div>
                 </div>

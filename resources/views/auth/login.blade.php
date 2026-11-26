@@ -117,7 +117,7 @@
                                     Desa Banjarsari
                                 </h3>
                                 <p class="text-[11px] text-emerald-100/75 leading-none mt-0.5">
-                                    Kec. Banjarsari, Kab. Ciamis
+                                    Kec. Bayongbong, Kab. Garut
                                 </p>
                             </div>
                         </div>

@@ -570,13 +570,13 @@
         <section class="bg-primary-dark py-5">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid sm:grid-cols-3 gap-4 text-white">
-                    <div class="flex items-center gap-3">
+                    <a href="https://www.google.com/maps/dir//QR6M%2BQH2+Kantor+Desa+Banjarsari,+Banjarsari,+Kec.+Bayongbong,+Kabupaten+Garut,+Jawa+Barat+44162/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x2e68bac7ed2768fb:0xa1e17fc9b9ff1f3e" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 group">
                         <i data-lucide="map-pin" class="w-5 h-5 text-primary-light flex-shrink-0"></i>
                         <div>
-                            <p class="text-xs font-semibold">Kantor Balai Desa</p>
-                            <p class="text-[11px] text-white/70">Jl. Raya Banjarsari No. 01, Kec. Banjarsari</p>
+                            <p class="text-xs font-semibold group-hover:underline">Kantor Balai Desa</p>
+                            <p class="text-[11px] text-white/70">Kantor Desa Banjarsari, Kec. Bayongbong, Kab. Garut, Jawa Barat 44162</p>
                         </div>
-                    </div>
+                    </a>
                     <div class="flex items-center gap-3">
                         <i data-lucide="clock" class="w-5 h-5 text-primary-light flex-shrink-0"></i>
                         <div>
@@ -584,13 +584,13 @@
                             <p class="text-[11px] text-white/70">Senin - Jumat, 08.00 - 16.00 WIB</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <a href="https://wa.me/6289662893128" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 group">
                         <i data-lucide="phone" class="w-5 h-5 text-primary-light flex-shrink-0"></i>
                         <div>
-                            <p class="text-xs font-semibold">Saluran Bantuan Siaga</p>
-                            <p class="text-[11px] text-white/70">WhatsApp: 0822-xxxx-xxxx (Jam Kerja)</p>
+                            <p class="text-xs font-semibold group-hover:underline">Saluran Bantuan Siaga</p>
+                            <p class="text-[11px] text-white/70">WhatsApp: 0896-6289-3128 (Jam Kerja)</p>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -636,8 +636,8 @@
                 <div>
                     <h4 class="font-display font-semibold text-gray-900 text-sm mb-4">Kontak Sekretariat</h4>
                     <ul class="space-y-2.5">
-                        <li class="text-xs text-gray-500">Kantor Desa Banjarsari</li>
-                        <li class="text-xs text-gray-500">Telp: (0XXX) XXX-XXXX</li>
+                        <li class="text-xs text-gray-500"><a href="https://www.google.com/maps/dir//QR6M%2BQH2+Kantor+Desa+Banjarsari,+Banjarsari,+Kec.+Bayongbong,+Kabupaten+Garut,+Jawa+Barat+44162/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x2e68bac7ed2768fb:0xa1e17fc9b9ff1f3e" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">Kantor Desa Banjarsari, Kec. Bayongbong, Kab. Garut 44162</a></li>
+                        <li class="text-xs text-gray-500"><a href="https://wa.me/6289662893128" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">WhatsApp: 0896-6289-3128</a></li>
                         <li class="text-xs text-gray-500">Email: admin@banjarsari.desa.id</li>
                     </ul>
                 </div>
