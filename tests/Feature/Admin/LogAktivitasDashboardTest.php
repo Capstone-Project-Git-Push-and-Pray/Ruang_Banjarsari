@@ -95,6 +95,63 @@ class LogAktivitasDashboardTest extends TestCase
             ->assertSessionHas(BatasiSesiTidakAktif::KUNCI_AKTIVITAS, $aktivitasTerakhir);
     }
 
+    public function test_halaman_log_menampilkan_seluruh_aktivitas_dengan_filter_jenis_petugas_dan_tanggal(): void
+    {
+        $admin = User::factory()->adminDesa()->create(['nama_lengkap' => 'Siti Operator']);
+        $kepala = User::factory()->kepalaDesa()->create(['nama_lengkap' => 'Pak Kades']);
+        $laporan = Pengaduan::factory()->create(['judul' => 'Jalan berlubang']);
+
+        $this->riwayatStatus($laporan, $admin, StatusLaporan::Ditinjau, now()->subDays(10));
+        $this->riwayatStatus($laporan, $kepala, StatusLaporan::Diproses, now()->subDay());
+        User::factory()->warga()->create([
+            'nama_lengkap' => 'Dewi Pendaftar',
+            'ditinjau_oleh' => $admin->id,
+            'ditinjau_pada' => now()->subDays(2),
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.log-aktivitas.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['menjadi Diproses', 'menyetujui pendaftaran akun DEWI PENDAFTAR', 'menjadi Ditinjau']);
+
+        $this->actingAs($admin)->get(route('admin.log-aktivitas.index', ['jenis' => 'pendaftaran']))
+            ->assertOk()
+            ->assertSee('menyetujui pendaftaran akun DEWI PENDAFTAR')
+            ->assertDontSee('menjadi Diproses');
+
+        $this->actingAs($admin)->get(route('admin.log-aktivitas.index', ['petugas' => $kepala->id]))
+            ->assertOk()
+            ->assertSee('menjadi Diproses')
+            ->assertDontSee('menjadi Ditinjau');
+
+        $this->actingAs($admin)->get(route('admin.log-aktivitas.index', ['tanggal_mulai' => now()->subDays(3)->toDateString()]))
+            ->assertOk()
+            ->assertSee('menjadi Diproses')
+            ->assertDontSee('menjadi Ditinjau');
+
+        $this->actingAs($admin)->get(route('admin.log-aktivitas.index', ['tanggal_mulai' => now()->addDay()->toDateString()]))
+            ->assertOk()
+            ->assertSee('Data Tidak Ditemukan');
+    }
+
+    public function test_halaman_log_dibagi_per_halaman_dan_hanya_untuk_admin(): void
+    {
+        $admin = User::factory()->adminDesa()->create();
+        $laporan = Pengaduan::factory()->create();
+
+        foreach (range(1, 21) as $menitLalu) {
+            $this->riwayatStatus($laporan, $admin, StatusLaporan::Diproses, now()->subMinutes($menitLalu));
+        }
+
+        $this->actingAs($admin)->get(route('admin.log-aktivitas.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('Menampilkan', false)
+            ->assertViewHas('logAktivitas', fn ($halaman) => $halaman->total() === 21 && $halaman->count() === 1);
+
+        $this->actingAs(User::factory()->warga()->create())
+            ->get(route('admin.log-aktivitas.index'))
+            ->assertForbidden();
+    }
+
     private function riwayatStatus(Pengaduan $laporan, User $pengubah, StatusLaporan $status, \DateTimeInterface $waktu): void
     {
         RiwayatStatus::create([

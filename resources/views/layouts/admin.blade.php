@@ -98,6 +98,15 @@
                                     <span>Rekapitulasi & Analitik</span>
                                 </div>
                             </a>
+
+                            {{-- Log Aktivitas Petugas --}}
+                            <a href="{{ route('admin.log-aktivitas.index') }}"
+                               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.log-aktivitas.*') ? 'bg-[#1F6B4F] text-white font-semibold shadow-xs' : 'text-gray-600 hover:text-[#1F6B4F] hover:bg-[#EAF5EE]' }}">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="history" class="w-4 h-4 {{ request()->routeIs('admin.log-aktivitas.*') ? 'text-white' : 'text-gray-400' }}"></i>
+                                    <span>Log Aktivitas</span>
+                                </div>
+                            </a>
                         </nav>
                     </div>
 
@@ -256,6 +265,7 @@
                     request()->routeIs('admin.moderasi.*') => 'Riwayat Moderasi',
                     request()->routeIs('admin.sanksi.*') => 'Manajemen Sanksi',
                     request()->routeIs('admin.rekapitulasi.*') => 'Rekapitulasi & Analitik',
+                    request()->routeIs('admin.log-aktivitas.*') => 'Log Aktivitas',
                     request()->routeIs('admin.kategori.*') => 'Pengaturan Kategori',
                     request()->routeIs('admin.reset-akun.*') => 'Bantuan Reset Akun',
                     request()->routeIs('profile.edit') => 'Profil Saya',

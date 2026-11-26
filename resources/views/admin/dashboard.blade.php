@@ -416,10 +416,17 @@
                     <h2 class="font-bold text-base sm:text-lg text-gray-900 leading-tight">
                         Log Aktivitas Petugas
                     </h2>
-                    <span class="relative flex w-2 h-2" title="Pembaruan otomatis aktif">
-                        <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-                        <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
-                    </span>
+                    <div class="flex items-center gap-3">
+                        <span class="relative flex w-2 h-2" title="Pembaruan otomatis aktif">
+                            <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                            <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </span>
+                        <a href="{{ route('admin.log-aktivitas.index') }}"
+                           class="text-xs font-semibold text-[#1F6B4F] hover:text-[#174B39] flex items-center gap-1.5 transition">
+                            <span>Lihat Seluruh Log</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
                 </div>
                 <p class="text-xs text-gray-400 mb-6">
                     Tindakan terbaru Admin Desa dan Kepala Desa: perubahan status laporan, peninjauan pendaftaran, moderasi konten, dan pencabutan sanksi

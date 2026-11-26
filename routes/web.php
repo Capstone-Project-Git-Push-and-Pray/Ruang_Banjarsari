@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AspirasiController as AdminAspirasiController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DataKependudukanController;
 use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
+use App\Http\Controllers\Admin\LogAktivitasController;
 use App\Http\Controllers\Admin\ModerasiController;
 use App\Http\Controllers\Admin\PengaduanController as AdminPengaduanController;
 use App\Http\Controllers\Admin\PeninjauanPendaftaranController;
@@ -111,6 +112,7 @@ Route::middleware(['auth', 'role:warga'])->group(function () {
 Route::middleware(['auth', 'role:admin_desa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/aktivitas', [AdminDashboardController::class, 'aktivitas'])->name('dashboard.aktivitas');
+    Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas.index');
 
     // Master Data Kependudukan
     Route::prefix('kependudukan')->name('kependudukan.')->group(function () {
