@@ -154,12 +154,6 @@
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                     {{-- Left Content --}}
                     <div class="space-y-6 animate-fade-in-up">
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary-light text-primary border border-primary/10">
-                                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2 animate-pulse-subtle"></span>
-                                SILAFA BANJARSARI • PORTAL RESMI
-                            </span>
-                        </div>
 
                         <h1 class="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-gray-900 leading-tight tracking-tight">
                             Suara Warga,<br>
@@ -167,7 +161,7 @@
                         </h1>
 
                         <p class="text-gray-600 text-base lg:text-lg leading-relaxed max-w-xl">
-                            SILAFA (Sistem Informasi Layanan Pengaduan & Aspirasi) Desa Banjarsari — sarana resmi penyampaian aspirasi dan aduan pelayanan publik, infrastruktur, dan kebutuhan masyarakat secara terstruktur, transparan, dan terpantau langsung.
+                            SILAFA (Sistem Informasi Layanan Pengaduan & Aspirasi) Desa Banjarsari - sarana resmi penyampaian aspirasi dan aduan pelayanan publik, infrastruktur, dan kebutuhan masyarakat secara terstruktur, transparan, dan terpantau langsung.
                         </p>
 
                         {{-- Action Buttons --}}
@@ -185,11 +179,7 @@
                                 <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-primary bg-white hover:bg-primary-light border border-primary/20 rounded-lg transition-all duration-300">
                                     <i data-lucide="log-in" class="w-4 h-4"></i>
                                     Masuk ke Layanan
-                                </a>
-                                <button class="inline-flex items-center gap-1 px-4 py-3 text-sm font-medium text-gray-500 hover:text-primary transition-colors">
-                                    Cek Tiket Tanpa Akun
-                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </button>
+                                </a>                                
                             @endauth
                         </div>
 
@@ -227,19 +217,6 @@
                                         <p class="text-xs font-semibold text-gray-900">Penghargaan Desa Digital BPKP</p>
                                         <p class="text-[11px] text-gray-500">Pelayanan e-Tata Kelola PUBLIK Desa 2024</p>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Floating notification card --}}
-                        <div class="absolute -top-4 -right-4 bg-white rounded-xl shadow-card-hover border border-border p-3 animate-fade-in delay-500 hidden lg:block">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-semibold text-gray-900">Perbaikan Gotong Royong BPKP</p>
-                                    <p class="text-[10px] text-gray-500">Diselesaikan 2 Jam Lalu oleh Tim PUBLIK Desa</p>
                                 </div>
                             </div>
                         </div>
@@ -633,7 +610,7 @@
                         </div>
                     </div>
                     <p class="text-xs text-gray-500 leading-relaxed mb-4">
-                        Sistem Informasi Pelayanan Pengaduan & Aspirasi warga berbasis data untuk kesejahteraan, akuntabilitas, dan tata kelola Desa Banjarsari yang lebih baik.
+                        Pelayanan Pengaduan & Aspirasi warga berbasis data untuk kesejahteraan, akuntabilitas, dan tata kelola Desa Banjarsari yang lebih baik.
                     </p>
                 </div>
 
