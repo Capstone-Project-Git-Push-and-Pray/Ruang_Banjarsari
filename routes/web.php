@@ -110,6 +110,7 @@ Route::middleware(['auth', 'role:warga'])->group(function () {
 // Grup Rute Admin Desa
 Route::middleware(['auth', 'role:admin_desa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/aktivitas', [AdminDashboardController::class, 'aktivitas'])->name('dashboard.aktivitas');
 
     // Master Data Kependudukan
     Route::prefix('kependudukan')->name('kependudukan.')->group(function () {

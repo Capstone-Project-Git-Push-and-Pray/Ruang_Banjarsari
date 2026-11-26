@@ -8,8 +8,8 @@ use App\Enums\StatusLaporan;
 use App\Http\Controllers\Controller;
 use App\Models\Kategori;
 use App\Models\Pengaduan;
-use App\Models\RiwayatStatus;
 use App\Models\User;
+use App\Services\AktivitasPetugasService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -17,7 +17,7 @@ class DashboardController extends Controller
     /**
      * Tampilkan Pusat Komando & Dashboard Pengelolaan Admin Desa.
      */
-    public function index(): View
+    public function index(AktivitasPetugasService $aktivitasPetugas): View
     {
         $totalAduan = Pengaduan::count();
 
@@ -61,11 +61,8 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // Log Aktivitas Petugas Terkini
-        $logAktivitas = RiwayatStatus::with(['pengaduan', 'diubahOleh'])
-            ->latest()
-            ->take(5)
-            ->get();
+        // Log Aktivitas Petugas Terkini (data asli dari seluruh tindakan petugas)
+        $logAktivitas = $aktivitasPetugas->terbaru();
 
         return view('admin.dashboard', compact(
             'totalAduan',
@@ -81,5 +78,15 @@ class DashboardController extends Controller
             'antreanAduan',
             'logAktivitas',
         ));
+    }
+
+    /**
+     * Potongan HTML log aktivitas petugas untuk pembaruan otomatis di dashboard.
+     */
+    public function aktivitas(AktivitasPetugasService $aktivitasPetugas): View
+    {
+        return view('admin.partials.log-aktivitas', [
+            'logAktivitas' => $aktivitasPetugas->terbaru(),
+        ]);
     }
 }

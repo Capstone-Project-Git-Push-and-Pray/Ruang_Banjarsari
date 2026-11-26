@@ -20,6 +20,12 @@ class BatasiSesiTidakAktif
     public const KUNCI_AKTIVITAS = 'sesi.aktivitas_terakhir';
 
     /**
+     * Header penanda permintaan latar belakang (mis. pembaruan log dashboard)
+     * yang tidak boleh dihitung sebagai aktivitas pengguna.
+     */
+    public const HEADER_PEMBARUAN_OTOMATIS = 'X-Pembaruan-Otomatis';
+
+    /**
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -48,7 +54,9 @@ class BatasiSesiTidakAktif
             return redirect()->route('login')->with('sesi_berakhir', true);
         }
 
-        $request->session()->put(self::KUNCI_AKTIVITAS, now()->getTimestamp());
+        if (! $request->headers->has(self::HEADER_PEMBARUAN_OTOMATIS)) {
+            $request->session()->put(self::KUNCI_AKTIVITAS, now()->getTimestamp());
+        }
 
         return $next($request);
     }

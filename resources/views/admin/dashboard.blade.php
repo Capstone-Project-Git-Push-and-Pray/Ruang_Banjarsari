@@ -381,66 +381,61 @@
     </div>
 
     {{-- ==================== 6. LOG AKTIVITAS PETUGAS ==================== --}}
-    <div>
+    {{-- Data asli tindakan petugas, diperbarui otomatis setiap 30 detik selama tab terbuka --}}
+    <div x-data="{
+            jedaDetik: 30,
+            terakhirDiperbarui: @js(now()->format('H:i:s')),
+            memuat: false,
+            init() {
+                setInterval(() => { if (! document.hidden) { this.perbarui(); } }, this.jedaDetik * 1000);
+                document.addEventListener('visibilitychange', () => { if (! document.hidden) { this.perbarui(); } });
+            },
+            async perbarui() {
+                if (this.memuat) { return; }
+                this.memuat = true;
+                try {
+                    const respons = await fetch(@js(route('admin.dashboard.aktivitas')), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Pembaruan-Otomatis': '1' },
+                        credentials: 'same-origin',
+                    });
+                    if (respons.status === 401 || respons.status === 419) { window.location.reload(); return; }
+                    if (! respons.ok) { return; }
+                    this.$refs.daftar.innerHTML = await respons.text();
+                    if (window.lucide) { window.lucide.createIcons(); }
+                    this.terakhirDiperbarui = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replaceAll('.', ':');
+                } catch (galat) {
+                    // Jaringan terputus sementara: coba lagi pada jadwal berikutnya
+                } finally {
+                    this.memuat = false;
+                }
+            }
+         }">
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-[#E2E8E4] shadow-xs flex flex-col justify-between space-y-6">
             <div>
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-bold text-base sm:text-lg text-gray-900 leading-tight">
                         Log Aktivitas Petugas
                     </h2>
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="relative flex w-2 h-2" title="Pembaruan otomatis aktif">
+                        <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                        <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </span>
                 </div>
                 <p class="text-xs text-gray-400 mb-6">
-                    Pencatatan real-time audit operasional dan tim teknis
+                    Tindakan terbaru Admin Desa dan Kepala Desa: perubahan status laporan, peninjauan pendaftaran, moderasi konten, dan pencabutan sanksi
                 </p>
 
-                {{-- Timeline Item Stream --}}
-                <div class="space-y-4">
-                    <div class="flex items-start gap-3">
-                        <span class="w-2.5 h-2.5 rounded-full bg-[#1F6B4F] shrink-0 mt-1.5 ring-4 ring-emerald-50"></span>
-                        <div class="text-xs space-y-0.5">
-                            <p class="font-bold text-gray-800">Disposisi Diterbitkan</p>
-                            <p class="text-gray-500 leading-relaxed">Operator menugaskan Regu Sarpras untuk penanganan tiket penerangan Dusun Krajan.</p>
-                            <span class="text-[10px] text-gray-400 font-mono">16:00 WIB</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-3">
-                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 mt-1.5 ring-4 ring-blue-50"></span>
-                        <div class="text-xs space-y-0.5">
-                            <p class="font-bold text-gray-800">Verifikasi Warga Berhasil</p>
-                            <p class="text-gray-500 leading-relaxed">Pendaftaran NIK warga baru disetujui setelah diverifikasi sinkron dengan master data.</p>
-                            <span class="text-[10px] text-gray-400 font-mono">15:40 WIB</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-3">
-                        <span class="w-2.5 h-2.5 rounded-full bg-teal-600 shrink-0 mt-1.5 ring-4 ring-teal-50"></span>
-                        <div class="text-xs space-y-0.5">
-                            <p class="font-bold text-gray-800">Laporan Lapangan Diperbarui</p>
-                            <p class="text-gray-500 leading-relaxed">Mandor lapangan mengunggah foto bukti pengerukan saluran irigasi.</p>
-                            <span class="text-[10px] text-gray-400 font-mono">13:15 WIB</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start gap-3">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-600 shrink-0 mt-1.5 ring-4 ring-purple-50"></span>
-                        <div class="text-xs space-y-0.5">
-                            <p class="font-bold text-gray-800">Pencadangan Database Otomatis</p>
-                            <p class="text-gray-500 leading-relaxed">Sinkronisasi data master kependudukan dan tiket pengaduan selesai.</p>
-                            <span class="text-[10px] text-gray-400 font-mono">11:00 WIB</span>
-                        </div>
-                    </div>
+                <div class="space-y-4" x-ref="daftar" aria-live="polite">
+                    @include('admin.partials.log-aktivitas')
                 </div>
             </div>
 
-            {{-- Footer Keamanan --}}
-            <div class="border-t border-[#E2E8E4] pt-3 flex items-center justify-between text-[11px] text-gray-500">
+            <div class="border-t border-[#E2E8E4] pt-3 flex items-center justify-between gap-3 text-[11px] text-gray-500">
                 <span class="flex items-center gap-1.5">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#1F6B4F]"></i>
-                    <span>Protokol Keamanan Aktif</span>
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#1F6B4F]" :class="memuat && 'animate-spin'"></i>
+                    <span>Diperbarui otomatis setiap 30 detik</span>
                 </span>
-                <span class="font-mono text-gray-400">Enkripsi 256-bit</span>
+                <span class="font-mono text-gray-400">Terakhir <span x-text="terakhirDiperbarui"></span></span>
             </div>
         </div>
     </div>
