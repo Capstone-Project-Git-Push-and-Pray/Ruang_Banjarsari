@@ -325,5 +325,6 @@
     </script>
     <x-dialog-konfirmasi />
     <x-tombol-ke-atas />
+    <x-peringatan-sesi />
 </body>
 </html>

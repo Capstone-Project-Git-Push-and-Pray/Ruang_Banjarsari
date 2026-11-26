@@ -67,8 +67,12 @@ class LoginRequest extends FormRequest
 
         $login = trim((string) $this->input('login', $this->input('email')));
         $password = (string) $this->input('password');
-        $remember = $this->boolean('remember');
-        $identitas = $this->identitasPenangguhan($login);
+        $pengguna = $this->cariPengguna($login);
+        $identitas = $this->identitasPenangguhan($pengguna, $login);
+
+        // "Ingat saya" hanya untuk warga, berlaku sesuai config/sesi.php (bawaan 30 hari)
+        $remember = $this->boolean('remember') && $pengguna?->bolehIngatSaya() === true;
+        Auth::guard('web')->setRememberDuration((int) config('sesi.ingat_saya_hari') * 24 * 60);
 
         $sisaDetik = $penguncian->sisaDetikTertangguh($identitas);
 
@@ -117,20 +121,32 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Identitas penangguhan per akun: ID pengguna bila akun ditemukan,
-     * sehingga NIK, email, dan username milik akun yang sama berbagi satu hitungan.
+     * Cari akun berdasarkan NIK, email, atau username (awalan email admin/kades).
      */
-    private function identitasPenangguhan(string $login): string
+    private function cariPengguna(string $login): ?User
     {
+        if ($login === '') {
+            return null;
+        }
+
         $user = User::query()
             ->where('nik', $login)
             ->orWhere('email', mb_strtolower($login))
             ->first();
 
-        if ($user === null && $login !== '' && ! str_contains($login, '@')) {
+        if ($user === null && ! str_contains($login, '@')) {
             $user = User::where('email', 'like', $login.'@%')->first();
         }
 
+        return $user;
+    }
+
+    /**
+     * Identitas penangguhan per akun: ID pengguna bila akun ditemukan,
+     * sehingga NIK, email, dan username milik akun yang sama berbagi satu hitungan.
+     */
+    private function identitasPenangguhan(?User $user, string $login): string
+    {
         return $user !== null ? 'user:'.$user->getKey() : 'login:'.mb_strtolower($login);
     }
 

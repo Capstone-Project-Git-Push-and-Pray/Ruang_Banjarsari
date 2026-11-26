@@ -93,6 +93,22 @@ class User extends Authenticatable
         return $this->role === Role::KepalaDesa;
     }
 
+    /**
+     * Batas waktu tidak aktif (menit) sebelum sesi berakhir, sesuai peran.
+     */
+    public function batasTidakAktifMenit(): int
+    {
+        return (int) config('sesi.batas_tidak_aktif_menit.'.$this->role->value, config('session.lifetime'));
+    }
+
+    /**
+     * Fitur "Ingat saya di perangkat ini" hanya untuk warga.
+     */
+    public function bolehIngatSaya(): bool
+    {
+        return $this->isWarga();
+    }
+
     public function isAktif(): bool
     {
         return $this->status_akun === StatusAkun::Aktif;

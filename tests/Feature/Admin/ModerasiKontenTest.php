@@ -139,9 +139,8 @@ class ModerasiKontenTest extends TestCase
 
     public function test_riwayat_moderasi_dapat_difilter_berdasarkan_keputusan_warga_sanksi_dan_tanggal(): void
     {
-        $this->travelTo(now()->subDays(5));
         $this->actingAs($this->admin)->patch(route('admin.moderasi.aspirasi.sembunyikan', $this->aspirasi));
-        $this->travelBack();
+        RiwayatModerasi::query()->where('aksi', AksiModerasi::Sembunyikan)->update(['created_at' => now()->subDays(5)]);
 
         $this->actingAs($this->admin)->delete(route('admin.moderasi.komentar.hapus', $this->komentar), [
             'alasan' => AlasanModerasi::KataKasar->value,

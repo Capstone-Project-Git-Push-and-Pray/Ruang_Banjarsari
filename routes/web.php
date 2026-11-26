@@ -190,6 +190,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Perpanjang sesi dari popup peringatan (aktivitas dicatat oleh middleware BatasiSesiTidakAktif)
+    Route::post('/sesi/perpanjang', fn () => response()->noContent())->name('sesi.perpanjang');
 });
 
 require __DIR__.'/auth.php';

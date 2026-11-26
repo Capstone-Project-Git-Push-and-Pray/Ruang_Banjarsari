@@ -201,6 +201,14 @@
                             </button>
                         </div>
 
+                        {{-- Sesi berakhir karena tidak ada aktivitas --}}
+                        @if (session('sesi_berakhir'))
+                            <div role="status" class="mb-4 p-3.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-xl flex items-start gap-2.5">
+                                <svg class="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span><strong class="font-bold">Sesi Anda telah berakhir</strong> karena tidak ada aktivitas. Silakan masuk kembali.</span>
+                            </div>
+                        @endif
+
                         {{-- Status Session --}}
                         @if (session('status'))
                             <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
@@ -290,14 +298,14 @@
                                 @endif
                             </div>
 
-                            {{-- Checkbox Remember Me --}}
-                            <div class="flex items-center justify-between pt-0.5">
+                            {{-- Checkbox Remember Me (khusus warga; aparatur wajib masuk ulang setelah 30 menit tidak aktif) --}}
+                            <div x-show="roleTab === 'warga'" class="flex items-center justify-between pt-0.5">
                                 <label for="remember" class="flex items-center gap-2.5 cursor-pointer select-none">
                                     <input id="remember"
                                            type="checkbox"
                                            name="remember"
                                            class="w-4 h-4 rounded border-gray-300 text-[#1F6B4F] focus:ring-[#1F6B4F]">
-                                    <span class="text-xs text-gray-600">Ingat saya di perangkat ini</span>
+                                    <span class="text-xs text-gray-600">Ingat saya di perangkat ini <span class="text-gray-400">(30 hari)</span></span>
                                 </label>
                             </div>
 
