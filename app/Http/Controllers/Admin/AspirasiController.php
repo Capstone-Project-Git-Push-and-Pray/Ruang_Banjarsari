@@ -9,6 +9,7 @@ use App\Mail\StatusLaporanDiperbaruiMail;
 use App\Models\Kategori;
 use App\Models\Pengaduan;
 use App\Models\RiwayatStatus;
+use App\Services\PengingatTindakLanjutService;
 use Database\Seeders\AspirasiSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class AspirasiController extends Controller
     /**
      * Tampilkan daftar aspirasi dan usulan warga desa dengan filter, pencarian, dan paginasi.
      */
-    public function index(Request $request): View
+    public function index(Request $request, PengingatTindakLanjutService $pengingatService): View
     {
         // Berikan contoh aspirasi otomatis pada mode development jika belum ada data aspirasi
         if (app()->environment('local') && ! app()->runningUnitTests()) {
@@ -72,10 +73,14 @@ class AspirasiController extends Controller
         $kategoriList = Kategori::where('aktif', true)->orderBy('nama')->get();
         $statusList = StatusLaporan::aspirasiCases();
 
+        // Pengingat aktif dari Kepala Desa untuk aspirasi (PBI #52)
+        $kotakPengingat = $pengingatService->aktifUntukJenis(JenisLaporan::Aspirasi);
+
         return view('admin.aspirasi.index', compact(
             'aspirasis',
             'kategoriList',
-            'statusList'
+            'statusList',
+            'kotakPengingat'
         ));
     }
 

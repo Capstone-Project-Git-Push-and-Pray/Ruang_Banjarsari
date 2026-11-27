@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\JenisLaporan;
 use App\Enums\Role;
 use App\Models\Pengaduan;
 use App\Models\PengingatTindakLanjut;
@@ -55,6 +56,27 @@ class PengingatTindakLanjutService
         Notification::send($this->adminDesa(), new PengingatTindakLanjutNotification($pengingat->load(['pengaduan', 'pengirim'])));
 
         return $pengingat;
+    }
+
+    /**
+     * Pengingat aktif untuk satu jenis laporan: satu entri per laporan (pengingat terbaru) dan jumlah pengingatnya (PBI #52).
+     *
+     * @return array{pengingat: Collection<int, PengingatTindakLanjut>, jumlahPerLaporan: array<int, int>}
+     */
+    public function aktifUntukJenis(JenisLaporan $jenis): array
+    {
+        $semuaAktif = PengingatTindakLanjut::query()
+            ->aktif()
+            ->whereHas('pengaduan', fn ($query) => $query->where('jenis', $jenis))
+            ->with(['pengaduan', 'pengirim'])
+            ->latest()
+            ->latest('id')
+            ->get();
+
+        return [
+            'pengingat' => $semuaAktif->unique('pengaduan_id')->values(),
+            'jumlahPerLaporan' => $semuaAktif->countBy('pengaduan_id')->all(),
+        ];
     }
 
     /**

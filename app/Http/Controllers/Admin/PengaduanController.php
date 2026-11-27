@@ -9,6 +9,7 @@ use App\Mail\StatusLaporanDiperbaruiMail;
 use App\Models\Kategori;
 use App\Models\Pengaduan;
 use App\Models\RiwayatStatus;
+use App\Services\PengingatTindakLanjutService;
 use Database\Seeders\PengaduanSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class PengaduanController extends Controller
     /**
      * Tampilkan seluruh daftar laporan warga desa dengan filter, pencarian, dan paginasi (PBI #27).
      */
-    public function index(Request $request): View
+    public function index(Request $request, PengingatTindakLanjutService $pengingatService): View
     {
         // Berikan contoh pengaduan otomatis pada mode development jika belum ada data pengaduan
         if (app()->environment('local') && ! app()->runningUnitTests()) {
@@ -75,11 +76,15 @@ class PengaduanController extends Controller
             : StatusLaporan::pengaduanCases();
         $jenisList = JenisLaporan::cases();
 
+        // Pengingat aktif dari Kepala Desa untuk jenis laporan yang sedang ditampilkan (PBI #52)
+        $kotakPengingat = $pengingatService->aktifUntukJenis(JenisLaporan::tryFrom((string) $currentJenis) ?? JenisLaporan::Pengaduan);
+
         return view('admin.pengaduan.index', compact(
             'pengaduans',
             'kategoriList',
             'statusList',
-            'jenisList'
+            'jenisList',
+            'kotakPengingat'
         ));
     }
 

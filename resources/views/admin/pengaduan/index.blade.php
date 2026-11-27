@@ -37,6 +37,9 @@
             </div>
         </div>
 
+        {{-- Pengingat dari Kepala Desa (PBI #52) --}}
+        <x-kotak-pengingat-kades :pengingat="$kotakPengingat['pengingat']" :jumlah-per-laporan="$kotakPengingat['jumlahPerLaporan']" />
+
         {{-- ==================== 2. FILTER & PENCARIAN (PBI #27) ==================== --}}
         <div class="bg-white p-6 rounded-3xl shadow-xs border border-[#E2E8E4] space-y-4">
             <div class="flex items-center justify-between pb-2 border-b border-gray-100">
@@ -370,11 +373,14 @@
                                         <a href="{{ route('admin.pengaduan.show', $laporan) }}" class="font-bold text-gray-900 hover:text-[#1F6B4F] text-sm block leading-snug line-clamp-1">
                                             {{ $laporan->judul }}
                                         </a>
-                                        <div class="flex items-center gap-2 mt-1">
+                                        <div class="flex flex-wrap items-center gap-2 mt-1">
                                             <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                                                 <i data-lucide="tag" class="w-3 h-3 text-[#1F6B4F]"></i>
                                                 <span>{{ $laporan->kategori->nama ?? 'Umum' }}</span>
                                             </span>
+                                            @if (array_key_exists($laporan->id, $kotakPengingat['jumlahPerLaporan']))
+                                                <x-badge-diingatkan-kades />
+                                            @endif
                                             @if ($laporan->lampiran->isNotEmpty())
                                                 <span class="inline-flex items-center gap-1 text-[11px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200">
                                                     <i data-lucide="image" class="w-3 h-3 text-gray-400"></i>

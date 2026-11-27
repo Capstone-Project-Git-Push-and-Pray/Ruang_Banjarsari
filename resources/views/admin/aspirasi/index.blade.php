@@ -37,6 +37,9 @@
             </div>
         </div>
 
+        {{-- Pengingat dari Kepala Desa (PBI #52) --}}
+        <x-kotak-pengingat-kades :pengingat="$kotakPengingat['pengingat']" :jumlah-per-laporan="$kotakPengingat['jumlahPerLaporan']" />
+
         {{-- ==================== 2. FILTER & PENCARIAN ==================== --}}
         <div class="bg-white p-6 rounded-3xl shadow-xs border border-[#E2E8E4] space-y-4">
             <div class="flex items-center justify-between pb-2 border-b border-gray-100">
@@ -345,6 +348,10 @@
 
                             {{-- Metadata Badges: Kategori, Berkas/Foto, Lokasi --}}
                             <div class="flex flex-wrap items-center gap-1.5 mt-3.5 pt-1">
+                                @if (array_key_exists($aspirasi->id, $kotakPengingat['jumlahPerLaporan']))
+                                    <x-badge-diingatkan-kades />
+                                @endif
+
                                 {{-- Kategori --}}
                                 <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100/80">
                                     <i data-lucide="tag" class="w-3 h-3 text-[#1F6B4F]"></i>
