@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ResetAkunWargaController;
 use App\Http\Controllers\Admin\SanksiController as AdminSanksiController;
 use App\Http\Controllers\Kepala\DashboardController as KepalaDashboardController;
 use App\Http\Controllers\Kepala\PengaduanController as KepalaPengaduanController;
+use App\Http\Controllers\Kepala\PengingatController as KepalaPengingatController;
 use App\Http\Controllers\KomentarController;
 use App\Http\Controllers\LampiranController;
 use App\Http\Controllers\ProfileController;
@@ -186,6 +187,9 @@ Route::middleware(['auth', 'role:kepala_desa'])->prefix('kepala')->name('kepala.
     Route::prefix('pengaduan')->name('pengaduan.')->group(function () {
         Route::get('/', [KepalaPengaduanController::class, 'index'])->name('index');
         Route::get('/{pengaduan}', [KepalaPengaduanController::class, 'show'])->name('show');
+
+        // Pengingat tindak lanjut ke Admin Desa (PBI #50, #51)
+        Route::post('/{pengaduan}/pengingat', [KepalaPengingatController::class, 'store'])->name('pengingat');
     });
 });
 

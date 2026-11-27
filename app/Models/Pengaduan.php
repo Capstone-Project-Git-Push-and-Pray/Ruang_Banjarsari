@@ -11,12 +11,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pengaduan extends Model
 {
     /** @use HasFactory<PengaduanFactory> */
     use DapatDimoderasi, HasFactory, SoftDeletes;
+
+    /**
+     * Laporan berstatus Diajukan lebih lama dari batas ini dianggap belum ditanggapi (PBI #50, #55).
+     */
+    public const BATAS_TERTUNDA_HARI = 3;
 
     protected $table = 'pengaduan';
 
@@ -99,6 +105,46 @@ class Pengaduan extends Model
     public function riwayatStatus(): HasMany
     {
         return $this->hasMany(RiwayatStatus::class)->oldest();
+    }
+
+    /**
+     * Seluruh pengingat tindak lanjut dari Kepala Desa untuk laporan ini (PBI #50).
+     */
+    public function pengingat(): HasMany
+    {
+        return $this->hasMany(PengingatTindakLanjut::class);
+    }
+
+    /**
+     * Pengingat terakhir yang dikirim untuk laporan ini (PBI #51).
+     */
+    public function pengingatTerakhir(): HasOne
+    {
+        return $this->hasOne(PengingatTindakLanjut::class)->latestOfMany();
+    }
+
+    // -------------------------------------------------------
+    // Laporan Perlu Tindak Lanjut (PBI #50, #55)
+    // -------------------------------------------------------
+
+    /**
+     * Batasi ke laporan Diajukan yang belum ditanggapi melewati batas hari.
+     *
+     * @param  Builder<Pengaduan>  $query
+     */
+    public function scopePerluTindakLanjut(Builder $query): void
+    {
+        $query->where('status', StatusLaporan::Diajukan)
+            ->where('created_at', '<=', now()->subDays(self::BATAS_TERTUNDA_HARI));
+    }
+
+    /**
+     * Apakah laporan masih Diajukan dan sudah melewati batas hari tanpa tanggapan.
+     */
+    public function perluTindakLanjut(): bool
+    {
+        return $this->status === StatusLaporan::Diajukan
+            && $this->created_at->lte(now()->subDays(self::BATAS_TERTUNDA_HARI));
     }
 
     // -------------------------------------------------------

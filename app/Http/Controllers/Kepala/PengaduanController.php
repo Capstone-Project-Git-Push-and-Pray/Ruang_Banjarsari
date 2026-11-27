@@ -18,11 +18,6 @@ use Illuminate\View\View;
 class PengaduanController extends Controller
 {
     /**
-     * Laporan berstatus Diajukan lebih lama dari batas ini dianggap belum ditanggapi (tertunda).
-     */
-    public const BATAS_TERTUNDA_HARI = 3;
-
-    /**
      * Tampilkan monitoring seluruh laporan pengaduan & aspirasi desa bagi Kepala Desa,
      * dipisah per jenis dan dapat difilter (pencarian, status, kategori, dusun, tanggal, tertunda).
      */
@@ -47,7 +42,7 @@ class PengaduanController extends Controller
         $statusAktif = StatusLaporan::tryFrom((string) ($filter['status'] ?? ''));
 
         $pengaduans = $this->kueriTersaring($filter)
-            ->with(['user', 'kategori'])
+            ->with(['user', 'kategori', 'pengingatTerakhir'])
             ->when($jenisAktif, fn (Builder $query) => $query->where('jenis', $jenisAktif))
             ->when($statusAktif, fn (Builder $query) => $query->where('status', $statusAktif))
             ->latest()
@@ -78,7 +73,7 @@ class PengaduanController extends Controller
             'jenisAktif' => $jenisAktif,
             'jumlahPerJenis' => $jumlahPerJenis,
             'jumlahTertunda' => $jumlahTertunda,
-            'batasTertundaHari' => self::BATAS_TERTUNDA_HARI,
+            'batasTertundaHari' => Pengaduan::BATAS_TERTUNDA_HARI,
             'pilihanStatus' => $this->statusUntuk($jenisAktif),
             'daftarKategori' => Kategori::query()->orderBy('nama')->pluck('nama', 'id'),
             'daftarDusun' => User::query()
@@ -140,8 +135,7 @@ class PengaduanController extends Controller
      */
     private function hanyaTertunda(Builder $query): void
     {
-        $query->where('status', StatusLaporan::Diajukan)
-            ->where('created_at', '<=', now()->subDays(self::BATAS_TERTUNDA_HARI));
+        $query->perluTindakLanjut();
     }
 
     /**
