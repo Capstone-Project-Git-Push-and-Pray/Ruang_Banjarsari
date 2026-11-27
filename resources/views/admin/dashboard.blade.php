@@ -429,7 +429,7 @@
                     </div>
                 </div>
                 <p class="text-xs text-gray-400 mb-6">
-                    Tindakan terbaru Admin Desa dan Kepala Desa: perubahan status laporan, peninjauan pendaftaran, moderasi konten, dan pencabutan sanksi
+                    Tindakan terbaru Admin Desa dan Kepala Desa: perubahan status laporan, peninjauan pendaftaran, moderasi konten, pencabutan sanksi, dan pengingat tindak lanjut
                 </p>
 
                 <div class="space-y-4" x-ref="daftar" aria-live="polite">

@@ -191,6 +191,12 @@
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                                                 {{ $laporan->status->label() ?? $laporan->status->value }}
                                             </span>
+                                            @if ($laporan->pengingatTerakhir?->selesai_pada)
+                                                <span class="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-emerald-700 whitespace-nowrap" title="Ditindaklanjuti {{ $laporan->pengingatTerakhir->selesai_pada->locale('id')->diffForHumans() }}">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                    Ditindaklanjuti setelah diingatkan
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 text-xs text-gray-500">
                                             {{ $laporan->created_at->format('d M Y, H:i') }}

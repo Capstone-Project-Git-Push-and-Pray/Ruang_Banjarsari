@@ -27,6 +27,18 @@ class Pengaduan extends Model
     protected $table = 'pengaduan';
 
     /**
+     * Selesaikan pengingat aktif saat laporan mulai ditindaklanjuti, yaitu status berubah dari Diajukan (PBI #54).
+     */
+    protected static function booted(): void
+    {
+        static::updated(function (Pengaduan $pengaduan): void {
+            if ($pengaduan->wasChanged('status') && $pengaduan->getOriginal('status') === StatusLaporan::Diajukan) {
+                $pengaduan->pengingat()->aktif()->update(['selesai_pada' => now()]);
+            }
+        });
+    }
+
+    /**
      * Atribut yang boleh diisi secara massal.
      *
      * @var list<string>

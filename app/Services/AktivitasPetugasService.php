@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\AksiModerasi;
 use App\Enums\Role;
 use App\Enums\StatusAkun;
+use App\Models\PengingatTindakLanjut;
 use App\Models\RiwayatModerasi;
 use App\Models\RiwayatStatus;
 use App\Models\Sanksi;
@@ -18,9 +19,10 @@ use Illuminate\Support\Str;
 
 /**
  * Menyusun log aktivitas petugas (Admin Desa dan Kepala Desa) dari data asli:
- * perubahan status laporan, peninjauan pendaftaran warga, moderasi konten, dan pencabutan sanksi.
+ * perubahan status laporan, peninjauan pendaftaran warga, moderasi konten, pencabutan sanksi,
+ * dan pengingat tindak lanjut dari Kepala Desa.
  *
- * Keempat sumber digabung dengan UNION agar urutan, filter, dan penomoran halaman tetap akurat.
+ * Seluruh sumber digabung dengan UNION agar urutan, filter, dan penomoran halaman tetap akurat.
  */
 class AktivitasPetugasService
 {
@@ -31,6 +33,8 @@ class AktivitasPetugasService
     public const JENIS_MODERASI = 'moderasi';
 
     public const JENIS_SANKSI = 'sanksi';
+
+    public const JENIS_PENGINGAT = 'pengingat';
 
     /**
      * Label tampilan tiap jenis aktivitas, sesuai urutan tab.
@@ -44,6 +48,7 @@ class AktivitasPetugasService
             self::JENIS_PENDAFTARAN => 'Pendaftaran',
             self::JENIS_MODERASI => 'Moderasi',
             self::JENIS_SANKSI => 'Sanksi',
+            self::JENIS_PENGINGAT => 'Pengingat',
         ];
     }
 
@@ -114,7 +119,7 @@ class AktivitasPetugasService
     }
 
     /**
-     * UNION keempat sumber dengan kolom seragam: jenis, sumber_id, petugas_id, waktu.
+     * UNION seluruh sumber dengan kolom seragam: jenis, sumber_id, petugas_id, waktu.
      */
     private function gabungan(): Builder
     {
@@ -136,10 +141,14 @@ class AktivitasPetugasService
             ->whereNotNull('dicabut_pada')
             ->selectRaw("'".self::JENIS_SANKSI."' as jenis, id as sumber_id, diubah_oleh as petugas_id, dicabut_pada as waktu");
 
+        $pengingatTindakLanjut = DB::table('pengingat_tindak_lanjut')
+            ->selectRaw("'".self::JENIS_PENGINGAT."' as jenis, id as sumber_id, dikirim_oleh as petugas_id, created_at as waktu");
+
         return $perubahanStatus
             ->unionAll($peninjauanPendaftaran)
             ->unionAll($moderasiKonten)
-            ->unionAll($pencabutanSanksi);
+            ->unionAll($pencabutanSanksi)
+            ->unionAll($pengingatTindakLanjut);
     }
 
     /**
@@ -162,6 +171,8 @@ class AktivitasPetugasService
                 ->findMany($idPerJenis->get(self::JENIS_MODERASI, []))->keyBy('id'),
             self::JENIS_SANKSI => Sanksi::query()->with(['diubahOleh', 'user'])
                 ->findMany($idPerJenis->get(self::JENIS_SANKSI, []))->keyBy('id'),
+            self::JENIS_PENGINGAT => PengingatTindakLanjut::query()->with(['pengirim', 'pengaduan'])
+                ->findMany($idPerJenis->get(self::JENIS_PENGINGAT, []))->keyBy('id'),
         ];
 
         return $baris
@@ -173,6 +184,7 @@ class AktivitasPetugasService
                     $sumber instanceof User => $this->peninjauanPendaftaran($sumber),
                     $sumber instanceof RiwayatModerasi => $this->moderasiKonten($sumber),
                     $sumber instanceof Sanksi => $this->pencabutanSanksi($sumber),
+                    $sumber instanceof PengingatTindakLanjut => $this->pengingatTindakLanjut($sumber),
                     default => null,
                 };
             })
@@ -273,6 +285,33 @@ class AktivitasPetugasService
             'waktu' => $sanksi->dicabut_pada,
             'warna' => 'bg-purple-600',
             'cincin' => 'ring-purple-50',
+        ];
+    }
+
+    /**
+     * Pengingat tindak lanjut dari Kepala Desa kepada Admin Desa (PBI #54).
+     *
+     * @return array{jenis: string, judul: string, deskripsi: string, petugas: string, waktu: Carbon, warna: string, cincin: string}
+     */
+    private function pengingatTindakLanjut(PengingatTindakLanjut $pengingat): array
+    {
+        $laporan = $pengingat->pengaduan;
+        $namaLaporan = $laporan === null
+            ? 'laporan yang telah dihapus'
+            : Str::lower($laporan->jenis->label()).' "'.Str::limit($laporan->judul, 45).'"';
+        $petugas = $this->namaPetugas($pengingat->pengirim);
+
+        return [
+            'jenis' => self::JENIS_PENGINGAT,
+            'judul' => $pengingat->selesai_pada ? 'Pengingat Ditindaklanjuti' : 'Pengingat Tindak Lanjut Dikirim',
+            'deskripsi' => $petugas.' mengingatkan Admin Desa tentang '.$namaLaporan
+                .($pengingat->catatan ? ' ("'.Str::limit($pengingat->catatan, 80).'")' : '')
+                .($pengingat->selesai_pada ? ', dan laporan sudah ditindaklanjuti' : '')
+                .'.',
+            'petugas' => $petugas,
+            'waktu' => $pengingat->created_at,
+            'warna' => 'bg-orange-500',
+            'cincin' => 'ring-orange-50',
         ];
     }
 

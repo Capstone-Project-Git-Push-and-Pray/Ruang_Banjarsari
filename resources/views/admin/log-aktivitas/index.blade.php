@@ -11,7 +11,7 @@
     <div class="space-y-6">
         <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2E8E4] shadow-xs">
             <h1 class="font-extrabold text-2xl text-gray-900 tracking-tight">Log Aktivitas Petugas</h1>
-            <p class="text-xs sm:text-sm text-gray-600 mt-2">Catatan lengkap tindakan Admin Desa dan Kepala Desa: perubahan status laporan, peninjauan pendaftaran warga, moderasi konten, dan pencabutan sanksi.</p>
+            <p class="text-xs sm:text-sm text-gray-600 mt-2">Catatan lengkap tindakan Admin Desa dan Kepala Desa: perubahan status laporan, peninjauan pendaftaran warga, moderasi konten, pencabutan sanksi, dan pengingat tindak lanjut.</p>
         </div>
 
         <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
