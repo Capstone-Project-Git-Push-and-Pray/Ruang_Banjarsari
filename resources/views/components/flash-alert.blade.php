@@ -3,8 +3,27 @@
     $statusSesi = session('status');
     $pesanSukses = session('success') ?? (is_string($statusSesi) && str_contains($statusSesi, ' ') ? $statusSesi : null);
 @endphp
+{{-- Pesan berhasil tertutup otomatis setelah 5 detik; hitung mundur berhenti saat kursor di atas pesan. Pesan galat tetap tampil. --}}
 @if ($pesanSukses)
-    <div x-data="{ show: true }" x-show="show" x-transition class="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-start justify-between shadow-sm">
+    <div x-data="{
+            show: true,
+            durasi: 5000,
+            sisa: 5000,
+            jeda: false,
+            init() {
+                const pewaktu = setInterval(() => {
+                    if (this.jeda) { return; }
+                    this.sisa = Math.max(0, this.sisa - 100);
+                    if (this.sisa === 0) { this.show = false; clearInterval(pewaktu); }
+                }, 100);
+            },
+         }"
+         x-show="show"
+         @mouseenter="jeda = true" @mouseleave="jeda = false" @focusin="jeda = true" @focusout="jeda = false"
+         x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0 -translate-y-1"
+         role="status"
+         class="relative overflow-hidden mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-start justify-between shadow-sm">
+        <span class="absolute left-0 bottom-0 h-0.5 bg-emerald-400/70 transition-[width] duration-100 ease-linear" :style="`width: ${(sisa / durasi) * 100}%`" aria-hidden="true"></span>
         <div class="flex items-center space-x-3">
             <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
