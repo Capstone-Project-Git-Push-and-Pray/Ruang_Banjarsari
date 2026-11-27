@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DataKependudukanController;
 use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
 use App\Http\Controllers\Admin\LogAktivitasController;
 use App\Http\Controllers\Admin\ModerasiController;
+use App\Http\Controllers\Admin\NotifikasiController;
 use App\Http\Controllers\Admin\PengaduanController as AdminPengaduanController;
 use App\Http\Controllers\Admin\PeninjauanPendaftaranController;
 use App\Http\Controllers\Admin\RekapitulasiController as AdminRekapitulasiController;
@@ -114,6 +115,10 @@ Route::middleware(['auth', 'role:admin_desa'])->prefix('admin')->name('admin.')-
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/aktivitas', [AdminDashboardController::class, 'aktivitas'])->name('dashboard.aktivitas');
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas.index');
+
+    // Notifikasi lonceng: pengingat tindak lanjut dari Kepala Desa (PBI #53)
+    Route::get('/notifikasi/{notifikasi}/buka', [NotifikasiController::class, 'buka'])->name('notifikasi.buka');
+    Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.baca-semua');
 
     // Master Data Kependudukan
     Route::prefix('kependudukan')->name('kependudukan.')->group(function () {

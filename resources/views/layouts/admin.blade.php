@@ -286,14 +286,79 @@
 
                 {{-- Right: Notifikasi & Avatar Profil --}}
                 <div class="flex items-center gap-2 sm:gap-3">
-                    {{-- Notifikasi Lonceng --}}
-                    <div class="relative">
-                        <a href="{{ route('admin.pendaftaran.index') }}" class="p-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition inline-block relative" title="Notifikasi Baru">
+                    {{-- Notifikasi Lonceng: pengingat dari Kepala Desa dan pendaftaran yang menunggu (PBI #53) --}}
+                    @php
+                        $penggunaAdmin = Auth::user();
+                        $jumlahNotifikasiBelumDibaca = $penggunaAdmin->unreadNotifications()->count();
+                        $daftarNotifikasi = $penggunaAdmin->notifications()->latest()->take(8)->get();
+                    @endphp
+                    <div class="relative" x-data="{ buka: false }" @click.outside="buka = false" @keydown.escape.window="buka = false">
+                        <button type="button" @click="buka = ! buka" :aria-expanded="buka"
+                                class="p-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition inline-flex relative cursor-pointer"
+                                aria-label="Notifikasi{{ $jumlahNotifikasiBelumDibaca > 0 ? ', '.$jumlahNotifikasiBelumDibaca.' belum dibaca' : '' }}">
                             <i data-lucide="bell" class="w-4 h-4"></i>
-                            @if ($sidebarPendingCount > 0)
+                            @if ($jumlahNotifikasiBelumDibaca > 0)
+                                <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-[18px] text-center ring-2 ring-white">{{ $jumlahNotifikasiBelumDibaca > 9 ? '9+' : $jumlahNotifikasiBelumDibaca }}</span>
+                            @elseif ($sidebarPendingCount > 0)
                                 <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
                             @endif
-                        </a>
+                        </button>
+
+                        <div x-show="buka" x-cloak
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 -translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             class="absolute right-0 mt-2 w-[22rem] max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl border border-[#E2E8E4] shadow-xl z-50 overflow-hidden">
+                            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#E2E8E4]">
+                                <p class="text-sm font-bold text-gray-900">Notifikasi</p>
+                                @if ($jumlahNotifikasiBelumDibaca > 0)
+                                    <form method="POST" action="{{ route('admin.notifikasi.baca-semua') }}">
+                                        @csrf
+                                        <button type="submit" class="text-[11px] font-semibold text-[#1F6B4F] hover:text-[#174B39] cursor-pointer">Tandai semua sudah dibaca</button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="max-h-[22rem] overflow-y-auto divide-y divide-gray-100">
+                                @if ($sidebarPendingCount > 0)
+                                    <a href="{{ route('admin.pendaftaran.index') }}" class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                                        <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="user-check" class="w-4 h-4"></i></span>
+                                        <span class="text-xs text-gray-700 leading-relaxed"><span class="font-bold">{{ $sidebarPendingCount }} pendaftaran warga</span> menunggu tinjauan.</span>
+                                    </a>
+                                @endif
+
+                                @forelse ($daftarNotifikasi as $notifikasi)
+                                    @php
+                                        $belumDibaca = $notifikasi->read_at === null;
+                                    @endphp
+                                    <a href="{{ route('admin.notifikasi.buka', $notifikasi->id) }}"
+                                       class="flex items-start gap-3 px-4 py-3 transition-colors {{ $belumDibaca ? 'bg-orange-50/60 hover:bg-orange-50' : 'hover:bg-gray-50' }}">
+                                        <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $belumDibaca ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-400' }}"><i data-lucide="bell-ring" class="w-4 h-4"></i></span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block text-xs text-gray-700 leading-relaxed">
+                                                <span class="font-bold">{{ $notifikasi->data['pengirim'] ?? 'Kepala Desa' }}</span>
+                                                mengingatkan {{ ($notifikasi->data['jenis'] ?? '') === 'aspirasi' ? 'aspirasi' : 'pengaduan' }}
+                                                <span class="font-semibold">&ldquo;{{ \Illuminate\Support\Str::limit($notifikasi->data['judul'] ?? '', 50) }}&rdquo;</span>
+                                            </span>
+                                            @if (! empty($notifikasi->data['catatan']))
+                                                <span class="block mt-0.5 text-[11px] text-gray-500 line-clamp-2">{{ $notifikasi->data['catatan'] }}</span>
+                                            @endif
+                                            <span class="block mt-1 text-[10px] text-gray-400">{{ $notifikasi->created_at->locale('id')->diffForHumans() }}</span>
+                                        </span>
+                                        @if ($belumDibaca)
+                                            <span class="w-2 h-2 mt-1.5 rounded-full bg-orange-500 shrink-0" aria-label="Belum dibaca"></span>
+                                        @endif
+                                    </a>
+                                @empty
+                                    @if ($sidebarPendingCount === 0)
+                                        <div class="px-4 py-8 text-center">
+                                            <i data-lucide="bell-off" class="w-7 h-7 mx-auto text-gray-300"></i>
+                                            <p class="mt-2 text-xs text-gray-500">Belum ada notifikasi.</p>
+                                        </div>
+                                    @endif
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Mini Profile Avatar --}}

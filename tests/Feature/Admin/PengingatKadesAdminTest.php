@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * PBI #52 (kotak pengingat di halaman Kelola Pengaduan dan Kelola Aspirasi).
+ * PBI #52 (kotak pengingat) dan PBI #53 (lonceng notifikasi).
  */
 class PengingatKadesAdminTest extends TestCase
 {
@@ -56,6 +56,40 @@ class PengingatKadesAdminTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('admin.pengaduan.index'))
             ->assertDontSee('Pengingat dari Kepala Desa');
+    }
+
+    public function test_lonceng_menampilkan_jumlah_belum_dibaca_dan_membuka_laporan_saat_diklik(): void
+    {
+        $pengingat = $this->kirimPengingat($this->laporanTertunda(['judul' => 'Jalan amblas']));
+        $notifikasi = $this->admin->notifications()->first();
+
+        $this->assertNotNull($notifikasi);
+        $this->actingAs($this->admin)->get(route('admin.dashboard'))
+            ->assertSee('Notifikasi, 1 belum dibaca')
+            ->assertSee('Jalan amblas');
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.notifikasi.buka', $notifikasi->id))
+            ->assertRedirect(route('admin.pengaduan.show', $pengingat->pengaduan_id));
+
+        $this->assertNotNull($notifikasi->fresh()->read_at);
+        $this->assertNull($pengingat->fresh()->selesai_pada, 'Menandai dibaca tidak boleh menyelesaikan pengingat.');
+    }
+
+    public function test_tandai_semua_notifikasi_sudah_dibaca_dan_notifikasi_admin_lain_tidak_bisa_dibuka(): void
+    {
+        $adminLain = User::factory()->adminDesa()->create();
+        $this->kirimPengingat($this->laporanTertunda());
+        $this->kirimPengingat($this->laporanTertunda());
+
+        $this->actingAs($adminLain)
+            ->get(route('admin.notifikasi.buka', $this->admin->notifications()->first()->id))
+            ->assertNotFound();
+
+        $this->actingAs($this->admin)->post(route('admin.notifikasi.baca-semua'))->assertRedirect();
+
+        $this->assertSame(0, $this->admin->unreadNotifications()->count());
+        $this->assertSame(2, $adminLain->unreadNotifications()->count());
     }
 
     private function kirimPengingat(Pengaduan $laporan, ?string $catatan = null): PengingatTindakLanjut
