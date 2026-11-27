@@ -13,14 +13,14 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Pengiriman pengingat tindak lanjut dari Kepala Desa ke seluruh Admin Desa (PBI #50).
+ * Pengiriman pengingat tindak lanjut dari Kepala Desa ke seluruh Admin Desa (PBI #50, #51).
  */
 class PengingatTindakLanjutService
 {
     /**
      * Kirim pengingat untuk laporan yang perlu ditindaklanjuti, lalu beri tahu semua Admin Desa.
      *
-     * @throws ValidationException bila laporan tidak memenuhi syarat
+     * @throws ValidationException bila laporan tidak memenuhi syarat atau masih dalam jeda 24 jam
      */
     public function kirim(Pengaduan $pengaduan, User $kepalaDesa, ?string $catatan): PengingatTindakLanjut
     {
@@ -32,6 +32,17 @@ class PengingatTindakLanjutService
                 throw ValidationException::withMessages([
                     'pengingat' => 'Pengingat hanya dapat dikirim untuk laporan berstatus Diajukan yang lebih dari '
                         .Pengaduan::BATAS_TERTUNDA_HARI.' hari belum ditanggapi.',
+                ]);
+            }
+
+            $terakhir = $laporan->pengingat()->latest()->latest('id')->first();
+
+            if ($terakhir?->masihDalamJeda()) {
+                $bolehLagi = $terakhir->created_at->copy()->addHours(PengingatTindakLanjut::JEDA_JAM);
+
+                throw ValidationException::withMessages([
+                    'pengingat' => 'Laporan ini sudah diingatkan '.$terakhir->created_at->locale('id')->diffForHumans()
+                        .'. Pengingat berikutnya dapat dikirim '.$bolehLagi->locale('id')->diffForHumans().'.',
                 ]);
             }
 

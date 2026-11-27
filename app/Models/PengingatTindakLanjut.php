@@ -16,6 +16,11 @@ class PengingatTindakLanjut extends Model
     /** @use HasFactory<PengingatTindakLanjutFactory> */
     use HasFactory;
 
+    /**
+     * Jeda minimal antarpengingat untuk laporan yang sama (PBI #51).
+     */
+    public const JEDA_JAM = 24;
+
     protected $table = 'pengingat_tindak_lanjut';
 
     /**
@@ -72,5 +77,13 @@ class PengingatTindakLanjut extends Model
     public function scopeAktif(Builder $query): void
     {
         $query->whereNull('selesai_pada');
+    }
+
+    /**
+     * Apakah pengingat ini masih dalam masa jeda sehingga pengingat baru belum boleh dikirim.
+     */
+    public function masihDalamJeda(): bool
+    {
+        return $this->created_at->gt(now()->subHours(self::JEDA_JAM));
     }
 }

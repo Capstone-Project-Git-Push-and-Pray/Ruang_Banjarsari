@@ -4,14 +4,16 @@ namespace Tests\Feature;
 
 use App\Enums\StatusLaporan;
 use App\Models\Pengaduan;
+use App\Models\PengingatTindakLanjut;
 use App\Models\User;
 use App\Notifications\PengingatTindakLanjutNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Js;
 use Tests\TestCase;
 
 /**
- * PBI #50 (kirim pengingat) dari sisi Kepala Desa.
+ * PBI #50 (kirim pengingat) dan PBI #51 (batas pengingat per 24 jam) dari sisi Kepala Desa.
  */
 class PengingatTindakLanjutTest extends TestCase
 {
@@ -85,6 +87,47 @@ class PengingatTindakLanjutTest extends TestCase
             ->assertForbidden();
 
         $this->assertSame(StatusLaporan::Diajukan, $laporan->fresh()->status);
+    }
+
+    public function test_pengingat_hanya_bisa_dikirim_sekali_dalam_24_jam_dan_dicek_di_server(): void
+    {
+        $laporan = $this->laporanTertunda();
+        $pengingat = PengingatTindakLanjut::factory()->create([
+            'pengaduan_id' => $laporan->id,
+            'dikirim_oleh' => $this->kepala->id,
+            'created_at' => now()->subHours(23),
+        ]);
+
+        $this->actingAs($this->kepala)
+            ->post(route('kepala.pengaduan.pengingat', $laporan))
+            ->assertSessionHasErrors('pengingat');
+        $this->assertDatabaseCount('pengingat_tindak_lanjut', 1);
+
+        $pengingat->forceFill(['created_at' => now()->subHours(25)])->save();
+
+        $this->actingAs($this->kepala)
+            ->post(route('kepala.pengaduan.pengingat', $laporan))
+            ->assertSessionHasNoErrors();
+        $this->assertDatabaseCount('pengingat_tindak_lanjut', 2);
+    }
+
+    public function test_halaman_monitoring_menampilkan_tombol_sesuai_keadaan_pengingat(): void
+    {
+        $belumDiingatkan = $this->laporanTertunda(['judul' => 'Belum pernah diingatkan']);
+        $baruDiingatkan = $this->laporanTertunda(['judul' => 'Baru saja diingatkan']);
+        PengingatTindakLanjut::factory()->create([
+            'pengaduan_id' => $baruDiingatkan->id,
+            'created_at' => now()->subHours(2),
+        ]);
+        Pengaduan::factory()->create(['judul' => 'Laporan baru kemarin', 'status' => StatusLaporan::Diajukan, 'created_at' => now()->subDay()]);
+
+        $respons = $this->actingAs($this->kepala)->get(route('kepala.pengaduan.index'));
+
+        $respons->assertOk()
+            ->assertSee(Js::from(route('kepala.pengaduan.pengingat', $belumDiingatkan))->toHtml(), false)
+            ->assertDontSee(Js::from(route('kepala.pengaduan.pengingat', $baruDiingatkan))->toHtml(), false)
+            ->assertSee('Sudah diingatkan &middot; 2 jam lalu', false);
+        $this->assertSame(1, substr_count($respons->getContent(), '>Ingatkan Admin<') + substr_count(preg_replace('/\s+/', ' ', $respons->getContent()), '</svg> Ingatkan Admin </button>'));
     }
 
     /**

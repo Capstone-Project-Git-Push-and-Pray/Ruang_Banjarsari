@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class PengingatController extends Controller
 {
     /**
-     * Kirim pengingat tindak lanjut ke seluruh Admin Desa untuk laporan yang belum ditanggapi (PBI #50).
+     * Kirim pengingat tindak lanjut ke seluruh Admin Desa untuk laporan yang belum ditanggapi (PBI #50, #51).
      */
     public function store(Request $request, Pengaduan $pengaduan, PengingatTindakLanjutService $pengingatService): RedirectResponse
     {
