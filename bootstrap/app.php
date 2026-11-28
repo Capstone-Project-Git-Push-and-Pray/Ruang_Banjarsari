@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Percayai header X-Forwarded-* dari reverse proxy (mis. ngrok) agar URL & skema HTTPS terdeteksi benar
+        $middleware->trustProxies(at: '*');
+
         // Daftarkan header keamanan global pada web group
         $middleware->web(append: [
             SecurityHeaders::class,
